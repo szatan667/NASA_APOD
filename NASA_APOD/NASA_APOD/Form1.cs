@@ -355,11 +355,12 @@ namespace NASA_APOD
         //Minimize to system tray
         private void windowResize(object sender, EventArgs e)
         {
-            this.Hide();
-            hidden = true;
-            myIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
-            myIcon.BalloonTipText = myIcon.Text;
-            myIcon.ShowBalloonTip(1);
+            if (this.WindowState == FormWindowState.Minimized)
+            { this.Hide();
+                hidden = true;
+                myIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
+                myIcon.BalloonTipText = myIcon.Text;
+                myIcon.ShowBalloonTip(1); }
         }
 
         private void buttonToday_Click(object sender, EventArgs e)
