@@ -43,8 +43,6 @@
             this.buttonPath = new System.Windows.Forms.Button();
             this.textPath = new System.Windows.Forms.TextBox();
             this.dialogPath = new System.Windows.Forms.FolderBrowserDialog();
-            this.checkDefaultURL = new System.Windows.Forms.CheckBox();
-            this.textDefaultURL = new System.Windows.Forms.TextBox();
             this.buttonPrev = new System.Windows.Forms.Button();
             this.buttonNext = new System.Windows.Forms.Button();
             this.buttonCopyLink = new System.Windows.Forms.Button();
@@ -62,27 +60,29 @@
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(13, 369);
+            this.progressBar.Location = new System.Drawing.Point(15, 426);
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(775, 23);
+            this.progressBar.Size = new System.Drawing.Size(899, 20);
             this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.progressBar.TabIndex = 0;
             // 
             // textURL
             // 
-            this.textURL.Location = new System.Drawing.Point(13, 12);
+            this.textURL.Location = new System.Drawing.Point(15, 14);
             this.textURL.Name = "textURL";
             this.textURL.ReadOnly = true;
-            this.textURL.Size = new System.Drawing.Size(532, 20);
+            this.textURL.Size = new System.Drawing.Size(620, 23);
             this.textURL.TabIndex = 1;
             // 
             // pictureBox
             // 
             this.pictureBox.BackColor = System.Drawing.Color.Black;
             this.pictureBox.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.pictureBox.Location = new System.Drawing.Point(13, 38);
+            this.pictureBox.ImageLocation = "";
+            this.pictureBox.Location = new System.Drawing.Point(15, 44);
             this.pictureBox.Name = "pictureBox";
-            this.pictureBox.Size = new System.Drawing.Size(442, 325);
+            this.pictureBox.Size = new System.Drawing.Size(515, 375);
+            this.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox.TabIndex = 2;
             this.pictureBox.TabStop = false;
             this.pictureBox.Visible = false;
@@ -91,9 +91,9 @@
             // buttonRefresh
             // 
             this.buttonRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonRefresh.Location = new System.Drawing.Point(713, 10);
+            this.buttonRefresh.Location = new System.Drawing.Point(827, 13);
             this.buttonRefresh.Name = "buttonRefresh";
-            this.buttonRefresh.Size = new System.Drawing.Size(75, 23);
+            this.buttonRefresh.Size = new System.Drawing.Size(87, 25);
             this.buttonRefresh.TabIndex = 3;
             this.buttonRefresh.Text = "Refresh";
             this.buttonRefresh.UseVisualStyleBackColor = true;
@@ -103,10 +103,11 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.statusBar});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 401);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 454);
             this.statusStrip1.Name = "statusStrip1";
+            this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 16, 0);
             this.statusStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.statusStrip1.Size = new System.Drawing.Size(800, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(924, 22);
             this.statusStrip1.TabIndex = 4;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -119,9 +120,9 @@
             // checkSaveToDisk
             // 
             this.checkSaveToDisk.AutoSize = true;
-            this.checkSaveToDisk.Location = new System.Drawing.Point(6, 19);
+            this.checkSaveToDisk.Location = new System.Drawing.Point(7, 22);
             this.checkSaveToDisk.Name = "checkSaveToDisk";
-            this.checkSaveToDisk.Size = new System.Drawing.Size(121, 17);
+            this.checkSaveToDisk.Size = new System.Drawing.Size(129, 19);
             this.checkSaveToDisk.TabIndex = 5;
             this.checkSaveToDisk.Text = "Save images to disk";
             this.checkSaveToDisk.UseVisualStyleBackColor = true;
@@ -138,22 +139,22 @@
             this.checkAutoRefresh.AutoSize = true;
             this.checkAutoRefresh.Checked = true;
             this.checkAutoRefresh.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkAutoRefresh.Location = new System.Drawing.Point(6, 68);
+            this.checkAutoRefresh.Location = new System.Drawing.Point(7, 78);
             this.checkAutoRefresh.Name = "checkAutoRefresh";
-            this.checkAutoRefresh.Size = new System.Drawing.Size(136, 17);
+            this.checkAutoRefresh.Size = new System.Drawing.Size(150, 19);
             this.checkAutoRefresh.TabIndex = 6;
             this.checkAutoRefresh.Text = "Auto refresh every hour";
             this.checkAutoRefresh.UseVisualStyleBackColor = true;
-            this.checkAutoRefresh.CheckedChanged += new System.EventHandler(this.checkBox2_CheckedChanged);
+            this.checkAutoRefresh.CheckedChanged += new System.EventHandler(this.checkAutoRefresh_CheckedChanged);
             // 
             // buttonPath
             // 
             this.buttonPath.Enabled = false;
             this.buttonPath.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonPath.Font = new System.Drawing.Font("Microsoft Sans Serif", 6F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonPath.Location = new System.Drawing.Point(6, 42);
+            this.buttonPath.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.buttonPath.Location = new System.Drawing.Point(7, 48);
             this.buttonPath.Name = "buttonPath";
-            this.buttonPath.Size = new System.Drawing.Size(29, 20);
+            this.buttonPath.Size = new System.Drawing.Size(35, 23);
             this.buttonPath.TabIndex = 7;
             this.buttonPath.Text = "...";
             this.buttonPath.UseVisualStyleBackColor = true;
@@ -162,39 +163,18 @@
             // textPath
             // 
             this.textPath.Enabled = false;
-            this.textPath.Location = new System.Drawing.Point(41, 42);
+            this.textPath.Location = new System.Drawing.Point(48, 48);
             this.textPath.Name = "textPath";
             this.textPath.ReadOnly = true;
-            this.textPath.Size = new System.Drawing.Size(279, 20);
+            this.textPath.Size = new System.Drawing.Size(322, 23);
             this.textPath.TabIndex = 8;
-            // 
-            // checkDefaultURL
-            // 
-            this.checkDefaultURL.AutoSize = true;
-            this.checkDefaultURL.Location = new System.Drawing.Point(171, 68);
-            this.checkDefaultURL.Name = "checkDefaultURL";
-            this.checkDefaultURL.Size = new System.Drawing.Size(149, 17);
-            this.checkDefaultURL.TabIndex = 9;
-            this.checkDefaultURL.Text = "Change default URL base";
-            this.checkDefaultURL.UseVisualStyleBackColor = true;
-            this.checkDefaultURL.Visible = false;
-            this.checkDefaultURL.CheckedChanged += new System.EventHandler(this.checkBox1_CheckedChanged);
-            // 
-            // textDefaultURL
-            // 
-            this.textDefaultURL.Enabled = false;
-            this.textDefaultURL.Location = new System.Drawing.Point(462, 314);
-            this.textDefaultURL.Name = "textDefaultURL";
-            this.textDefaultURL.Size = new System.Drawing.Size(327, 20);
-            this.textDefaultURL.TabIndex = 10;
-            this.textDefaultURL.Text = "https://apod.nasa.gov/apod/astropix.html";
             // 
             // buttonPrev
             // 
             this.buttonPrev.Enabled = false;
-            this.buttonPrev.Location = new System.Drawing.Point(461, 340);
+            this.buttonPrev.Location = new System.Drawing.Point(539, 390);
             this.buttonPrev.Name = "buttonPrev";
-            this.buttonPrev.Size = new System.Drawing.Size(110, 23);
+            this.buttonPrev.Size = new System.Drawing.Size(111, 27);
             this.buttonPrev.TabIndex = 11;
             this.buttonPrev.Text = "<< PREVIOUS";
             this.buttonPrev.UseVisualStyleBackColor = true;
@@ -203,9 +183,9 @@
             // buttonNext
             // 
             this.buttonNext.Enabled = false;
-            this.buttonNext.Location = new System.Drawing.Point(678, 340);
+            this.buttonNext.Location = new System.Drawing.Point(803, 390);
             this.buttonNext.Name = "buttonNext";
-            this.buttonNext.Size = new System.Drawing.Size(110, 23);
+            this.buttonNext.Size = new System.Drawing.Size(111, 27);
             this.buttonNext.TabIndex = 12;
             this.buttonNext.Text = "NEXT >>";
             this.buttonNext.UseVisualStyleBackColor = true;
@@ -214,9 +194,9 @@
             // buttonCopyLink
             // 
             this.buttonCopyLink.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonCopyLink.Location = new System.Drawing.Point(632, 10);
+            this.buttonCopyLink.Location = new System.Drawing.Point(734, 13);
             this.buttonCopyLink.Name = "buttonCopyLink";
-            this.buttonCopyLink.Size = new System.Drawing.Size(75, 23);
+            this.buttonCopyLink.Size = new System.Drawing.Size(87, 25);
             this.buttonCopyLink.TabIndex = 13;
             this.buttonCopyLink.Text = "Copy link";
             this.buttonCopyLink.UseVisualStyleBackColor = true;
@@ -225,9 +205,9 @@
             // buttonCopyImage
             // 
             this.buttonCopyImage.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonCopyImage.Location = new System.Drawing.Point(551, 10);
+            this.buttonCopyImage.Location = new System.Drawing.Point(641, 13);
             this.buttonCopyImage.Name = "buttonCopyImage";
-            this.buttonCopyImage.Size = new System.Drawing.Size(75, 23);
+            this.buttonCopyImage.Size = new System.Drawing.Size(87, 25);
             this.buttonCopyImage.TabIndex = 14;
             this.buttonCopyImage.Text = "Copy image";
             this.buttonCopyImage.UseVisualStyleBackColor = true;
@@ -247,9 +227,9 @@
             // buttonToday
             // 
             this.buttonToday.Enabled = false;
-            this.buttonToday.Location = new System.Drawing.Point(577, 340);
+            this.buttonToday.Location = new System.Drawing.Point(670, 390);
             this.buttonToday.Name = "buttonToday";
-            this.buttonToday.Size = new System.Drawing.Size(95, 23);
+            this.buttonToday.Size = new System.Drawing.Size(111, 27);
             this.buttonToday.TabIndex = 15;
             this.buttonToday.Text = "TODAY";
             this.buttonToday.UseVisualStyleBackColor = true;
@@ -257,15 +237,14 @@
             // 
             // groupBoxSettings
             // 
-            this.groupBoxSettings.Controls.Add(this.checkDefaultURL);
             this.groupBoxSettings.Controls.Add(this.checkAutoRefresh);
             this.groupBoxSettings.Controls.Add(this.checkSaveToDisk);
             this.groupBoxSettings.Controls.Add(this.buttonPath);
             this.groupBoxSettings.Controls.Add(this.textPath);
             this.groupBoxSettings.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.groupBoxSettings.Location = new System.Drawing.Point(461, 39);
+            this.groupBoxSettings.Location = new System.Drawing.Point(538, 45);
             this.groupBoxSettings.Name = "groupBoxSettings";
-            this.groupBoxSettings.Size = new System.Drawing.Size(326, 99);
+            this.groupBoxSettings.Size = new System.Drawing.Size(376, 104);
             this.groupBoxSettings.TabIndex = 16;
             this.groupBoxSettings.TabStop = false;
             this.groupBoxSettings.Text = "Settings";
@@ -273,25 +252,26 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(467, 145);
+            this.label1.Location = new System.Drawing.Point(545, 167);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(0, 13);
+            this.label1.Size = new System.Drawing.Size(0, 15);
             this.label1.TabIndex = 17;
             // 
             // textBoxImgDesc
             // 
-            this.textBoxImgDesc.Location = new System.Drawing.Point(462, 145);
+            this.textBoxImgDesc.Location = new System.Drawing.Point(539, 155);
             this.textBoxImgDesc.Multiline = true;
             this.textBoxImgDesc.Name = "textBoxImgDesc";
             this.textBoxImgDesc.ReadOnly = true;
-            this.textBoxImgDesc.Size = new System.Drawing.Size(325, 163);
+            this.textBoxImgDesc.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
+            this.textBoxImgDesc.Size = new System.Drawing.Size(375, 229);
             this.textBoxImgDesc.TabIndex = 18;
             // 
             // MainWindow
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(800, 423);
+            this.ClientSize = new System.Drawing.Size(924, 476);
             this.Controls.Add(this.textBoxImgDesc);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.groupBoxSettings);
@@ -300,12 +280,12 @@
             this.Controls.Add(this.buttonCopyLink);
             this.Controls.Add(this.buttonNext);
             this.Controls.Add(this.buttonPrev);
-            this.Controls.Add(this.textDefaultURL);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.buttonRefresh);
             this.Controls.Add(this.pictureBox);
             this.Controls.Add(this.textURL);
             this.Controls.Add(this.progressBar);
+            this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "MainWindow";
@@ -336,8 +316,6 @@
         private System.Windows.Forms.Button buttonPath;
         private System.Windows.Forms.TextBox textPath;
         private System.Windows.Forms.FolderBrowserDialog dialogPath;
-        private System.Windows.Forms.CheckBox checkDefaultURL;
-        private System.Windows.Forms.TextBox textDefaultURL;
         private System.Windows.Forms.Button buttonPrev;
         private System.Windows.Forms.Button buttonNext;
         private System.Windows.Forms.Button buttonCopyLink;

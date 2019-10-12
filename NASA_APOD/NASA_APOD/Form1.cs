@@ -1,28 +1,30 @@
 ﻿using System;
 using System.Drawing;
-using System.IO;
 using System.Net;
 using System.Runtime.InteropServices;
-using System.Text.RegularExpressions;
 using System.Windows.Forms;
+using Newtonsoft.Json;
 
 namespace NASA_APOD
 {
     public partial class MainWindow : Form
     {
+        //--- main window class fields ----------------------------------------------------
+
+        //API json deserialized
+        public APOD apod;
+        public string json;
+
+        //API URL
+        public const string _baseURL = "https://api.nasa.gov/planetary/apod";
+        public const string _apiKey = "DFihYXvddhhd1KnnPtw3BgSxAXlx9yHz1CSTwbN8";
+        public DateTime _apiDate;
+        public string _apiURL;
+        public WebClient _wc = new WebClient();
+
         public string pathToSave; //will hold path from folder dialog
         public string apodPath = "temp.jpg"; //default file to save
-        public string baseURL = "https://apod.nasa.gov/apod/";
-        public string apiURL = "https://api.nasa.gov/planetary/apod?api_key=DFihYXvddhhd1KnnPtw3BgSxAXlx9yHz1CSTwbN8";
-        //public string finalURL = string.Empty; //final URL of image file
         public string prevImgURL = string.Empty; //previous final URL -- if same as current, will not be refreshed automatically
-
-        public WebClient wc = new WebClient();
-
-        //public Match prevURL; //regex matches for previous and next day URLs
-        //public Match nextURL;
-
-        //string html = string.Empty; //container for html file
 
         ContextMenu myIconMenu; //context menu for tray icon
         bool hidden = false;    //main form state - hidden or not
@@ -30,7 +32,7 @@ namespace NASA_APOD
         //setup ini file to store usage statistics
         IniFile iniFile = new IniFile();
 
-        //WALLPAPER
+        //WALLPAPER related
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
         public static extern int SystemParametersInfo(
                         int uAction, int uParam,
@@ -39,6 +41,9 @@ namespace NASA_APOD
         public const int SPIF_SENDCHANGE = 0x2;
         //WALLPAPER END
 
+        //--- main class methods -----------------------------------------------------------------
+
+        //Default constructor - will create program window and set everything up
         public MainWindow()
         {
             InitializeComponent();
@@ -52,13 +57,8 @@ namespace NASA_APOD
                 iniFile.Write("lastURL", "https://apod.nasa.gov/apod/");
                 iniFile.Write("customPath", false.ToString());
             }
-            else
-            {
-                if (lastURL != textDefaultURL.Text)
-                    buttonToday.Enabled = true;
-                textDefaultURL.Text = lastURL;
-            }
 
+            //Interface items
             //add simple tray icon with "refresh" menu
             myIconMenu = new ContextMenu();
             myIconMenu.MenuItems.Add("Previous", buttonPrev_Click);
@@ -70,9 +70,22 @@ namespace NASA_APOD
             myIcon.ContextMenu = myIconMenu;
             statusBar.Text = "Ready!";
 
-            //this.WindowState = FormWindowState.Minimized;
-            //this.Hide();
-            getNASAApod(); //get the image on startup
+            //Create 'photo of the day' object and for starters set API date to today
+            apod = new APOD();
+            setAPIDate(DateTime.Today);
+
+            //Get the image on startup
+            getNASAApod();
+        }
+
+        private void setAPIDate(DateTime datetime)
+        {
+            _apiDate = datetime; //set the date
+            _apiURL = _baseURL + //put together full API URL
+                "?api_key=" + _apiKey +
+                "&date=" + _apiDate.ToString().Substring(0, 10);
+            json = _wc.DownloadString(_apiURL); //call webservice to get json
+            apod = JsonConvert.DeserializeObject<APOD>(json); //strip json to local vars
         }
 
         //Context menu "refresh" event handler
@@ -80,99 +93,44 @@ namespace NASA_APOD
         {
             getNASAApod();
         }
+        
         //Context menu "exit" event handler
         private void OnMenuExit(object sender, EventArgs e)
         {
             Application.Exit();
         }
 
-        //Main logic procedure
+        //Get the picture and possibly save it to disk (if required in GUI)
         private void getNASAApod()
         {
-            //some initial values
-            //System.Uri apodURL = new System.Uri(textDefaultURL.Text); //new url for apod pic
-            wc.DownloadProgressChanged += Wc_DownloadProgressChanged; //progress bar when downloading
-
             statusBar.Text = "Getting NASA picture of the day...";
             myIcon.Text = statusBar.Text;
 
-            //get json using NASA API
+            //Download image to picture box
             try
             {
-                string json = wc.DownloadString(apiURL);
-
-                //simple brute-force json parsing
-                string mediaType = jsonGetSingle(wc.DownloadString(apiURL), "media_type");
-                string imgTitle = jsonGetSingle(wc.DownloadString(apiURL), "title");
-                string imgDesc = jsonGetSingle(wc.DownloadString(apiURL), "explanation");
-                string imgURL = jsonGetSingle(wc.DownloadString(apiURL), "url");
-                string imgURLHD = jsonGetSingle(wc.DownloadString(apiURL), "hdurl");
-
-                //if custom path not entered, put default (system) TEMP path
-                //if (pathToSave == null)
-                //    pathToSave = System.Environment.GetEnvironmentVariable("TEMP");
-
-                //download the picture
-                //but first check if custom path for storing files was selected
-                if (pathToSave != null && imgURLHD != String.Empty) //custom path found, concatenate file name
+                //Get it from apod url, only if it's an image
+                //(sometimes they post videos)
+                if (apod.media_type == "image")
                 {
-                    int begin = imgURLHD.LastIndexOf('/') + 1;
-                    int end = imgURLHD.Length;
-                    apodPath = pathToSave + "\\" + imgURLHD.Substring(begin, end); //concatenate path with filename
-                }
+                    //Subscribe to "download progress" and "download completed" events before starting to download
+                    pictureBox.LoadProgressChanged += PictureBox_LoadProgressChanged;
+                    pictureBox.LoadCompleted += PictureBox_LoadCompleted;
 
-                if (mediaType != "image")
-                {
-                    statusBar.Text = "Not a picture?"; //nothing downloaded, just show some text
-                    myIcon.Text = statusBar.Text;
-                    myIcon.BalloonTipTitle = "Error getting the image";
-                    myIcon.BalloonTipText = statusBar.Text;
-                    myIcon.ShowBalloonTip(5);
+                    //Download the image directly to image box
+                    //"Image" property will allow to save it later
+                    pictureBox.LoadAsync(apod.hdurl);
                 }
                 else
                 {
-                    //print current image URL
-                    textURL.Text = imgURLHD;
-
-                    //save current URL as last processed URL in INI file
-                    iniFile.Write("lastURL", imgURLHD);
-
-                    //download image file, save the file to temp or destination path
-                    //download only if current URL is different than previous one
-                    //(auto-refresh the image only if it has changed)
-                    if (imgURLHD != prevImgURL)
-                    {
-                        prevImgURL = imgURLHD;
-                        wc.DownloadFileAsync(
-                            new System.Uri(imgURLHD),
-                            apodPath);
-                    }
-                    else
-                    {
-                        statusBar.Text = string.Empty;
-                        myIcon.Text = statusBar.Text;
-                    }
-
-                    //put the image to img box (done inside event handler)
-                    wc.DownloadFileCompleted += Wc_DownloadFileCompleted;
-
-                    //setup image title and description box
-                    myIcon.Text = imgTitle;
-                    label1.Text = imgTitle;
-                    myIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
-                    myIcon.BalloonTipText = imgTitle;
+                    //Not a picture today, just show some text
+                    statusBar.Text = "Sorry, no picture today.";
+                    myIcon.Text = statusBar.Text;
+                    myIcon.BalloonTipText = statusBar.Text;
                     myIcon.ShowBalloonTip(5);
-                    textBoxImgDesc.Text = imgDesc;
                 }
-
-                //now try to parse next and previous links
-                //prevURL = Regex.Match(html, "<a href.*&lt;");
-                //nextURL = Regex.Match(html, "<a href.*&gt;");
-                //if (prevURL.Value != null || prevURL.Value != string.Empty)
-                //    buttonPrev.Enabled = true;
-                //if (nextURL.Value != null || nextURL.Value != string.Empty)
-                //    buttonNext.Enabled = true;
             }
+            //Download errors
             catch (WebException e)
             {
                 statusBar.Text = e.Message;
@@ -182,67 +140,116 @@ namespace NASA_APOD
                 statusBar.Text = e.Message;
             }
         }
-        private void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+
+        //Downloa progress bar - event handler
+        private void PictureBox_LoadProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
         {
-            myIcon.Text = string.Empty;
-
-            //download complete, display the image in the image box
-            long fileLength = new FileInfo(apodPath).Length;
-
-            if (fileLength != 0)
-            {
-                pictureBox.ImageLocation = apodPath;
-                pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
-                pictureBox.Visible = true;
-
-                //and finally, set it as wallpaper
-                //build wallpaper file path
-                if (!checkSaveToDisk.Checked)
-                {
-                    apodPath = System.Reflection.Assembly.GetEntryAssembly().Location.Substring(0,
-                                System.Reflection.Assembly.GetEntryAssembly().Location.LastIndexOf("\\") + 1)
-                                + "temp.jpg";
-                }
-
-                //do actual wallpapering
-                SystemParametersInfo(SPI_SETDESKWALLPAPER,
-                    1,
-                    apodPath,
-                    SPIF_SENDCHANGE);
-
-                statusBar.Text = "Done!";
-
-                pictureBox.Invalidate();
-            }
-            else
-            {
-                pictureBox.Visible = false;
-                statusBar.Text = "Couldn't parse actual picture :(";
-            }
-        }
-        private void Wc_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
-        {
-            //update download progress bar
             progressBar.Value = e.ProgressPercentage;
         }
 
+        //Download completed event - do rest of the logic - actual wallpapering and saving to disk
+        private void PictureBox_LoadCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        {
+            pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
+            pictureBox.Visible = true;
+
+            //Save the image to disk - required to set the wallpaper
+            //even if "save to disk" is not set i GUI
+            saveToDisk();
+
+            //Before setting the wallpaper, we have to build full path of TEMP.JPG
+            //but only if not saving to custom path, because then it was already built
+            if (!checkSaveToDisk.Checked)
+                apodPath = System.Reflection.Assembly.GetEntryAssembly().Location.Substring(0,
+                           System.Reflection.Assembly.GetEntryAssembly().Location.LastIndexOf("\\") + 1)
+                         + "temp.jpg";
+
+            //do actual wallpapering
+            SystemParametersInfo(SPI_SETDESKWALLPAPER,
+                1,
+                apodPath,
+                SPIF_SENDCHANGE);
+
+            //setup UI elements
+            myIcon.Text = apod.title;
+            label1.Text = apod.title;
+            myIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
+            myIcon.BalloonTipText = apod.title;
+            myIcon.ShowBalloonTip(5);
+            textBoxImgDesc.Text = apod.explanation;
+            textURL.Text = apod.hdurl;
+            statusBar.Text = "Done!";
+
+            //save current URL as last processed URL in INI file
+            //TODO: image date would be more relevant, since we're using API now
+            iniFile.Write("lastURL", apod.hdurl);
+
+            //Enable/disable 'previous' and 'next' buttons, depending on the API date
+            //TODAY - previous enabled, today enabled, next disabled
+            if (_apiDate == DateTime.Today)
+            {
+                buttonPrev.Enabled = true;
+                buttonToday.Enabled = false;
+                buttonNext.Enabled = false;
+            }
+            else
+            //EARLIER - all enabled
+            {
+                buttonPrev.Enabled = true;
+                buttonToday.Enabled = true;
+                buttonNext.Enabled = false;
+            }
+
+            //Invalidate picture box to force redrawing, just in case
+            pictureBox.Invalidate();
+        }
+
+        //Save current image to disk
+        private void saveToDisk()
+        {
+            //First build custom path if desired
+            if (pathToSave != null && apod.hdurl != String.Empty) //custom path found, concatenate path with image filename
+            {
+                int begin = apod.hdurl.LastIndexOf('/') + 1;
+                int end = apod.hdurl.Length - begin;
+                apodPath = pathToSave + "\\" + apod.hdurl.Substring(begin, end); //concatenate path with filename
+            }
+
+            //Do actual save
+            try
+            {
+                pictureBox.Image.Save(apodPath);
+            }
+            catch (Exception e)
+            {
+                statusBar.Text = e.Message;
+            }
+        }
+
+        //Download completed - event handler
+        private void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        {
+        }
+
+        //Refresh button - simply reload current image
         private void buttonRefresh_Click(object sender, System.EventArgs e)
         {
             getNASAApod();
         }
 
+        //Timer event handler - reload image with current date
         private void timer1_Tick(object sender, System.EventArgs e)
         {
+            setAPIDate(DateTime.Today);
             getNASAApod();
         }
 
-        //Auto refresh every hour checkbox
-        private void checkBox2_CheckedChanged(object sender, System.EventArgs e)
+        //Auto refresh checkbox - enable or disable automatic refresh
+        private void checkAutoRefresh_CheckedChanged(object sender, System.EventArgs e)
         {
             if (checkAutoRefresh.Checked)
             {
                 timer1.Enabled = true;
-                textDefaultURL.Text = baseURL;
             }
             else
             {
@@ -272,7 +279,6 @@ namespace NASA_APOD
             {
                 buttonPath.Enabled = false;
                 textPath.Enabled = false;
-                //textPath.Text = null;
                 pathToSave = null;
                 apodPath = "temp.jpg";
             }
@@ -286,37 +292,6 @@ namespace NASA_APOD
             textPath.Text = pathToSave; //and display it in path text box
         }
 
-        //Default URL check box
-        private void checkBox1_CheckedChanged(object sender, System.EventArgs e)
-        {
-            if (checkDefaultURL.Checked)
-            {
-                textDefaultURL.Enabled = true;
-            }
-            else
-            {
-                textDefaultURL.Enabled = false;
-            }
-        }
-
-        //Previous button
-        private void buttonPrev_Click(object sender, System.EventArgs e)
-        {
-            //parse actual html file of previous link
-            //textDefaultURL.Text = baseURL + prevURL.Value.Substring(9, prevURL.Value.Length - 15);
-            //getNASAApod();
-            //buttonToday.Enabled = true;
-        }
-
-        //Next button
-        private void buttonNext_Click(object sender, System.EventArgs e)
-        {
-            //parse actual html file of previous link
-            //textDefaultURL.Text = baseURL + nextURL.Value.Substring(9, nextURL.Value.Length - 15);
-            //getNASAApod();
-            //buttonToday.Enabled = true;
-        }
-
         //Copy link to clipboard
         private void buttonCopyLink_Click(object sender, System.EventArgs e)
         {
@@ -326,7 +301,7 @@ namespace NASA_APOD
         //Copy image to clipboard
         private void buttonCopyImage_Click(object sender, System.EventArgs e)
         {
-            if (pictureBox.Image != null) Clipboard.SetImage(pictureBox.Image);
+            //if (pictureBox.Image != null) Clipboard.SetImage(apod.imagehd);
         }
 
         //Tray icon double-click - hide/show window
@@ -356,13 +331,39 @@ namespace NASA_APOD
                 myIcon.ShowBalloonTip(1); }
         }
 
+        //Previous button click
+        private void buttonPrev_Click(object sender, System.EventArgs e)
+        {
+            setAPIDate(_apiDate.AddDays(-1));
+            getNASAApod();
+            buttonPrev.Enabled = true;
+            buttonToday.Enabled = true;
+            buttonNext.Enabled = true;
+        }
+
+        //Next button click
+        private void buttonNext_Click(object sender, System.EventArgs e)
+        {
+            //TODO: handle today date - should be unable to go to next day
+            setAPIDate(_apiDate.AddDays(1));
+            getNASAApod();
+            buttonPrev.Enabled = true;
+            buttonToday.Enabled = true;
+            if (_apiDate == DateTime.Today) buttonNext.Enabled = false;
+            else buttonNext.Enabled = true;
+        }
+
+        //Today button click
         private void buttonToday_Click(object sender, EventArgs e)
         {
-            textDefaultURL.Text = baseURL;
+            setAPIDate(DateTime.Today);
             getNASAApod();
+            buttonPrev.Enabled = true;
+            buttonToday.Enabled = false;
             buttonNext.Enabled = false;
         }
 
+        //EXPERIMANTAL - Try to draw the title over the picture
         private void pictureBox_Paint(object sender, PaintEventArgs e)
         {/*
             //get picture box size
@@ -398,20 +399,6 @@ namespace NASA_APOD
                 TextRenderer.MeasureText(myIcon.Text, myFont).Height / 2);
             myFont.Dispose();   //release font, don't need it anymore
             */
-        }
-
-        private String jsonGetSingle(String json, String key)
-        {
-            string _key = '"' + key + '"';
-            if (json.Contains(_key))
-            {
-                int keyStartPos = json.IndexOf(_key);
-                int valueStartPos = keyStartPos + _key.Length + 2;
-                int valueLength = json.IndexOf('"', valueStartPos);
-                String outstr = json.Substring(valueStartPos, valueLength - valueStartPos);
-                return outstr;
-            }
-            else return null;
         }
     }
 }
