@@ -191,6 +191,7 @@ namespace NASA_APOD
             textBoxImgDesc.Text = apod.explanation;
             textURL.Text = apod.hdurl;
             statusBar.Text = "Done!";
+            this.Text = "NASA Astronomy Picture of the Day - " + _apiDate.ToString().Substring(0, 10);
 
             //save current URL as last processed URL in INI file
             //TODO: image date would be more relevant, since we're using API now
