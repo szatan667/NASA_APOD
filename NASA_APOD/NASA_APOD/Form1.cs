@@ -50,16 +50,16 @@ namespace NASA_APOD
 
             //read anything from INI file to check if it was already created
             //if not, write initial zero number of runs
-            var lastURL = iniFile.Read("lastURL");
+            var lastDate = iniFile.Read("lastDate");
 
-            if (lastURL == String.Empty) //write default values to INI file
+            if (lastDate == String.Empty) //write default values to INI file
             {
-                iniFile.Write("lastURL", "https://apod.nasa.gov/apod/");
-                iniFile.Write("customPath", false.ToString());
+                iniFile.Write("lastDate", DateTime.Today.ToString());
+                iniFile.Write("saveToDisk", checkSaveToDisk.Checked.ToString());
+                iniFile.Write("pathToSave", string.Empty);
             }
 
             //Interface items
-            //add simple tray icon with "refresh" menu
             myIconMenu = new ContextMenu();
             myIconMenu.MenuItems.Add("Previous", buttonPrev_Click);
             myIconMenu.MenuItems.Add("Next", buttonNext_Click);
@@ -68,11 +68,19 @@ namespace NASA_APOD
             myIconMenu.MenuItems.Add("Exit", OnMenuExit);
             myIcon.Icon = SystemIcons.Asterisk;
             myIcon.ContextMenu = myIconMenu;
+            pathToSave = iniFile.Read("pathToSave");
+            textPath.Text = pathToSave;
+            if (iniFile.Read("saveToDIsk") == "True")
+                checkSaveToDisk.Checked = true;
+            else
+                checkSaveToDisk.Checked = false;
             statusBar.Text = "Ready!";
 
             //Create 'photo of the day' object and for starters set API date to today
             apod = new APOD();
-            setAPIDate(DateTime.Today);
+
+            //setAPIDate(DateTime.Today);
+            setAPIDate(DateTime.Parse(iniFile.Read("lastDate")));
 
             //Get the image on startup
             getNASAApod();
@@ -105,6 +113,10 @@ namespace NASA_APOD
         {
             statusBar.Text = "Getting NASA picture of the day...";
             myIcon.Text = statusBar.Text;
+            buttonPrev.Enabled = false;
+            buttonToday.Enabled = false;
+            buttonNext.Enabled = false;
+            buttonRefresh.Enabled = false;
 
             //Download image to picture box
             try
@@ -182,22 +194,27 @@ namespace NASA_APOD
 
             //save current URL as last processed URL in INI file
             //TODO: image date would be more relevant, since we're using API now
-            iniFile.Write("lastURL", apod.hdurl);
+            iniFile.Write("lastDate", _apiDate.ToString());
 
             //Enable/disable 'previous' and 'next' buttons, depending on the API date
             //TODAY - previous enabled, today enabled, next disabled
             if (_apiDate == DateTime.Today)
             {
+                buttonPrev.Text = "<< " + _apiDate.AddDays(-1).ToString().Substring(0, 10); ;
                 buttonPrev.Enabled = true;
                 buttonToday.Enabled = false;
                 buttonNext.Enabled = false;
+                buttonRefresh.Enabled = true;
             }
             else
             //EARLIER - all enabled
             {
+                buttonPrev.Text = "<< " + _apiDate.AddDays(-1).ToString().Substring(0, 10);
                 buttonPrev.Enabled = true;
                 buttonToday.Enabled = true;
-                buttonNext.Enabled = false;
+                buttonNext.Text = _apiDate.AddDays(1).ToString().Substring(0, 10) + " >>";
+                buttonNext.Enabled = true;
+                buttonRefresh.Enabled = true;
             }
 
             //Invalidate picture box to force redrawing, just in case
@@ -229,12 +246,6 @@ namespace NASA_APOD
         //Download completed - event handler
         private void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
         {
-        }
-
-        //Refresh button - simply reload current image
-        private void buttonRefresh_Click(object sender, System.EventArgs e)
-        {
-            getNASAApod();
         }
 
         //Timer event handler - reload image with current date
@@ -274,6 +285,8 @@ namespace NASA_APOD
                         checkSaveToDisk.Checked = false;
                     }
                 }
+                else
+                    pathToSave = textPath.Text;
             }
             else //disable custom path
             {
@@ -282,6 +295,9 @@ namespace NASA_APOD
                 pathToSave = null;
                 apodPath = "temp.jpg";
             }
+
+            iniFile.Write("saveToDisk", checkSaveToDisk.Checked.ToString());
+            iniFile.Write("pathToSave", pathToSave);
         }
 
         //Custom path selection button
@@ -290,6 +306,8 @@ namespace NASA_APOD
             dialogPath.ShowDialog(); //display path selection dialog
             pathToSave = dialogPath.SelectedPath; //save the path
             textPath.Text = pathToSave; //and display it in path text box
+            iniFile.Write("saveToDisk", checkSaveToDisk.Checked.ToString());
+            iniFile.Write("pathToSave", pathToSave);
         }
 
         //Copy link to clipboard
@@ -336,9 +354,6 @@ namespace NASA_APOD
         {
             setAPIDate(_apiDate.AddDays(-1));
             getNASAApod();
-            buttonPrev.Enabled = true;
-            buttonToday.Enabled = true;
-            buttonNext.Enabled = true;
         }
 
         //Next button click
@@ -347,10 +362,6 @@ namespace NASA_APOD
             //TODO: handle today date - should be unable to go to next day
             setAPIDate(_apiDate.AddDays(1));
             getNASAApod();
-            buttonPrev.Enabled = true;
-            buttonToday.Enabled = true;
-            if (_apiDate == DateTime.Today) buttonNext.Enabled = false;
-            else buttonNext.Enabled = true;
         }
 
         //Today button click
@@ -358,9 +369,13 @@ namespace NASA_APOD
         {
             setAPIDate(DateTime.Today);
             getNASAApod();
-            buttonPrev.Enabled = true;
-            buttonToday.Enabled = false;
-            buttonNext.Enabled = false;
+        }
+
+        //Refresh button - simply reload current image
+        private void buttonRefresh_Click(object sender, System.EventArgs e)
+        {
+            setAPIDate(_apiDate); //just refresh json strings
+            getNASAApod();
         }
 
         //EXPERIMANTAL - Try to draw the title over the picture

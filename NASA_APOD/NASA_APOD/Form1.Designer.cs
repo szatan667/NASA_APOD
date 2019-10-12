@@ -252,19 +252,20 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(545, 167);
+            this.label1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.label1.Location = new System.Drawing.Point(536, 152);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(0, 15);
             this.label1.TabIndex = 17;
             // 
             // textBoxImgDesc
             // 
-            this.textBoxImgDesc.Location = new System.Drawing.Point(539, 155);
+            this.textBoxImgDesc.Location = new System.Drawing.Point(539, 170);
             this.textBoxImgDesc.Multiline = true;
             this.textBoxImgDesc.Name = "textBoxImgDesc";
             this.textBoxImgDesc.ReadOnly = true;
             this.textBoxImgDesc.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBoxImgDesc.Size = new System.Drawing.Size(375, 229);
+            this.textBoxImgDesc.Size = new System.Drawing.Size(375, 214);
             this.textBoxImgDesc.TabIndex = 18;
             // 
             // MainWindow
