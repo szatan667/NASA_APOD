@@ -13,15 +13,16 @@ namespace NASA_APOD
         public string pathToSave; //will hold path from folder dialog
         public string apodPath = "temp.jpg"; //default file to save
         public string baseURL = "https://apod.nasa.gov/apod/";
-        public string finalURL = string.Empty; //final URL of image file
-        public string prevFinalURL = string.Empty; //previous final URL -- if same as current, will not be refreshed automatically
+        public string apiURL = "https://api.nasa.gov/planetary/apod?api_key=DFihYXvddhhd1KnnPtw3BgSxAXlx9yHz1CSTwbN8";
+        //public string finalURL = string.Empty; //final URL of image file
+        public string prevImgURL = string.Empty; //previous final URL -- if same as current, will not be refreshed automatically
 
         public WebClient wc = new WebClient();
 
-        public Match prevURL; //regex matches for previous and next day URLs
-        public Match nextURL;
+        //public Match prevURL; //regex matches for previous and next day URLs
+        //public Match nextURL;
 
-        string html = string.Empty; //container for html file
+        //string html = string.Empty; //container for html file
 
         ContextMenu myIconMenu; //context menu for tray icon
         bool hidden = false;    //main form state - hidden or not
@@ -89,20 +90,23 @@ namespace NASA_APOD
         private void getNASAApod()
         {
             //some initial values
-            System.Uri apodURL = new System.Uri(textDefaultURL.Text); //new url for apod pic
+            //System.Uri apodURL = new System.Uri(textDefaultURL.Text); //new url for apod pic
             wc.DownloadProgressChanged += Wc_DownloadProgressChanged; //progress bar when downloading
 
             statusBar.Text = "Getting NASA picture of the day...";
             myIcon.Text = statusBar.Text;
 
-            //get the html and put it directly to string
+            //get json using NASA API
             try
             {
-                html = wc.DownloadString(apodURL);
-                //now try to parse html source in search of apod jpeg file
-                string regex = "\".*\\.jpg\"";
-                Match jpgURL = Regex.Match(html, regex);
+                string json = wc.DownloadString(apiURL);
 
+                //simple brute-force json parsing
+                string mediaType = jsonGetSingle(wc.DownloadString(apiURL), "media_type");
+                string imgTitle = jsonGetSingle(wc.DownloadString(apiURL), "title");
+                string imgDesc = jsonGetSingle(wc.DownloadString(apiURL), "explanation");
+                string imgURL = jsonGetSingle(wc.DownloadString(apiURL), "url");
+                string imgURLHD = jsonGetSingle(wc.DownloadString(apiURL), "hdurl");
 
                 //if custom path not entered, put default (system) TEMP path
                 //if (pathToSave == null)
@@ -110,39 +114,37 @@ namespace NASA_APOD
 
                 //download the picture
                 //but first check if custom path for storing files was selected
-                if (pathToSave != null && jpgURL.Value != String.Empty) //custom path found, concatenate file name
+                if (pathToSave != null && imgURLHD != String.Empty) //custom path found, concatenate file name
                 {
-                    int begin = jpgURL.Value.LastIndexOf('/') + 1;
-                    int end = jpgURL.Value.LastIndexOf('"') - begin;
-                    apodPath = pathToSave + "\\" + jpgURL.Value.Substring(begin, end); //concatenate path with filename
+                    int begin = imgURLHD.LastIndexOf('/') + 1;
+                    int end = imgURLHD.Length;
+                    apodPath = pathToSave + "\\" + imgURLHD.Substring(begin, end); //concatenate path with filename
                 }
 
-                //simple parse made above (jpgURL) may not always work, as APOD can be video or
-                //more exotic file format - in this case catch any exceptions when downloading
-                try
+                if (mediaType != "image")
                 {
-                    //concatenate final URL and put it to text box
-                    //but first things first -- sometimes the image link leads to other website
-                    //let's try to find out that
-                    if (jpgURL.Value.Substring(1, 7) == "http://" ||
-                        jpgURL.Value.Substring(1, 8) == "https://")
-                        finalURL = jpgURL.Value.Substring(1, jpgURL.Value.Length - 2);
-                    else
-                        finalURL = baseURL + jpgURL.Value.Substring(1, jpgURL.Value.Length - 2);
-
-                    textURL.Text = finalURL;
+                    statusBar.Text = "Not a picture?"; //nothing downloaded, just show some text
+                    myIcon.Text = statusBar.Text;
+                    myIcon.BalloonTipTitle = "Error getting the image";
+                    myIcon.BalloonTipText = statusBar.Text;
+                    myIcon.ShowBalloonTip(5);
+                }
+                else
+                {
+                    //print current image URL
+                    textURL.Text = imgURLHD;
 
                     //save current URL as last processed URL in INI file
-                    iniFile.Write("lastURL", textDefaultURL.Text);
+                    iniFile.Write("lastURL", imgURLHD);
 
                     //download image file, save the file to temp or destination path
                     //download only if current URL is different than previous one
                     //(auto-refresh the image only if it has changed)
-                    if (finalURL!=prevFinalURL)
+                    if (imgURLHD != prevImgURL)
                     {
-                        prevFinalURL = finalURL;
+                        prevImgURL = imgURLHD;
                         wc.DownloadFileAsync(
-                            new System.Uri(finalURL),
+                            new System.Uri(imgURLHD),
                             apodPath);
                     }
                     else
@@ -153,23 +155,23 @@ namespace NASA_APOD
 
                     //put the image to img box (done inside event handler)
                     wc.DownloadFileCompleted += Wc_DownloadFileCompleted;
-                }
-                catch (System.Exception)
-                {
-                    statusBar.Text = "Not a picture?"; //nothing downloaded, just show some text
-                    myIcon.Text = statusBar.Text;
-                    myIcon.BalloonTipTitle = "Error getting the image";
-                    myIcon.BalloonTipText = statusBar.Text;
+
+                    //setup image title and description box
+                    myIcon.Text = imgTitle;
+                    label1.Text = imgTitle;
+                    myIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
+                    myIcon.BalloonTipText = imgTitle;
                     myIcon.ShowBalloonTip(5);
+                    textBoxImgDesc.Text = imgDesc;
                 }
 
                 //now try to parse next and previous links
-                prevURL = Regex.Match(html, "<a href.*&lt;");
-                nextURL = Regex.Match(html, "<a href.*&gt;");
-                if (prevURL.Value != null || prevURL.Value != string.Empty)
-                    buttonPrev.Enabled = true;
-                if (nextURL.Value != null || nextURL.Value != string.Empty)
-                    buttonNext.Enabled = true;
+                //prevURL = Regex.Match(html, "<a href.*&lt;");
+                //nextURL = Regex.Match(html, "<a href.*&gt;");
+                //if (prevURL.Value != null || prevURL.Value != string.Empty)
+                //    buttonPrev.Enabled = true;
+                //if (nextURL.Value != null || nextURL.Value != string.Empty)
+                //    buttonNext.Enabled = true;
             }
             catch (WebException e)
             {
@@ -209,15 +211,6 @@ namespace NASA_APOD
                     SPIF_SENDCHANGE);
 
                 statusBar.Text = "Done!";
-
-                //let's parse out image description from html source
-                myIcon.Text = Regex.Match(html, "<b>.*</b>").Value.Substring(
-                    3, Regex.Match(html, "<b>.*</b>").Length - 7);
-                myIcon.Text = myIcon.Text.Trim(' ');
-                label1.Text = myIcon.Text;
-                myIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
-                myIcon.BalloonTipText = myIcon.Text;
-                myIcon.ShowBalloonTip(5);
 
                 pictureBox.Invalidate();
             }
@@ -310,18 +303,18 @@ namespace NASA_APOD
         private void buttonPrev_Click(object sender, System.EventArgs e)
         {
             //parse actual html file of previous link
-            textDefaultURL.Text = baseURL + prevURL.Value.Substring(9, prevURL.Value.Length - 15);
-            getNASAApod();
-            buttonToday.Enabled = true;
+            //textDefaultURL.Text = baseURL + prevURL.Value.Substring(9, prevURL.Value.Length - 15);
+            //getNASAApod();
+            //buttonToday.Enabled = true;
         }
 
         //Next button
         private void buttonNext_Click(object sender, System.EventArgs e)
         {
             //parse actual html file of previous link
-            textDefaultURL.Text = baseURL + nextURL.Value.Substring(9, nextURL.Value.Length - 15);
-            getNASAApod();
-            buttonToday.Enabled = true;
+            //textDefaultURL.Text = baseURL + nextURL.Value.Substring(9, nextURL.Value.Length - 15);
+            //getNASAApod();
+            //buttonToday.Enabled = true;
         }
 
         //Copy link to clipboard
@@ -405,6 +398,20 @@ namespace NASA_APOD
                 TextRenderer.MeasureText(myIcon.Text, myFont).Height / 2);
             myFont.Dispose();   //release font, don't need it anymore
             */
+        }
+
+        private String jsonGetSingle(String json, String key)
+        {
+            string _key = '"' + key + '"';
+            if (json.Contains(_key))
+            {
+                int keyStartPos = json.IndexOf(_key);
+                int valueStartPos = keyStartPos + _key.Length + 2;
+                int valueLength = json.IndexOf('"', valueStartPos);
+                String outstr = json.Substring(valueStartPos, valueLength - valueStartPos);
+                return outstr;
+            }
+            else return null;
         }
     }
 }

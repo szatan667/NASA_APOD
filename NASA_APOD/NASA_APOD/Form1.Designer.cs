@@ -54,6 +54,7 @@
             this.buttonToday = new System.Windows.Forms.Button();
             this.groupBoxSettings = new System.Windows.Forms.GroupBox();
             this.label1 = new System.Windows.Forms.Label();
+            this.textBoxImgDesc = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.groupBoxSettings.SuspendLayout();
@@ -237,8 +238,6 @@
             this.myIcon.Text = "NASA picture of the day";
             this.myIcon.Visible = true;
             this.myIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.myIcon_MouseDoubleClick);
-            this.Resize += new System.EventHandler(this.windowResize);
-
             // 
             // contextMenuStrip1
             // 
@@ -279,11 +278,21 @@
             this.label1.Size = new System.Drawing.Size(0, 13);
             this.label1.TabIndex = 17;
             // 
+            // textBoxImgDesc
+            // 
+            this.textBoxImgDesc.Location = new System.Drawing.Point(462, 145);
+            this.textBoxImgDesc.Multiline = true;
+            this.textBoxImgDesc.Name = "textBoxImgDesc";
+            this.textBoxImgDesc.ReadOnly = true;
+            this.textBoxImgDesc.Size = new System.Drawing.Size(325, 163);
+            this.textBoxImgDesc.TabIndex = 18;
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(800, 423);
+            this.Controls.Add(this.textBoxImgDesc);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.groupBoxSettings);
             this.Controls.Add(this.buttonToday);
@@ -302,6 +311,7 @@
             this.Name = "MainWindow";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "NASA Astronomy Picture of the Day";
+            this.Resize += new System.EventHandler(this.windowResize);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
             this.statusStrip1.ResumeLayout(false);
             this.statusStrip1.PerformLayout();
@@ -337,6 +347,7 @@
         private System.Windows.Forms.Button buttonToday;
         private System.Windows.Forms.GroupBox groupBoxSettings;
         private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.TextBox textBoxImgDesc;
     }
 }
 
