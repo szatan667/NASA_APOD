@@ -44,7 +44,7 @@ namespace NASA_APOD
             apiDate = datetime; //set the date
             _apiURL = _baseURL + //put together full API URL
                       "?api_key=" + _apiKey +
-                      "&date=" + apiDate.ToString().Substring(0, 10);
+                      "&date=" + apiDate.ToShortDateString();
 
             //Call websvc and strip json to local vars
             try
@@ -55,9 +55,17 @@ namespace NASA_APOD
             catch (Exception)
             {
                 _wc.Dispose();
-                throw;
+                //throw;
+                copyright = null;
+                date = null;
+                explanation = null;
+                hdurl = null;
+                media_type = null;
+                service_version = null;
+                title = null;
+                url = null;
             }
-        }
+}
 
         //--- Private methods -------------------------------------------------------
 
@@ -83,6 +91,7 @@ namespace NASA_APOD
                 int keyStartPos = json.IndexOf(_key);
                 int valueStartPos = keyStartPos + _key.Length + 2; //2 - quote and comma?
                 int valueLength = json.IndexOf('"', valueStartPos);
+                    //valueLength = json.LastIndexOf()
                 String outstr = json.Substring(valueStartPos, valueLength - valueStartPos);
                 return outstr;
             }

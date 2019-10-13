@@ -53,10 +53,9 @@
             this.groupBoxSettings = new System.Windows.Forms.GroupBox();
             this.labelImageDesc = new System.Windows.Forms.Label();
             this.textBoxImgDesc = new System.Windows.Forms.TextBox();
-            this.labelPickDate = new System.Windows.Forms.Label();
-            this.textPickDate = new System.Windows.Forms.TextBox();
             this.Calendar = new System.Windows.Forms.MonthCalendar();
             this.comboDates = new System.Windows.Forms.ComboBox();
+            this.buttonPickDate = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.groupBoxSettings.SuspendLayout();
@@ -135,7 +134,7 @@
             // timer1
             // 
             this.timer1.Enabled = true;
-            this.timer1.Interval = 3600000;
+            this.timer1.Interval = 15000;
             this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
             // 
             // checkAutoRefresh
@@ -274,26 +273,9 @@
             this.textBoxImgDesc.Size = new System.Drawing.Size(375, 167);
             this.textBoxImgDesc.TabIndex = 18;
             // 
-            // labelPickDate
-            // 
-            this.labelPickDate.AutoSize = true;
-            this.labelPickDate.Location = new System.Drawing.Point(665, 346);
-            this.labelPickDate.Name = "labelPickDate";
-            this.labelPickDate.Size = new System.Drawing.Size(67, 15);
-            this.labelPickDate.TabIndex = 19;
-            this.labelPickDate.Text = "Pick a date:";
-            // 
-            // textPickDate
-            // 
-            this.textPickDate.Location = new System.Drawing.Point(736, 343);
-            this.textPickDate.Name = "textPickDate";
-            this.textPickDate.Size = new System.Drawing.Size(100, 23);
-            this.textPickDate.TabIndex = 20;
-            this.textPickDate.Click += new System.EventHandler(this.textPickDate_Click);
-            // 
             // Calendar
             // 
-            this.Calendar.Location = new System.Drawing.Point(847, 204);
+            this.Calendar.Location = new System.Drawing.Point(724, 207);
             this.Calendar.Name = "Calendar";
             this.Calendar.TabIndex = 21;
             this.Calendar.Visible = false;
@@ -302,20 +284,29 @@
             // comboDates
             // 
             this.comboDates.FormattingEnabled = true;
-            this.comboDates.Location = new System.Drawing.Point(847, 343);
+            this.comboDates.Location = new System.Drawing.Point(724, 344);
             this.comboDates.Name = "comboDates";
-            this.comboDates.Size = new System.Drawing.Size(190, 23);
+            this.comboDates.Size = new System.Drawing.Size(313, 23);
             this.comboDates.TabIndex = 22;
-            this.comboDates.Visible = false;
+            this.comboDates.SelectedIndexChanged += new System.EventHandler(this.comboDates_SelectedIndexChanged);
+            // 
+            // buttonPickDate
+            // 
+            this.buttonPickDate.Location = new System.Drawing.Point(662, 342);
+            this.buttonPickDate.Name = "buttonPickDate";
+            this.buttonPickDate.Size = new System.Drawing.Size(56, 27);
+            this.buttonPickDate.TabIndex = 23;
+            this.buttonPickDate.Text = "Date...";
+            this.buttonPickDate.UseVisualStyleBackColor = true;
+            this.buttonPickDate.Click += new System.EventHandler(this.buttonPickDate_Click);
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1049, 458);
+            this.Controls.Add(this.buttonPickDate);
             this.Controls.Add(this.comboDates);
-            this.Controls.Add(this.textPickDate);
-            this.Controls.Add(this.labelPickDate);
             this.Controls.Add(this.labelImageDesc);
             this.Controls.Add(this.groupBoxSettings);
             this.Controls.Add(this.buttonToday);
@@ -371,10 +362,9 @@
         private System.Windows.Forms.GroupBox groupBoxSettings;
         private System.Windows.Forms.Label labelImageDesc;
         private System.Windows.Forms.TextBox textBoxImgDesc;
-        private System.Windows.Forms.Label labelPickDate;
-        private System.Windows.Forms.TextBox textPickDate;
         private System.Windows.Forms.MonthCalendar Calendar;
         private System.Windows.Forms.ComboBox comboDates;
+        private System.Windows.Forms.Button buttonPickDate;
     }
 }
 
