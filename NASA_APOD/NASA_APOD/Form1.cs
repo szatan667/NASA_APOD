@@ -22,14 +22,11 @@ namespace NASA_APOD
         //setup ini file to store usage statistics
         IniFile iniFile = new IniFile();
 
-        //WALLPAPER related
+        //Wallpapering
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern int SystemParametersInfo(
-                        int uAction, int uParam,
-                        string lpvParam, int fuWinIni);
+        public static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
         public const int SPI_SETDESKWALLPAPER = 20;
         public const int SPIF_SENDCHANGE = 0x2;
-        //WALLPAPER END
 
         //--- Main class methods -----------------------------------------------------------------
 
@@ -236,7 +233,8 @@ namespace NASA_APOD
         private void saveToDisk()
         {
             //First build custom path if desired
-            if (pathToSave != null && apod.hdurl != String.Empty) //custom path found, concatenate path with image filename
+            if ((pathToSave != null && pathToSave != string.Empty) && 
+                (apod.hdurl != null && apod.hdurl != String.Empty)) //custom path found, concatenate path with image filename
             {
                 int begin = apod.hdurl.LastIndexOf('/') + 1;
                 int end = apod.hdurl.Length - begin;
