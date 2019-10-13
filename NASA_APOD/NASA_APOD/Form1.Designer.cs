@@ -51,8 +51,12 @@
             this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.buttonToday = new System.Windows.Forms.Button();
             this.groupBoxSettings = new System.Windows.Forms.GroupBox();
-            this.label1 = new System.Windows.Forms.Label();
+            this.labelImageDesc = new System.Windows.Forms.Label();
             this.textBoxImgDesc = new System.Windows.Forms.TextBox();
+            this.labelPickDate = new System.Windows.Forms.Label();
+            this.textPickDate = new System.Windows.Forms.TextBox();
+            this.Calendar = new System.Windows.Forms.MonthCalendar();
+            this.comboDates = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.groupBoxSettings.SuspendLayout();
@@ -60,9 +64,9 @@
             // 
             // progressBar
             // 
-            this.progressBar.Location = new System.Drawing.Point(15, 426);
+            this.progressBar.Location = new System.Drawing.Point(15, 410);
             this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(899, 20);
+            this.progressBar.Size = new System.Drawing.Size(1022, 20);
             this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             this.progressBar.TabIndex = 0;
             // 
@@ -71,7 +75,7 @@
             this.textURL.Location = new System.Drawing.Point(15, 14);
             this.textURL.Name = "textURL";
             this.textURL.ReadOnly = true;
-            this.textURL.Size = new System.Drawing.Size(620, 23);
+            this.textURL.Size = new System.Drawing.Size(640, 23);
             this.textURL.TabIndex = 1;
             // 
             // pictureBox
@@ -81,7 +85,7 @@
             this.pictureBox.ImageLocation = "";
             this.pictureBox.Location = new System.Drawing.Point(15, 44);
             this.pictureBox.Name = "pictureBox";
-            this.pictureBox.Size = new System.Drawing.Size(515, 375);
+            this.pictureBox.Size = new System.Drawing.Size(640, 360);
             this.pictureBox.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pictureBox.TabIndex = 2;
             this.pictureBox.TabStop = false;
@@ -91,7 +95,7 @@
             // buttonRefresh
             // 
             this.buttonRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonRefresh.Location = new System.Drawing.Point(827, 13);
+            this.buttonRefresh.Location = new System.Drawing.Point(847, 14);
             this.buttonRefresh.Name = "buttonRefresh";
             this.buttonRefresh.Size = new System.Drawing.Size(87, 25);
             this.buttonRefresh.TabIndex = 3;
@@ -103,11 +107,11 @@
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.statusBar});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 454);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 436);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 16, 0);
             this.statusStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.statusStrip1.Size = new System.Drawing.Size(924, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(1049, 22);
             this.statusStrip1.TabIndex = 4;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -172,7 +176,7 @@
             // buttonPrev
             // 
             this.buttonPrev.Enabled = false;
-            this.buttonPrev.Location = new System.Drawing.Point(539, 390);
+            this.buttonPrev.Location = new System.Drawing.Point(661, 377);
             this.buttonPrev.Name = "buttonPrev";
             this.buttonPrev.Size = new System.Drawing.Size(111, 27);
             this.buttonPrev.TabIndex = 11;
@@ -183,7 +187,7 @@
             // buttonNext
             // 
             this.buttonNext.Enabled = false;
-            this.buttonNext.Location = new System.Drawing.Point(803, 390);
+            this.buttonNext.Location = new System.Drawing.Point(926, 377);
             this.buttonNext.Name = "buttonNext";
             this.buttonNext.Size = new System.Drawing.Size(111, 27);
             this.buttonNext.TabIndex = 12;
@@ -194,7 +198,7 @@
             // buttonCopyLink
             // 
             this.buttonCopyLink.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonCopyLink.Location = new System.Drawing.Point(734, 13);
+            this.buttonCopyLink.Location = new System.Drawing.Point(661, 14);
             this.buttonCopyLink.Name = "buttonCopyLink";
             this.buttonCopyLink.Size = new System.Drawing.Size(87, 25);
             this.buttonCopyLink.TabIndex = 13;
@@ -205,7 +209,7 @@
             // buttonCopyImage
             // 
             this.buttonCopyImage.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonCopyImage.Location = new System.Drawing.Point(641, 13);
+            this.buttonCopyImage.Location = new System.Drawing.Point(754, 14);
             this.buttonCopyImage.Name = "buttonCopyImage";
             this.buttonCopyImage.Size = new System.Drawing.Size(87, 25);
             this.buttonCopyImage.TabIndex = 14;
@@ -227,7 +231,7 @@
             // buttonToday
             // 
             this.buttonToday.Enabled = false;
-            this.buttonToday.Location = new System.Drawing.Point(670, 390);
+            this.buttonToday.Location = new System.Drawing.Point(794, 377);
             this.buttonToday.Name = "buttonToday";
             this.buttonToday.Size = new System.Drawing.Size(111, 27);
             this.buttonToday.TabIndex = 15;
@@ -242,39 +246,77 @@
             this.groupBoxSettings.Controls.Add(this.buttonPath);
             this.groupBoxSettings.Controls.Add(this.textPath);
             this.groupBoxSettings.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.groupBoxSettings.Location = new System.Drawing.Point(538, 45);
+            this.groupBoxSettings.Location = new System.Drawing.Point(661, 44);
             this.groupBoxSettings.Name = "groupBoxSettings";
             this.groupBoxSettings.Size = new System.Drawing.Size(376, 104);
             this.groupBoxSettings.TabIndex = 16;
             this.groupBoxSettings.TabStop = false;
             this.groupBoxSettings.Text = "Settings";
             // 
-            // label1
+            // labelImageDesc
             // 
-            this.label1.AutoSize = true;
-            this.label1.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.label1.Location = new System.Drawing.Point(536, 152);
-            this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(0, 15);
-            this.label1.TabIndex = 17;
+            this.labelImageDesc.AutoSize = true;
+            this.labelImageDesc.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.labelImageDesc.Location = new System.Drawing.Point(665, 151);
+            this.labelImageDesc.Name = "labelImageDesc";
+            this.labelImageDesc.Size = new System.Drawing.Size(53, 15);
+            this.labelImageDesc.TabIndex = 17;
+            this.labelImageDesc.Text = "imgdesc";
             // 
             // textBoxImgDesc
             // 
-            this.textBoxImgDesc.Location = new System.Drawing.Point(539, 170);
+            this.textBoxImgDesc.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.textBoxImgDesc.Location = new System.Drawing.Point(662, 169);
             this.textBoxImgDesc.Multiline = true;
             this.textBoxImgDesc.Name = "textBoxImgDesc";
             this.textBoxImgDesc.ReadOnly = true;
             this.textBoxImgDesc.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBoxImgDesc.Size = new System.Drawing.Size(375, 214);
+            this.textBoxImgDesc.Size = new System.Drawing.Size(375, 167);
             this.textBoxImgDesc.TabIndex = 18;
+            // 
+            // labelPickDate
+            // 
+            this.labelPickDate.AutoSize = true;
+            this.labelPickDate.Location = new System.Drawing.Point(665, 346);
+            this.labelPickDate.Name = "labelPickDate";
+            this.labelPickDate.Size = new System.Drawing.Size(67, 15);
+            this.labelPickDate.TabIndex = 19;
+            this.labelPickDate.Text = "Pick a date:";
+            // 
+            // textPickDate
+            // 
+            this.textPickDate.Location = new System.Drawing.Point(736, 343);
+            this.textPickDate.Name = "textPickDate";
+            this.textPickDate.Size = new System.Drawing.Size(100, 23);
+            this.textPickDate.TabIndex = 20;
+            this.textPickDate.Click += new System.EventHandler(this.textPickDate_Click);
+            // 
+            // Calendar
+            // 
+            this.Calendar.Location = new System.Drawing.Point(847, 204);
+            this.Calendar.Name = "Calendar";
+            this.Calendar.TabIndex = 21;
+            this.Calendar.Visible = false;
+            this.Calendar.DateSelected += new System.Windows.Forms.DateRangeEventHandler(this.Calendar_DateSelected);
+            // 
+            // comboDates
+            // 
+            this.comboDates.FormattingEnabled = true;
+            this.comboDates.Location = new System.Drawing.Point(847, 343);
+            this.comboDates.Name = "comboDates";
+            this.comboDates.Size = new System.Drawing.Size(190, 23);
+            this.comboDates.TabIndex = 22;
+            this.comboDates.Visible = false;
             // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(924, 476);
-            this.Controls.Add(this.textBoxImgDesc);
-            this.Controls.Add(this.label1);
+            this.ClientSize = new System.Drawing.Size(1049, 458);
+            this.Controls.Add(this.comboDates);
+            this.Controls.Add(this.textPickDate);
+            this.Controls.Add(this.labelPickDate);
+            this.Controls.Add(this.labelImageDesc);
             this.Controls.Add(this.groupBoxSettings);
             this.Controls.Add(this.buttonToday);
             this.Controls.Add(this.buttonCopyImage);
@@ -286,6 +328,8 @@
             this.Controls.Add(this.pictureBox);
             this.Controls.Add(this.textURL);
             this.Controls.Add(this.progressBar);
+            this.Controls.Add(this.textBoxImgDesc);
+            this.Controls.Add(this.Calendar);
             this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -325,8 +369,12 @@
         private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.Button buttonToday;
         private System.Windows.Forms.GroupBox groupBoxSettings;
-        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Label labelImageDesc;
         private System.Windows.Forms.TextBox textBoxImgDesc;
+        private System.Windows.Forms.Label labelPickDate;
+        private System.Windows.Forms.TextBox textPickDate;
+        private System.Windows.Forms.MonthCalendar Calendar;
+        private System.Windows.Forms.ComboBox comboDates;
     }
 }
 

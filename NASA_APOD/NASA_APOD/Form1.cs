@@ -3,29 +3,19 @@ using System.Drawing;
 using System.Net;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using Newtonsoft.Json;
 
 namespace NASA_APOD
 {
     public partial class MainWindow : Form
     {
-        //--- main window class fields ----------------------------------------------------
-
-        //API json deserialized
+        //Main photo of the day object
         public APOD apod;
-        public string json;
 
-        //API URL
-        public const string _baseURL = "https://api.nasa.gov/planetary/apod";
-        public const string _apiKey = "DFihYXvddhhd1KnnPtw3BgSxAXlx9yHz1CSTwbN8";
-        public DateTime _apiDate;
-        public string _apiURL;
-        public WebClient _wc = new WebClient();
-
+        //Paths
         public string pathToSave; //will hold path from folder dialog
         public string apodPath = "temp.jpg"; //default file to save
-        public string prevImgURL = string.Empty; //previous final URL -- if same as current, will not be refreshed automatically
 
+        //Interface items
         ContextMenu myIconMenu; //context menu for tray icon
         bool hidden = false;    //main form state - hidden or not
 
@@ -41,7 +31,7 @@ namespace NASA_APOD
         public const int SPIF_SENDCHANGE = 0x2;
         //WALLPAPER END
 
-        //--- main class methods -----------------------------------------------------------------
+        //--- Main class methods -----------------------------------------------------------------
 
         //Default constructor - will create program window and set everything up
         public MainWindow()
@@ -60,6 +50,7 @@ namespace NASA_APOD
             }
 
             //Interface items
+            labelImageDesc.Text = string.Empty;
             myIconMenu = new ContextMenu();
             myIconMenu.MenuItems.Add("Previous", buttonPrev_Click);
             myIconMenu.MenuItems.Add("Next", buttonNext_Click);
@@ -78,31 +69,40 @@ namespace NASA_APOD
 
             //Create 'photo of the day' object and for starters set API date to today
             apod = new APOD();
-
-            //setAPIDate(DateTime.Today);
             setAPIDate(DateTime.Parse(iniFile.Read("lastDate")));
 
             //Get the image on startup
             getNASAApod();
         }
 
+        //Set current date for API - create URL and get json
         private void setAPIDate(DateTime datetime)
         {
-            _apiDate = datetime; //set the date
-            _apiURL = _baseURL + //put together full API URL
-                "?api_key=" + _apiKey +
-                "&date=" + _apiDate.ToString().Substring(0, 10);
-            json = _wc.DownloadString(_apiURL); //call webservice to get json
-            apod = JsonConvert.DeserializeObject<APOD>(json); //strip json to local vars
+            try
+            {
+                apod.setAPIDate(datetime);
+                textPickDate.Text = apod.apiDate.ToString().Substring(0, 10);
+            }
+            catch (Exception e)
+            {
+                statusBar.Text = e.Message;
+                textPickDate.Text = apod.apiDate.ToString().Substring(0, 10);
+                apod.media_type = null;
+            }
+        }
+
+        //Fill combo box with current date and 7 days back and ahead
+        private void fillDatesCombo(DateTime datetime)
+        {
         }
 
         //Context menu "refresh" event handler
         private void OnMenuRefresh(object sender, EventArgs e)
         {
-            getNASAApod();
+            getNASAApod(); //don't change anything, just get the pic with currently set date
         }
         
-        //Context menu "exit" event handler
+        //Tray icon menu "exit" event handler
         private void OnMenuExit(object sender, EventArgs e)
         {
             Application.Exit();
@@ -135,11 +135,14 @@ namespace NASA_APOD
                 }
                 else
                 {
-                    //Not a picture today, just show some text
+                    //Not a picture today, clear the image and show some text
+                    pictureBox.Image = null;
                     statusBar.Text = "Sorry, no picture today.";
                     myIcon.Text = statusBar.Text;
                     myIcon.BalloonTipText = statusBar.Text;
                     myIcon.ShowBalloonTip(5);
+                    //Enable/disable 'previous' and 'next' buttons, depending on the API date
+                    setupButtons();
                 }
             }
             //Download errors
@@ -153,7 +156,7 @@ namespace NASA_APOD
             }
         }
 
-        //Downloa progress bar - event handler
+        //Download progress bar - event handler
         private void PictureBox_LoadProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
         {
             progressBar.Value = e.ProgressPercentage;
@@ -184,24 +187,34 @@ namespace NASA_APOD
 
             //setup UI elements
             myIcon.Text = apod.title;
-            label1.Text = apod.title;
+            labelImageDesc.Text = apod.title;
             myIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
             myIcon.BalloonTipText = apod.title;
             myIcon.ShowBalloonTip(5);
             textBoxImgDesc.Text = apod.explanation;
             textURL.Text = apod.hdurl;
             statusBar.Text = "Done!";
-            this.Text = "NASA Astronomy Picture of the Day - " + _apiDate.ToString().Substring(0, 10);
+            this.Text = "NASA Astronomy Picture of the Day - " + apod.date;
 
             //save current URL as last processed URL in INI file
             //TODO: image date would be more relevant, since we're using API now
-            iniFile.Write("lastDate", _apiDate.ToString());
+            iniFile.Write("lastDate", apod.apiDate.ToString());
 
             //Enable/disable 'previous' and 'next' buttons, depending on the API date
+            setupButtons();
+
+            //Invalidate picture box to force redrawing, just in case
+            pictureBox.Invalidate();
+        }
+
+        //Enable or disable prev/today/buttons depending on current API date
+        private void setupButtons()
+        {
+            //Enable/disable 'previous' and 'next' buttons, depending on the API date
             //TODAY - previous enabled, today enabled, next disabled
-            if (_apiDate == DateTime.Today)
+            if (apod.apiDate == DateTime.Today)
             {
-                buttonPrev.Text = "<< " + _apiDate.AddDays(-1).ToString().Substring(0, 10); ;
+                buttonPrev.Text = "<< " + apod.apiDate.AddDays(-1).ToString().Substring(0, 10); ;
                 buttonPrev.Enabled = true;
                 buttonToday.Enabled = false;
                 buttonNext.Enabled = false;
@@ -210,16 +223,13 @@ namespace NASA_APOD
             else
             //EARLIER - all enabled
             {
-                buttonPrev.Text = "<< " + _apiDate.AddDays(-1).ToString().Substring(0, 10);
+                buttonPrev.Text = "<< " + apod.apiDate.AddDays(-1).ToString().Substring(0, 10);
                 buttonPrev.Enabled = true;
                 buttonToday.Enabled = true;
-                buttonNext.Text = _apiDate.AddDays(1).ToString().Substring(0, 10) + " >>";
+                buttonNext.Text = apod.apiDate.AddDays(1).ToString().Substring(0, 10) + " >>";
                 buttonNext.Enabled = true;
                 buttonRefresh.Enabled = true;
             }
-
-            //Invalidate picture box to force redrawing, just in case
-            pictureBox.Invalidate();
         }
 
         //Save current image to disk
@@ -244,12 +254,7 @@ namespace NASA_APOD
             }
         }
 
-        //Download completed - event handler
-        private void Wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
-        {
-        }
-
-        //Timer event handler - reload image with current date
+        //Timer event handler - reload image with today date
         private void timer1_Tick(object sender, System.EventArgs e)
         {
             setAPIDate(DateTime.Today);
@@ -260,13 +265,9 @@ namespace NASA_APOD
         private void checkAutoRefresh_CheckedChanged(object sender, System.EventArgs e)
         {
             if (checkAutoRefresh.Checked)
-            {
                 timer1.Enabled = true;
-            }
             else
-            {
                 timer1.Enabled = false;
-            }
         }
 
         //Save to custom path checkbox
@@ -320,7 +321,7 @@ namespace NASA_APOD
         //Copy image to clipboard
         private void buttonCopyImage_Click(object sender, System.EventArgs e)
         {
-            //if (pictureBox.Image != null) Clipboard.SetImage(apod.imagehd);
+            if (pictureBox.Image != null) Clipboard.SetImage(pictureBox.Image);
         }
 
         //Tray icon double-click - hide/show window
@@ -353,7 +354,7 @@ namespace NASA_APOD
         //Previous button click
         private void buttonPrev_Click(object sender, System.EventArgs e)
         {
-            setAPIDate(_apiDate.AddDays(-1));
+            setAPIDate(apod.apiDate.AddDays(-1));
             getNASAApod();
         }
 
@@ -361,7 +362,7 @@ namespace NASA_APOD
         private void buttonNext_Click(object sender, System.EventArgs e)
         {
             //TODO: handle today date - should be unable to go to next day
-            setAPIDate(_apiDate.AddDays(1));
+            setAPIDate(apod.apiDate.AddDays(1));
             getNASAApod();
         }
 
@@ -375,11 +376,11 @@ namespace NASA_APOD
         //Refresh button - simply reload current image
         private void buttonRefresh_Click(object sender, System.EventArgs e)
         {
-            setAPIDate(_apiDate); //just refresh json strings
+            setAPIDate(apod.apiDate); //just refresh json strings
             getNASAApod();
         }
 
-        //EXPERIMANTAL - Try to draw the title over the picture
+        //EXPERIMANTAL - draw the title over the picture
         private void pictureBox_Paint(object sender, PaintEventArgs e)
         {/*
             //get picture box size
@@ -389,7 +390,7 @@ namespace NASA_APOD
             //(it will be ususally pic box width that determines max size)
 
             //initial font - consolas bold, 1pt
-            int fs = 1;
+            int fs = 12;
             Font myFont = new Font("Consolas", fs, FontStyle.Bold);
             Size textSize;
 
@@ -400,8 +401,8 @@ namespace NASA_APOD
                 textSize = TextRenderer.MeasureText(myIcon.Text, myFont);
             }
             //stop when text size is bigger than picture box size
-            while (textSize.Width < picSize.Width &&
-                textSize.Height < picSize.Height);
+            while (textSize.Width < picSize.Width * 0.75 &&
+                textSize.Height < picSize.Height * 0.35);
             myFont = new Font("Consolas", --fs, FontStyle.Bold);
 
             //draw text, center it using it's own size
@@ -411,10 +412,28 @@ namespace NASA_APOD
                 Brushes.Yellow,                 //text color (brush)
                 pictureBox.Width/2 -            //text X position
                 TextRenderer.MeasureText(myIcon.Text, myFont).Width / 2, 
-                pictureBox.Height/2 -           //text Y position
+                pictureBox.Height * (float)(0.90) -           //text Y position
                 TextRenderer.MeasureText(myIcon.Text, myFont).Height / 2);
             myFont.Dispose();   //release font, don't need it anymore
-            */
+        */}
+
+        //Click on date text box - show calendar
+        void textPickDate_Click(object sender, EventArgs e)
+        {
+            Calendar.ShowTodayCircle = true;
+            Calendar.BringToFront();
+            Calendar.Visible = true;
+        }
+
+        //Calendar click - set the date and get the image at once
+        private void Calendar_DateSelected(object sender, DateRangeEventArgs e)
+        {
+            Calendar.Visible = false;
+            if (Calendar.SelectionStart > DateTime.Today)
+                Calendar.SelectionStart = DateTime.Today;
+            textPickDate.Text = Calendar.SelectionStart.ToString().Substring(0, 10);
+            setAPIDate(Calendar.SelectionStart);
+            getNASAApod();
         }
     }
 }
