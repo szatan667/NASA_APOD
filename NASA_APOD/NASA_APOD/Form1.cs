@@ -42,12 +42,14 @@ namespace NASA_APOD
             if (lastDate == String.Empty) //write default values to INI file
             {
                 iniFile.Write("lastDate", DateTime.Today.ToString());
+                iniFile.Write("autoRefresh", checkAutoRefresh.Checked.ToString());
                 iniFile.Write("saveToDisk", checkSaveToDisk.Checked.ToString());
                 iniFile.Write("pathToSave", string.Empty);
             }
 
             //GUI items
             labelImageDesc.Text = string.Empty;
+            textDate.Text = string.Empty;
             myIconMenu = new ContextMenu();
             myIconMenu.MenuItems.Add("Previous", buttonPrev_Click);
             myIconMenu.MenuItems.Add("Next", buttonNext_Click);
@@ -62,36 +64,51 @@ namespace NASA_APOD
                 checkSaveToDisk.Checked = true;
             else
                 checkSaveToDisk.Checked = false;
+            if (iniFile.Read("autoRefresh") == "True")
+                checkAutoRefresh.Checked = true;
+            else
+                checkAutoRefresh.Checked = false;
             statusBar.Text = "Ready!";
 
             //Subscribe for events
             pictureBox.LoadProgressChanged += PictureBox_LoadProgressChanged;
             pictureBox.LoadCompleted += PictureBox_LoadCompleted;
-
+            
             //Create 'photo of the day' object and for starters set API date to today
             apod = new APOD();
             setAPIDate(apod, DateTime.Parse(iniFile.Read("lastDate")));
+            //apod.getImageAsync();
+            //apod.getImageHDAsync();
 
-            //Get the image on startup
-            getNASAApod();
+            //Get the image on startup, but only if API call was succesful
+            //(eg. prevent networking errors)
+            if (apod.media_type != null)
+               getNASAApod();
         }
 
         //Set current date for API - create URL and get json
         private void setAPIDate(APOD apod, DateTime datetime)
         {
+            //Clear date related GUI fields
+            textDate.ForeColor = Color.LightSlateGray;
+            textDate.Text = "Wait..";
+
             try
             {
                 apod.setAPIDate(datetime);
+                buttonPrev.Text = "<< " + apod.apiDate.AddDays(-1).ToShortDateString();
+                buttonNext.Text = apod.apiDate.AddDays(1).ToShortDateString() + " >>";
             }
             catch (Exception e)
             {
                 statusBar.Text = e.Message;
                 apod.media_type = null;
+                textDate.Text = string.Empty;
             }
         }
 
         //Fill combo box with current date and 7 days back and ahead
-        private void fillDatesCombo(DateTime datetime)
+        private void fillComboDates(DateTime datetime)
         {
             APOD _apod = new APOD(); //use API locally to get dates & descriptions
 
@@ -128,15 +145,18 @@ namespace NASA_APOD
         private void comboDates_SelectedIndexChanged(object sender, EventArgs e)
         {
             setAPIDate(apod, DateTime.Parse(comboDates.SelectedItem.ToString().Substring(0, 10)));
-            getNASAApod();
+            if (apod.media_type != null)
+                getNASAApod();
         }
 
         //Context menu "refresh" event handler
         private void OnMenuRefresh(object sender, EventArgs e)
         {
-            getNASAApod(); //don't change anything, just get the pic with currently set date
+            //don't change anything, just get the pic with currently set date
+            if (apod.media_type != null)
+                getNASAApod();
         }
-        
+
         //Tray icon menu "exit" event handler
         private void OnMenuExit(object sender, EventArgs e)
         {
@@ -171,6 +191,8 @@ namespace NASA_APOD
                     //Not a picture today, clear the image and show some text
                     pictureBox.Image = null;
                     statusBar.Text = "Sorry, no picture today.";
+                    textBoxImgDesc.Text = "(media_type = " + apod.media_type + ")";
+                    textDate.Text = string.Empty;
                     myIcon.Text = statusBar.Text;
                     myIcon.BalloonTipText = statusBar.Text;
                     myIcon.ShowBalloonTip(5);
@@ -223,20 +245,25 @@ namespace NASA_APOD
             iniFile.Write("lastDate", apod.apiDate.ToString());
 
             //Fill back/ahead dates combo box
-            fillDatesCombo(apod.apiDate);
+            //fillComboDates(apod.apiDate);
 
             //setup UI elements
             //Enable/disable 'previous' and 'next' buttons, depending on the API date
             setupButtons();
             myIcon.Text = apod.title;
             labelImageDesc.Text = apod.title;
+                if (apod.copyright != null && apod.copyright != string.Empty)
+                    labelImageDesc.Text += " ©" + apod.copyright;
+            labelImageDesc.Width = 375;
             myIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
             myIcon.BalloonTipText = apod.title;
             myIcon.ShowBalloonTip(5);
             textBoxImgDesc.Text = apod.explanation;
             textURL.Text = apod.hdurl;
             statusBar.Text = "Done!";
-            this.Text = "NASA Astronomy Picture of the Day - " + apod.date;
+            this.Text = "NASA Astronomy Picture of the Day - " + apod.apiDate.ToShortDateString();
+            textDate.ForeColor = Color.Black;
+            textDate.Text = apod.apiDate.ToShortDateString();
 
             //Invalidate picture box to force redrawing, just in case
             pictureBox.Invalidate();
@@ -249,19 +276,17 @@ namespace NASA_APOD
             //TODAY - previous enabled, today enabled, next disabled
             if (apod.apiDate == DateTime.Today)
             {
-                buttonPrev.Text = "<< " + apod.apiDate.AddDays(-1).ToShortDateString();
                 buttonPrev.Enabled = true;
                 buttonToday.Enabled = false;
+                buttonNext.Text = "NEXT >>";
                 buttonNext.Enabled = false;
                 buttonRefresh.Enabled = true;
             }
             else
             //EARLIER - all enabled
             {
-                buttonPrev.Text = "<< " + apod.apiDate.AddDays(-1).ToShortDateString();
                 buttonPrev.Enabled = true;
                 buttonToday.Enabled = true;
-                buttonNext.Text = apod.apiDate.AddDays(1).ToShortDateString() + " >>";
                 buttonNext.Enabled = true;
                 buttonRefresh.Enabled = true;
             }
@@ -296,7 +321,8 @@ namespace NASA_APOD
             if (DateTime.Today != apod.apiDate)
             {
                 setAPIDate(apod, DateTime.Today);
-                getNASAApod();
+                if (apod.media_type != null)
+                    getNASAApod();
             }
         }
 
@@ -307,6 +333,8 @@ namespace NASA_APOD
                 timer1.Enabled = true;
             else
                 timer1.Enabled = false;
+
+            iniFile.Write("autoRefresh", checkAutoRefresh.Checked.ToString());
         }
 
         //Save to custom path checkbox
@@ -394,7 +422,7 @@ namespace NASA_APOD
         private void buttonPrev_Click(object sender, System.EventArgs e)
         {
             setAPIDate(apod, apod.apiDate.AddDays(-1));
-            getNASAApod();
+                getNASAApod();
         }
 
         //Next button click
@@ -402,21 +430,23 @@ namespace NASA_APOD
         {
             //TODO: handle today date - should be unable to go to next day
             setAPIDate(apod, apod.apiDate.AddDays(1));
-            getNASAApod();
+                getNASAApod();
         }
 
         //Today button click
         private void buttonToday_Click(object sender, EventArgs e)
         {
             setAPIDate(apod, DateTime.Today);
-            getNASAApod();
+            if (apod.media_type != null)
+                getNASAApod();
         }
 
         //Refresh button - simply reload current image
         private void buttonRefresh_Click(object sender, System.EventArgs e)
         {
             setAPIDate(apod, apod.apiDate); //just refresh json strings
-            getNASAApod();
+            if (apod.media_type != null)
+                getNASAApod();
         }
 
         //EXPERIMANTAL - draw the title over the picture
@@ -463,6 +493,7 @@ namespace NASA_APOD
             {
                 Calendar.ShowTodayCircle = true;
                 Calendar.BringToFront();
+                Calendar.SetDate(apod.apiDate);
                 Calendar.Visible = true;
             }
             else
@@ -477,7 +508,8 @@ namespace NASA_APOD
                 Calendar.SelectionStart = DateTime.Today;
             comboDates.Items.Clear();
             setAPIDate(apod, Calendar.SelectionStart);
-            getNASAApod();
+            if (apod.media_type != null)
+                getNASAApod();
         }
     }
 }

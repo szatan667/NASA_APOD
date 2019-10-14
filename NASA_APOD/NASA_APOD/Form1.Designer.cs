@@ -56,6 +56,7 @@
             this.Calendar = new System.Windows.Forms.MonthCalendar();
             this.comboDates = new System.Windows.Forms.ComboBox();
             this.buttonPickDate = new System.Windows.Forms.Button();
+            this.textDate = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.groupBoxSettings.SuspendLayout();
@@ -284,10 +285,11 @@
             // comboDates
             // 
             this.comboDates.FormattingEnabled = true;
-            this.comboDates.Location = new System.Drawing.Point(724, 344);
+            this.comboDates.Location = new System.Drawing.Point(15, 410);
             this.comboDates.Name = "comboDates";
             this.comboDates.Size = new System.Drawing.Size(313, 23);
             this.comboDates.TabIndex = 22;
+            this.comboDates.Visible = false;
             this.comboDates.SelectedIndexChanged += new System.EventHandler(this.comboDates_SelectedIndexChanged);
             // 
             // buttonPickDate
@@ -300,11 +302,25 @@
             this.buttonPickDate.UseVisualStyleBackColor = true;
             this.buttonPickDate.Click += new System.EventHandler(this.buttonPickDate_Click);
             // 
+            // textDate
+            // 
+            this.textDate.BackColor = System.Drawing.SystemColors.Control;
+            this.textDate.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.textDate.ForeColor = System.Drawing.SystemColors.WindowText;
+            this.textDate.Location = new System.Drawing.Point(724, 344);
+            this.textDate.Name = "textDate";
+            this.textDate.ReadOnly = true;
+            this.textDate.Size = new System.Drawing.Size(94, 23);
+            this.textDate.TabIndex = 24;
+            this.textDate.Text = "dupa";
+            this.textDate.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1049, 458);
+            this.Controls.Add(this.textDate);
             this.Controls.Add(this.buttonPickDate);
             this.Controls.Add(this.comboDates);
             this.Controls.Add(this.labelImageDesc);
@@ -365,6 +381,7 @@
         private System.Windows.Forms.MonthCalendar Calendar;
         private System.Windows.Forms.ComboBox comboDates;
         private System.Windows.Forms.Button buttonPickDate;
+        private System.Windows.Forms.TextBox textDate;
     }
 }
 

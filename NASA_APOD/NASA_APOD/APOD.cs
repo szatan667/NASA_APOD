@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.Net;
 
 namespace NASA_APOD
@@ -21,10 +22,12 @@ namespace NASA_APOD
     {
         //--- Public fields ---------------------------------------------------------
         public DateTime apiDate;
+        public Image img, imghd;
 
         //--- Private fields --------------------------------------------------------
         private const string _baseURL = "https://api.nasa.gov/planetary/apod";
         private const string _apiKey = "DFihYXvddhhd1KnnPtw3BgSxAXlx9yHz1CSTwbN8";
+        private WebClient _wc;
 
         //--- Default constructor ---------------------------------------------------
         public APOD()
@@ -37,56 +40,96 @@ namespace NASA_APOD
         //Set current date for API - create URL and get json
         public void setAPIDate(DateTime datetime)
         {
+            if (datetime < DateTime.Parse("1995-06-16"))
+                datetime = DateTime.Parse("1995-06-16");
             string _apiURL;
-            WebClient _wc = new WebClient();
-
-            //Set the date and setup API URL
-            apiDate = datetime; //set the date for APOD object
 
             //Create API URL
             _apiURL  = _baseURL;
             _apiURL += "?api_key=" + _apiKey;
             _apiURL += "&hd=true";
-            _apiURL += "&date=" + apiDate.Year + "-";
-            if (apiDate.Month < 10) _apiURL += "0" + apiDate.Month + "-";
-            else _apiURL += apiDate.Month + "-";
-            if (apiDate.Day < 10) _apiURL += "0" + apiDate.Day;
-            else _apiURL += apiDate.Day;
+            _apiURL += "&date=" + datetime.Year + "-";
+            if (datetime.Month < 10) _apiURL += "0" + datetime.Month + "-";
+            else _apiURL += datetime.Month + "-";
+            if (datetime.Day < 10) _apiURL += "0" + datetime.Day;
+            else _apiURL += datetime.Day;
 
             //Call websvc and strip json to local vars
             try
             {
+                apiDate = datetime; //set the date for APOD object
+                _wc = new WebClient();
                 jsonDeserialize(_wc.DownloadString(_apiURL));
                 _wc.Dispose();
             }
             catch (Exception)
             {
                 _wc.Dispose();
-                //throw;
-                copyright = null;
-                date = null;
-                explanation = null;
-                hdurl = null;
-                media_type = null;
+                copyright       = null;
+                date            = null;
+                explanation     = null;
+                hdurl           = null;
+                media_type      = null;
                 service_version = null;
-                title = null;
-                url = null;
+                title           = null;
+                url             = null;
+                //throw e;
             }
-}
+        }
+
+        //Download image - standard resolution
+        public void getImage()
+        {
+            try
+            {
+                if (img != null)
+                    img.Dispose(); //trash previous image
+                _wc = new WebClient();
+                img = new Bitmap(_wc.OpenRead(url));
+                _wc.Dispose();
+            }
+            catch (Exception)
+            {
+                _wc.Dispose();
+                img.Dispose();
+                throw;
+            }
+        }
+
+        //Download image - HD resolution
+        public void getImageHD()
+        {
+            try
+            {
+                if (imghd != null)
+                    imghd.Dispose(); //trash previous image
+                _wc = new WebClient();
+                imghd = new Bitmap(_wc.OpenRead(hdurl));
+                _wc.Dispose();
+            }
+            catch (Exception)
+            {
+                _wc.Dispose();
+                imghd.Dispose();
+                throw;
+            }
+        }
 
         //--- Private methods -------------------------------------------------------
 
         //Parse APOD json
         private void jsonDeserialize(string json)
         {
-            copyright = jsonGetSingle(json, "copyright");
-            date = jsonGetSingle(json, "date");
-            explanation = jsonGetSingle(json, "explanation");
-            hdurl = jsonGetSingle(json, "hdurl");
-            media_type = jsonGetSingle(json, "media_type");
+            json = System.Text.RegularExpressions.Regex.Unescape(json); //get rid of escape slashes that API returns
+
+            copyright       = jsonGetSingle(json, "copyright");
+            date            = jsonGetSingle(json, "date");
+            explanation     = jsonGetSingle(json, "explanation");
+            hdurl           = jsonGetSingle(json, "hdurl");
+            media_type      = jsonGetSingle(json, "media_type");
             service_version = jsonGetSingle(json, "service_version");
-            title = jsonGetSingle(json, "title");
-            url = jsonGetSingle(json, "url");
+            title           = jsonGetSingle(json, "title");
+            url             = jsonGetSingle(json, "url");
         }
 
         //Parse out single field from json string
@@ -97,10 +140,12 @@ namespace NASA_APOD
             {
                 int keyStartPos = json.IndexOf(_key);
                 int valueStartPos = keyStartPos + _key.Length + 2; //2 - quote and comma?
-                int valueLength = json.IndexOf('"', valueStartPos);
-                    //valueLength = json.LastIndexOf()
-                String outstr = json.Substring(valueStartPos, valueLength - valueStartPos);
-                return outstr;
+                int valueLength = valueLength = json.IndexOf("\",", valueStartPos);
+
+                if (valueLength == -1) //last key in order, try different parse
+                    valueLength = json.IndexOf('"', valueStartPos);
+
+                return json.Substring(valueStartPos, valueLength - valueStartPos);
             }
             else return null;
         }
