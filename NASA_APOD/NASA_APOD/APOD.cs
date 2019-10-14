@@ -97,9 +97,15 @@ namespace NASA_APOD
             {
                 int keyStartPos = json.IndexOf(_key);
                 int valueStartPos = keyStartPos + _key.Length + 2; //2 - quote and comma?
-                int valueLength = json.IndexOf('"', valueStartPos);
-                    //valueLength = json.LastIndexOf()
-                String outstr = json.Substring(valueStartPos, valueLength - valueStartPos);
+                
+                // look for end of value (quote and comma) 
+                // or end of value and end of JSON (quote and closing bracket)
+                int valueLength = json.IndexOf("\",", valueStartPos);
+                if (valueLength == -1)
+                    valueLength = json.IndexOf("\"}", valueStartPos);
+                
+                // replace any \" which may occure inside of value with single quote
+                String outstr = json.Substring(valueStartPos, valueLength - valueStartPos).Replace("\\\"", "\"");
                 return outstr;
             }
             else return null;
