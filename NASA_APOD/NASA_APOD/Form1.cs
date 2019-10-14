@@ -127,8 +127,8 @@ namespace NASA_APOD
         //Date/title combo box click action
         private void comboDates_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //setAPIDate(apod, DateTime.Parse(comboDates.SelectedItem.ToString().Substring(0, 10)));
-            //getNASAApod();
+            setAPIDate(apod, DateTime.Parse(comboDates.SelectedItem.ToString().Substring(0, 10)));
+            getNASAApod();
         }
 
         //Context menu "refresh" event handler

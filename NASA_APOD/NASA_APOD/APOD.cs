@@ -41,10 +41,17 @@ namespace NASA_APOD
             WebClient _wc = new WebClient();
 
             //Set the date and setup API URL
-            apiDate = datetime; //set the date
-            _apiURL = _baseURL + //put together full API URL
-                      "?api_key=" + _apiKey +
-                      "&date=" + apiDate.ToShortDateString();
+            apiDate = datetime; //set the date for APOD object
+
+            //Create API URL
+            _apiURL  = _baseURL;
+            _apiURL += "?api_key=" + _apiKey;
+            _apiURL += "&hd=true";
+            _apiURL += "&date=" + apiDate.Year + "-";
+            if (apiDate.Month < 10) _apiURL += "0" + apiDate.Month + "-";
+            else _apiURL += apiDate.Month + "-";
+            if (apiDate.Day < 10) _apiURL += "0" + apiDate.Day;
+            else _apiURL += apiDate.Day;
 
             //Call websvc and strip json to local vars
             try
