@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Drawing;
-using System.Net;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
+using Microsoft.Win32;
 
 namespace NASA_APOD
 {
@@ -24,9 +24,11 @@ namespace NASA_APOD
 
         //Wallpapering
         [DllImport("user32.dll", CharSet = CharSet.Auto)]
-        public static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
-        public const int SPI_SETDESKWALLPAPER = 20;
-        public const int SPIF_SENDCHANGE = 0x2;
+        static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
+        const int SPI_SETDESKWALLPAPER = 20;
+        const int SPIF_SENDCHANGE = 0x2;
+        const int SPIF_UPDATEINIFILE = 0x01;
+        const int SPIF_SENDWININICHANGE = 0x02;
 
         //--- Main class methods -----------------------------------------------------------------
 
@@ -96,8 +98,9 @@ namespace NASA_APOD
             try
             {
                 apod.setAPIDate(datetime);
+                //←→►◄
                 buttonPrev.Text = "<< " + apod.apiDate.AddDays(-1).ToShortDateString();
-                buttonNext.Text = apod.apiDate.AddDays(1).ToShortDateString() + " >>";
+                buttonNext.Text = apod.apiDate.AddDays(1).ToShortDateString() + ">>";
             }
             catch (Exception e)
             {
@@ -201,10 +204,6 @@ namespace NASA_APOD
                 }
             }
             //Download errors
-            catch (WebException e)
-            {
-                statusBar.Text = e.Message;
-            }
             catch (Exception e)
             {
                 statusBar.Text = e.Message;
@@ -235,10 +234,18 @@ namespace NASA_APOD
                          + "temp.jpg";
 
             //do actual wallpapering
+            //SystemParametersInfo(SPI_SETDESKWALLPAPER,
+            //    1,
+            //    apodPath,
+            //    SPIF_SENDCHANGE);
+            RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true);
+            key.SetValue(@"WallpaperStyle", 6.ToString()); //always fit image to screen (zoom mode)
+            key.SetValue(@"TileWallpaper", 0.ToString()); //do not tile
+
             SystemParametersInfo(SPI_SETDESKWALLPAPER,
-                1,
+                0,
                 apodPath,
-                SPIF_SENDCHANGE);
+                SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
 
             //save current URL as last processed URL in INI file
             //TODO: image date would be more relevant, since we're using API now
@@ -253,7 +260,7 @@ namespace NASA_APOD
             myIcon.Text = apod.title;
             labelImageDesc.Text = apod.title;
                 if (apod.copyright != null && apod.copyright != string.Empty)
-                    labelImageDesc.Text += " ©" + apod.copyright;
+                    labelImageDesc.Text += "\n© " + apod.copyright.Replace("\n"," ");
             labelImageDesc.Width = 375;
             myIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
             myIcon.BalloonTipText = apod.title;
@@ -278,7 +285,7 @@ namespace NASA_APOD
             {
                 buttonPrev.Enabled = true;
                 buttonToday.Enabled = false;
-                buttonNext.Text = "NEXT >>";
+                buttonNext.Text = "NEXT ►►"; //←→►◄
                 buttonNext.Enabled = false;
                 buttonRefresh.Enabled = true;
             }
@@ -297,11 +304,13 @@ namespace NASA_APOD
         {
             //First build custom path if desired
             if ((pathToSave != null && pathToSave != string.Empty) && 
-                (apod.hdurl != null && apod.hdurl != String.Empty)) //custom path found, concatenate path with image filename
+                (apod.hdurl != null && apod.hdurl != string.Empty)) //custom path found, concatenate path with image filename
             {
                 int begin = apod.hdurl.LastIndexOf('/') + 1;
                 int end = apod.hdurl.Length - begin;
-                apodPath = pathToSave + "\\" + apod.hdurl.Substring(begin, end); //concatenate path with filename
+                apodPath = pathToSave + "\\" + //folder path
+                    apod.apiDate.ToShortDateString().Replace(' ','_') + '_' + //inject date string at the begining of filename
+                    apod.hdurl.Substring(begin, end); //filename from URL
             }
 
             //Do actual save
@@ -510,6 +519,12 @@ namespace NASA_APOD
             setAPIDate(apod, Calendar.SelectionStart);
             if (apod.media_type != null)
                 getNASAApod();
+        }
+
+        private void TextBoxImgDesc_MouseHover(object sender, System.EventArgs e)
+        {
+            textBoxImgDesc.Focus();
+            textBoxImgDesc.Select(0, 0);
         }
     }
 }

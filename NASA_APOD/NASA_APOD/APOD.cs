@@ -42,6 +42,7 @@ namespace NASA_APOD
         {
             if (datetime < DateTime.Parse("1995-06-16"))
                 datetime = DateTime.Parse("1995-06-16");
+
             string _apiURL;
 
             //Create API URL
@@ -133,14 +134,14 @@ namespace NASA_APOD
         }
 
         //Parse out single field from json string
-        private String jsonGetSingle(String json, String key)
+        private string jsonGetSingle(string json, string key)
         {
             string _key = '"' + key + '"'; //build key with quotes
             if (json.Contains(_key)) //if key found in json, look for it's value
             {
                 int keyStartPos = json.IndexOf(_key);
                 int valueStartPos = keyStartPos + _key.Length + 2; //2 - quote and comma?
-                int valueLength = valueLength = json.IndexOf("\",", valueStartPos);
+                int valueLength = json.IndexOf("\",", valueStartPos);
 
                 if (valueLength == -1) //last key in order, try different parse
                     valueLength = json.IndexOf('"', valueStartPos);

@@ -256,22 +256,26 @@
             // labelImageDesc
             // 
             this.labelImageDesc.AutoSize = true;
+            this.labelImageDesc.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.labelImageDesc.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.labelImageDesc.Location = new System.Drawing.Point(665, 151);
+            this.labelImageDesc.Location = new System.Drawing.Point(662, 151);
+            this.labelImageDesc.MaximumSize = new System.Drawing.Size(375, 32);
+            this.labelImageDesc.MinimumSize = new System.Drawing.Size(375, 32);
             this.labelImageDesc.Name = "labelImageDesc";
-            this.labelImageDesc.Size = new System.Drawing.Size(53, 15);
+            this.labelImageDesc.Size = new System.Drawing.Size(375, 32);
             this.labelImageDesc.TabIndex = 17;
-            this.labelImageDesc.Text = "imgdesc";
+            this.labelImageDesc.Text = "imgdesc\r\ncpy";
+            this.labelImageDesc.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
             // 
             // textBoxImgDesc
             // 
             this.textBoxImgDesc.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.textBoxImgDesc.Location = new System.Drawing.Point(662, 169);
+            this.textBoxImgDesc.Location = new System.Drawing.Point(662, 186);
             this.textBoxImgDesc.Multiline = true;
             this.textBoxImgDesc.Name = "textBoxImgDesc";
             this.textBoxImgDesc.ReadOnly = true;
             this.textBoxImgDesc.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBoxImgDesc.Size = new System.Drawing.Size(375, 167);
+            this.textBoxImgDesc.Size = new System.Drawing.Size(375, 150);
             this.textBoxImgDesc.TabIndex = 18;
             // 
             // Calendar
