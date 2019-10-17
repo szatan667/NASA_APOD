@@ -26,7 +26,8 @@ namespace NASA_APOD
 
         //--- Private fields --------------------------------------------------------
         private const string _baseURL = "https://api.nasa.gov/planetary/apod";
-        private const string _apiKey = "DFihYXvddhhd1KnnPtw3BgSxAXlx9yHz1CSTwbN8";
+        private const string _apiKeyDefault = "DFihYXvddhhd1KnnPtw3BgSxAXlx9yHz1CSTwbN8";
+        private string _apiKey;
         private WebClient _wc;
 
         //--- Default constructor ---------------------------------------------------
@@ -37,6 +38,15 @@ namespace NASA_APOD
 
         //--- Public methods --------------------------------------------------------
 
+        //Set API key
+        public void setAPIKey(string key)
+        {
+            if (key.Length == 40 || key == "DEMO_KEY")
+                _apiKey = key;
+            else
+                _apiKey = _apiKeyDefault;
+        }
+
         //Set current date for API - create URL and get json
         public void setAPIDate(DateTime datetime)
         {
@@ -44,6 +54,11 @@ namespace NASA_APOD
                 datetime = DateTime.Parse("1995-06-16");
 
             string _apiURL;
+
+            //Double check API key and fall back to default if needed
+            if (_apiKey == null || _apiKey == string.Empty || _apiKey.Length != 40)
+                if (_apiKey != "DEMO_KEY")
+                    _apiKey = _apiKeyDefault;
 
             //Create API URL
             _apiURL  = _baseURL;

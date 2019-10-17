@@ -57,9 +57,18 @@
             this.comboDates = new System.Windows.Forms.ComboBox();
             this.buttonPickDate = new System.Windows.Forms.Button();
             this.textDate = new System.Windows.Forms.TextBox();
+            this.tabControl = new System.Windows.Forms.TabControl();
+            this.tabImage = new System.Windows.Forms.TabPage();
+            this.tabSettings = new System.Windows.Forms.TabPage();
+            this.textCustomKey = new System.Windows.Forms.TextBox();
+            this.linkHowToKey = new System.Windows.Forms.LinkLabel();
+            this.checkCustomKey = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.groupBoxSettings.SuspendLayout();
+            this.tabControl.SuspendLayout();
+            this.tabImage.SuspendLayout();
+            this.tabSettings.SuspendLayout();
             this.SuspendLayout();
             // 
             // progressBar
@@ -111,7 +120,7 @@
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 16, 0);
             this.statusStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
-            this.statusStrip1.Size = new System.Drawing.Size(1049, 22);
+            this.statusStrip1.Size = new System.Drawing.Size(1046, 22);
             this.statusStrip1.TabIndex = 4;
             this.statusStrip1.Text = "statusStrip1";
             // 
@@ -124,7 +133,7 @@
             // checkSaveToDisk
             // 
             this.checkSaveToDisk.AutoSize = true;
-            this.checkSaveToDisk.Location = new System.Drawing.Point(7, 22);
+            this.checkSaveToDisk.Location = new System.Drawing.Point(6, 22);
             this.checkSaveToDisk.Name = "checkSaveToDisk";
             this.checkSaveToDisk.Size = new System.Drawing.Size(129, 19);
             this.checkSaveToDisk.TabIndex = 5;
@@ -143,7 +152,7 @@
             this.checkAutoRefresh.AutoSize = true;
             this.checkAutoRefresh.Checked = true;
             this.checkAutoRefresh.CheckState = System.Windows.Forms.CheckState.Checked;
-            this.checkAutoRefresh.Location = new System.Drawing.Point(7, 78);
+            this.checkAutoRefresh.Location = new System.Drawing.Point(6, 76);
             this.checkAutoRefresh.Name = "checkAutoRefresh";
             this.checkAutoRefresh.Size = new System.Drawing.Size(150, 19);
             this.checkAutoRefresh.TabIndex = 6;
@@ -156,7 +165,7 @@
             this.buttonPath.Enabled = false;
             this.buttonPath.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonPath.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.buttonPath.Location = new System.Drawing.Point(7, 48);
+            this.buttonPath.Location = new System.Drawing.Point(6, 47);
             this.buttonPath.Name = "buttonPath";
             this.buttonPath.Size = new System.Drawing.Size(35, 23);
             this.buttonPath.TabIndex = 7;
@@ -167,16 +176,16 @@
             // textPath
             // 
             this.textPath.Enabled = false;
-            this.textPath.Location = new System.Drawing.Point(48, 48);
+            this.textPath.Location = new System.Drawing.Point(47, 47);
             this.textPath.Name = "textPath";
             this.textPath.ReadOnly = true;
-            this.textPath.Size = new System.Drawing.Size(322, 23);
+            this.textPath.Size = new System.Drawing.Size(303, 23);
             this.textPath.TabIndex = 8;
             // 
             // buttonPrev
             // 
             this.buttonPrev.Enabled = false;
-            this.buttonPrev.Location = new System.Drawing.Point(661, 377);
+            this.buttonPrev.Location = new System.Drawing.Point(6, 298);
             this.buttonPrev.Name = "buttonPrev";
             this.buttonPrev.Size = new System.Drawing.Size(111, 27);
             this.buttonPrev.TabIndex = 11;
@@ -187,7 +196,7 @@
             // buttonNext
             // 
             this.buttonNext.Enabled = false;
-            this.buttonNext.Location = new System.Drawing.Point(926, 377);
+            this.buttonNext.Location = new System.Drawing.Point(240, 298);
             this.buttonNext.Name = "buttonNext";
             this.buttonNext.Size = new System.Drawing.Size(111, 27);
             this.buttonNext.TabIndex = 12;
@@ -231,7 +240,7 @@
             // buttonToday
             // 
             this.buttonToday.Enabled = false;
-            this.buttonToday.Location = new System.Drawing.Point(794, 377);
+            this.buttonToday.Location = new System.Drawing.Point(123, 298);
             this.buttonToday.Name = "buttonToday";
             this.buttonToday.Size = new System.Drawing.Size(111, 27);
             this.buttonToday.TabIndex = 15;
@@ -241,14 +250,18 @@
             // 
             // groupBoxSettings
             // 
+            this.groupBoxSettings.Controls.Add(this.checkCustomKey);
+            this.groupBoxSettings.Controls.Add(this.textCustomKey);
+            this.groupBoxSettings.Controls.Add(this.linkHowToKey);
             this.groupBoxSettings.Controls.Add(this.checkAutoRefresh);
             this.groupBoxSettings.Controls.Add(this.checkSaveToDisk);
             this.groupBoxSettings.Controls.Add(this.buttonPath);
             this.groupBoxSettings.Controls.Add(this.textPath);
+            this.groupBoxSettings.Enabled = false;
             this.groupBoxSettings.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.groupBoxSettings.Location = new System.Drawing.Point(661, 44);
+            this.groupBoxSettings.Location = new System.Drawing.Point(6, 6);
             this.groupBoxSettings.Name = "groupBoxSettings";
-            this.groupBoxSettings.Size = new System.Drawing.Size(376, 104);
+            this.groupBoxSettings.Size = new System.Drawing.Size(356, 319);
             this.groupBoxSettings.TabIndex = 16;
             this.groupBoxSettings.TabStop = false;
             this.groupBoxSettings.Text = "Settings";
@@ -258,11 +271,11 @@
             this.labelImageDesc.AutoSize = true;
             this.labelImageDesc.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.labelImageDesc.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.labelImageDesc.Location = new System.Drawing.Point(662, 151);
-            this.labelImageDesc.MaximumSize = new System.Drawing.Size(375, 32);
-            this.labelImageDesc.MinimumSize = new System.Drawing.Size(375, 32);
+            this.labelImageDesc.Location = new System.Drawing.Point(6, 3);
+            this.labelImageDesc.MaximumSize = new System.Drawing.Size(356, 32);
+            this.labelImageDesc.MinimumSize = new System.Drawing.Size(356, 32);
             this.labelImageDesc.Name = "labelImageDesc";
-            this.labelImageDesc.Size = new System.Drawing.Size(375, 32);
+            this.labelImageDesc.Size = new System.Drawing.Size(356, 32);
             this.labelImageDesc.TabIndex = 17;
             this.labelImageDesc.Text = "imgdesc\r\ncpy";
             this.labelImageDesc.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
@@ -270,17 +283,18 @@
             // textBoxImgDesc
             // 
             this.textBoxImgDesc.Font = new System.Drawing.Font("Segoe UI", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.textBoxImgDesc.Location = new System.Drawing.Point(662, 186);
+            this.textBoxImgDesc.Location = new System.Drawing.Point(6, 38);
             this.textBoxImgDesc.Multiline = true;
             this.textBoxImgDesc.Name = "textBoxImgDesc";
             this.textBoxImgDesc.ReadOnly = true;
             this.textBoxImgDesc.ScrollBars = System.Windows.Forms.ScrollBars.Vertical;
-            this.textBoxImgDesc.Size = new System.Drawing.Size(375, 150);
+            this.textBoxImgDesc.Size = new System.Drawing.Size(356, 221);
             this.textBoxImgDesc.TabIndex = 18;
+            this.textBoxImgDesc.MouseHover += new System.EventHandler(this.TextBoxImgDesc_MouseHover);
             // 
             // Calendar
             // 
-            this.Calendar.Location = new System.Drawing.Point(724, 207);
+            this.Calendar.Location = new System.Drawing.Point(68, 128);
             this.Calendar.Name = "Calendar";
             this.Calendar.TabIndex = 21;
             this.Calendar.Visible = false;
@@ -298,7 +312,7 @@
             // 
             // buttonPickDate
             // 
-            this.buttonPickDate.Location = new System.Drawing.Point(662, 342);
+            this.buttonPickDate.Location = new System.Drawing.Point(6, 265);
             this.buttonPickDate.Name = "buttonPickDate";
             this.buttonPickDate.Size = new System.Drawing.Size(56, 27);
             this.buttonPickDate.TabIndex = 23;
@@ -311,7 +325,7 @@
             this.textDate.BackColor = System.Drawing.SystemColors.Control;
             this.textDate.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.textDate.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.textDate.Location = new System.Drawing.Point(724, 344);
+            this.textDate.Location = new System.Drawing.Point(68, 267);
             this.textDate.Name = "textDate";
             this.textDate.ReadOnly = true;
             this.textDate.Size = new System.Drawing.Size(94, 23);
@@ -319,31 +333,94 @@
             this.textDate.Text = "dupa";
             this.textDate.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
+            // tabControl
+            // 
+            this.tabControl.Controls.Add(this.tabImage);
+            this.tabControl.Controls.Add(this.tabSettings);
+            this.tabControl.Location = new System.Drawing.Point(661, 45);
+            this.tabControl.Name = "tabControl";
+            this.tabControl.SelectedIndex = 0;
+            this.tabControl.Size = new System.Drawing.Size(376, 359);
+            this.tabControl.TabIndex = 25;
+            // 
+            // tabImage
+            // 
+            this.tabImage.Controls.Add(this.labelImageDesc);
+            this.tabImage.Controls.Add(this.textDate);
+            this.tabImage.Controls.Add(this.textBoxImgDesc);
+            this.tabImage.Controls.Add(this.buttonPickDate);
+            this.tabImage.Controls.Add(this.buttonPrev);
+            this.tabImage.Controls.Add(this.buttonNext);
+            this.tabImage.Controls.Add(this.buttonToday);
+            this.tabImage.Controls.Add(this.Calendar);
+            this.tabImage.Location = new System.Drawing.Point(4, 24);
+            this.tabImage.Name = "tabImage";
+            this.tabImage.Padding = new System.Windows.Forms.Padding(3);
+            this.tabImage.Size = new System.Drawing.Size(368, 331);
+            this.tabImage.TabIndex = 0;
+            this.tabImage.Text = "Image of the day";
+            this.tabImage.UseVisualStyleBackColor = true;
+            // 
+            // tabSettings
+            // 
+            this.tabSettings.Controls.Add(this.groupBoxSettings);
+            this.tabSettings.Location = new System.Drawing.Point(4, 24);
+            this.tabSettings.Name = "tabSettings";
+            this.tabSettings.Padding = new System.Windows.Forms.Padding(3);
+            this.tabSettings.Size = new System.Drawing.Size(368, 331);
+            this.tabSettings.TabIndex = 1;
+            this.tabSettings.Text = "Settings";
+            this.tabSettings.UseVisualStyleBackColor = true;
+            // 
+            // textCustomKey
+            // 
+            this.textCustomKey.Location = new System.Drawing.Point(6, 126);
+            this.textCustomKey.MaxLength = 40;
+            this.textCustomKey.Name = "textCustomKey";
+            this.textCustomKey.Size = new System.Drawing.Size(344, 23);
+            this.textCustomKey.TabIndex = 10;
+            this.textCustomKey.TextChanged += new System.EventHandler(this.textCustomKey_TextChanged);
+            // 
+            // linkHowToKey
+            // 
+            this.linkHowToKey.AutoSize = true;
+            this.linkHowToKey.Location = new System.Drawing.Point(6, 152);
+            this.linkHowToKey.Name = "linkHowToKey";
+            this.linkHowToKey.Size = new System.Drawing.Size(147, 15);
+            this.linkHowToKey.TabIndex = 11;
+            this.linkHowToKey.TabStop = true;
+            this.linkHowToKey.Text = "How do I get my own key?";
+            this.linkHowToKey.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkHowToKey_LinkClicked);
+            // 
+            // checkCustomKey
+            // 
+            this.checkCustomKey.AutoSize = true;
+            this.checkCustomKey.Location = new System.Drawing.Point(6, 101);
+            this.checkCustomKey.Name = "checkCustomKey";
+            this.checkCustomKey.Size = new System.Drawing.Size(130, 19);
+            this.checkCustomKey.TabIndex = 9;
+            this.checkCustomKey.Text = "Use custom API key";
+            this.checkCustomKey.UseVisualStyleBackColor = true;
+            this.checkCustomKey.CheckedChanged += new System.EventHandler(this.checkCustomKey_CheckedChanged);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1049, 458);
-            this.Controls.Add(this.textDate);
-            this.Controls.Add(this.buttonPickDate);
+            this.ClientSize = new System.Drawing.Size(1046, 458);
+            this.Controls.Add(this.tabControl);
             this.Controls.Add(this.comboDates);
-            this.Controls.Add(this.labelImageDesc);
-            this.Controls.Add(this.groupBoxSettings);
-            this.Controls.Add(this.buttonToday);
             this.Controls.Add(this.buttonCopyImage);
             this.Controls.Add(this.buttonCopyLink);
-            this.Controls.Add(this.buttonNext);
-            this.Controls.Add(this.buttonPrev);
             this.Controls.Add(this.statusStrip1);
             this.Controls.Add(this.buttonRefresh);
             this.Controls.Add(this.pictureBox);
             this.Controls.Add(this.textURL);
             this.Controls.Add(this.progressBar);
-            this.Controls.Add(this.textBoxImgDesc);
-            this.Controls.Add(this.Calendar);
             this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
+            this.MaximizeBox = false;
             this.Name = "MainWindow";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "NASA Astronomy Picture of the Day";
@@ -353,6 +430,10 @@
             this.statusStrip1.PerformLayout();
             this.groupBoxSettings.ResumeLayout(false);
             this.groupBoxSettings.PerformLayout();
+            this.tabControl.ResumeLayout(false);
+            this.tabImage.ResumeLayout(false);
+            this.tabImage.PerformLayout();
+            this.tabSettings.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -386,6 +467,11 @@
         private System.Windows.Forms.ComboBox comboDates;
         private System.Windows.Forms.Button buttonPickDate;
         private System.Windows.Forms.TextBox textDate;
+        private System.Windows.Forms.TabControl tabControl;
+        private System.Windows.Forms.TabPage tabImage;
+        private System.Windows.Forms.TabPage tabSettings;
+        private System.Windows.Forms.CheckBox checkCustomKey;
+        private System.Windows.Forms.TextBox textCustomKey;
+        private System.Windows.Forms.LinkLabel linkHowToKey;
     }
 }
-

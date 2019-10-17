@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
@@ -47,9 +48,18 @@ namespace NASA_APOD
                 iniFile.Write("autoRefresh", checkAutoRefresh.Checked.ToString());
                 iniFile.Write("saveToDisk", checkSaveToDisk.Checked.ToString());
                 iniFile.Write("pathToSave", string.Empty);
+                iniFile.Write("useCustomKey", "False");
+                iniFile.Write("customKey", string.Empty);
             }
 
             //GUI items
+            LinkLabel.Link lnk = new LinkLabel.Link();
+            lnk.LinkData = "https://api.nasa.gov/#signUp";
+            linkHowToKey.Links.Add(lnk);
+            foreach (Control ctl in tabSettings.Controls)
+            {
+                ctl.Enabled = true;
+            }
             labelImageDesc.Text = string.Empty;
             textDate.Text = string.Empty;
             myIconMenu = new ContextMenu();
@@ -70,6 +80,18 @@ namespace NASA_APOD
                 checkAutoRefresh.Checked = true;
             else
                 checkAutoRefresh.Checked = false;
+            if (iniFile.Read("useCustomKey") == "True")
+            {
+                checkCustomKey.Checked = true;
+                textCustomKey.Enabled = true;
+            }
+            else
+            {
+                checkCustomKey.Checked = false;
+                textCustomKey.Enabled = false;
+            }
+            textCustomKey.Text = iniFile.Read("customKey");
+
             statusBar.Text = "Ready!";
 
             //Subscribe for events
@@ -77,10 +99,11 @@ namespace NASA_APOD
             pictureBox.LoadCompleted += PictureBox_LoadCompleted;
             
             //Create 'photo of the day' object and for starters set API date to today
+            //at this point we should have custom key read from settings
+            //if not, default one will be used
             apod = new APOD();
+            apod.setAPIKey(textCustomKey.Text);
             setAPIDate(apod, DateTime.Parse(iniFile.Read("lastDate")));
-            //apod.getImageAsync();
-            //apod.getImageHDAsync();
 
             //Get the image on startup, but only if API call was succesful
             //(eg. prevent networking errors)
@@ -521,10 +544,32 @@ namespace NASA_APOD
                 getNASAApod();
         }
 
+        //Just move your mouse over the description to be able to scroll it
         private void TextBoxImgDesc_MouseHover(object sender, System.EventArgs e)
         {
             textBoxImgDesc.Focus();
             textBoxImgDesc.Select(0, 0);
+        }
+
+        //Go to 'how to' link
+        private void linkHowToKey_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        {
+            Process.Start(e.Link.LinkData as string);
+        }
+
+        //Use custom key checkbox
+        private void checkCustomKey_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkCustomKey.Checked) textCustomKey.Enabled = true;
+            else textCustomKey.Enabled = false;
+
+            iniFile.Write("useCustomKey", checkCustomKey.Checked.ToString());
+        }
+
+        //Custom key value - save in INI file
+        private void textCustomKey_TextChanged(object sender, EventArgs e)
+        {
+            iniFile.Write("customKey", textCustomKey.Text);
         }
     }
 }
