@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Drawing;
 using System.Net;
 
 namespace NASA_APOD
@@ -22,7 +21,6 @@ namespace NASA_APOD
     {
         //--- Public fields ---------------------------------------------------------
         public DateTime apiDate;
-        public Image img, imghd;
 
         //--- Private fields --------------------------------------------------------
         private const string _baseURL = "https://api.nasa.gov/planetary/apod";
@@ -34,6 +32,22 @@ namespace NASA_APOD
         public APOD()
         {
             //nothing special...
+        }
+
+        //--- Dispose stuff ---------------------------------------------------------
+        protected virtual void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                // dispose managed resources
+                _wc.Dispose();
+            }
+            // free native resources
+        }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
         //--- Public methods --------------------------------------------------------
@@ -90,44 +104,6 @@ namespace NASA_APOD
                 title           = null;
                 url             = null;
                 //throw e;
-            }
-        }
-
-        //Download image - standard resolution
-        public void getImage()
-        {
-            try
-            {
-                if (img != null)
-                    img.Dispose(); //trash previous image
-                _wc = new WebClient();
-                img = new Bitmap(_wc.OpenRead(url));
-                _wc.Dispose();
-            }
-            catch (Exception)
-            {
-                _wc.Dispose();
-                img.Dispose();
-                throw;
-            }
-        }
-
-        //Download image - HD resolution
-        public void getImageHD()
-        {
-            try
-            {
-                if (imghd != null)
-                    imghd.Dispose(); //trash previous image
-                _wc = new WebClient();
-                imghd = new Bitmap(_wc.OpenRead(hdurl));
-                _wc.Dispose();
-            }
-            catch (Exception)
-            {
-                _wc.Dispose();
-                imghd.Dispose();
-                throw;
             }
         }
 
