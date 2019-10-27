@@ -48,27 +48,32 @@
             this.buttonCopyLink = new System.Windows.Forms.Button();
             this.buttonCopyImage = new System.Windows.Forms.Button();
             this.myIcon = new System.Windows.Forms.NotifyIcon(this.components);
-            this.contextMenuStrip1 = new System.Windows.Forms.ContextMenuStrip(this.components);
             this.buttonToday = new System.Windows.Forms.Button();
             this.groupBoxSettings = new System.Windows.Forms.GroupBox();
+            this.textGrabAll = new System.Windows.Forms.TextBox();
+            this.buttonGrabAll = new System.Windows.Forms.Button();
+            this.checkCustomKey = new System.Windows.Forms.CheckBox();
+            this.textCustomKey = new System.Windows.Forms.TextBox();
+            this.linkHowToKey = new System.Windows.Forms.LinkLabel();
             this.labelImageDesc = new System.Windows.Forms.Label();
             this.textBoxImgDesc = new System.Windows.Forms.TextBox();
             this.Calendar = new System.Windows.Forms.MonthCalendar();
-            this.comboDates = new System.Windows.Forms.ComboBox();
             this.buttonPickDate = new System.Windows.Forms.Button();
             this.textDate = new System.Windows.Forms.TextBox();
             this.tabControl = new System.Windows.Forms.TabControl();
             this.tabImage = new System.Windows.Forms.TabPage();
             this.tabSettings = new System.Windows.Forms.TabPage();
-            this.textCustomKey = new System.Windows.Forms.TextBox();
-            this.linkHowToKey = new System.Windows.Forms.LinkLabel();
-            this.checkCustomKey = new System.Windows.Forms.CheckBox();
+            this.tabHistory = new System.Windows.Forms.TabPage();
+            this.listHistory = new System.Windows.Forms.ListView();
+            this.colDate = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.colTitle = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.groupBoxSettings.SuspendLayout();
             this.tabControl.SuspendLayout();
             this.tabImage.SuspendLayout();
             this.tabSettings.SuspendLayout();
+            this.tabHistory.SuspendLayout();
             this.SuspendLayout();
             // 
             // progressBar
@@ -99,7 +104,6 @@
             this.pictureBox.TabIndex = 2;
             this.pictureBox.TabStop = false;
             this.pictureBox.Visible = false;
-            this.pictureBox.Paint += new System.Windows.Forms.PaintEventHandler(this.pictureBox_Paint);
             // 
             // buttonRefresh
             // 
@@ -232,11 +236,6 @@
             this.myIcon.Visible = true;
             this.myIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.myIcon_MouseDoubleClick);
             // 
-            // contextMenuStrip1
-            // 
-            this.contextMenuStrip1.Name = "contextMenuStrip1";
-            this.contextMenuStrip1.Size = new System.Drawing.Size(61, 4);
-            // 
             // buttonToday
             // 
             this.buttonToday.Enabled = false;
@@ -250,6 +249,8 @@
             // 
             // groupBoxSettings
             // 
+            this.groupBoxSettings.Controls.Add(this.textGrabAll);
+            this.groupBoxSettings.Controls.Add(this.buttonGrabAll);
             this.groupBoxSettings.Controls.Add(this.checkCustomKey);
             this.groupBoxSettings.Controls.Add(this.textCustomKey);
             this.groupBoxSettings.Controls.Add(this.linkHowToKey);
@@ -265,6 +266,55 @@
             this.groupBoxSettings.TabIndex = 16;
             this.groupBoxSettings.TabStop = false;
             this.groupBoxSettings.Text = "Settings";
+            // 
+            // textGrabAll
+            // 
+            this.textGrabAll.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
+            this.textGrabAll.Location = new System.Drawing.Point(7, 293);
+            this.textGrabAll.Name = "textGrabAll";
+            this.textGrabAll.Size = new System.Drawing.Size(343, 23);
+            this.textGrabAll.TabIndex = 13;
+            // 
+            // buttonGrabAll
+            // 
+            this.buttonGrabAll.Location = new System.Drawing.Point(6, 264);
+            this.buttonGrabAll.Name = "buttonGrabAll";
+            this.buttonGrabAll.Size = new System.Drawing.Size(344, 23);
+            this.buttonGrabAll.TabIndex = 12;
+            this.buttonGrabAll.Text = "EXPERIMENTAL - grab whole archive";
+            this.buttonGrabAll.UseVisualStyleBackColor = true;
+            this.buttonGrabAll.Click += new System.EventHandler(this.buttonGrabAll_Click);
+            // 
+            // checkCustomKey
+            // 
+            this.checkCustomKey.AutoSize = true;
+            this.checkCustomKey.Location = new System.Drawing.Point(6, 101);
+            this.checkCustomKey.Name = "checkCustomKey";
+            this.checkCustomKey.Size = new System.Drawing.Size(130, 19);
+            this.checkCustomKey.TabIndex = 9;
+            this.checkCustomKey.Text = "Use custom API key";
+            this.checkCustomKey.UseVisualStyleBackColor = true;
+            this.checkCustomKey.CheckedChanged += new System.EventHandler(this.checkCustomKey_CheckedChanged);
+            // 
+            // textCustomKey
+            // 
+            this.textCustomKey.Location = new System.Drawing.Point(6, 126);
+            this.textCustomKey.MaxLength = 40;
+            this.textCustomKey.Name = "textCustomKey";
+            this.textCustomKey.Size = new System.Drawing.Size(344, 23);
+            this.textCustomKey.TabIndex = 10;
+            this.textCustomKey.TextChanged += new System.EventHandler(this.textCustomKey_TextChanged);
+            // 
+            // linkHowToKey
+            // 
+            this.linkHowToKey.AutoSize = true;
+            this.linkHowToKey.Location = new System.Drawing.Point(6, 152);
+            this.linkHowToKey.Name = "linkHowToKey";
+            this.linkHowToKey.Size = new System.Drawing.Size(147, 15);
+            this.linkHowToKey.TabIndex = 11;
+            this.linkHowToKey.TabStop = true;
+            this.linkHowToKey.Text = "How do I get my own key?";
+            this.linkHowToKey.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkHowToKey_LinkClicked);
             // 
             // labelImageDesc
             // 
@@ -300,16 +350,6 @@
             this.Calendar.Visible = false;
             this.Calendar.DateSelected += new System.Windows.Forms.DateRangeEventHandler(this.Calendar_DateSelected);
             // 
-            // comboDates
-            // 
-            this.comboDates.FormattingEnabled = true;
-            this.comboDates.Location = new System.Drawing.Point(15, 410);
-            this.comboDates.Name = "comboDates";
-            this.comboDates.Size = new System.Drawing.Size(313, 23);
-            this.comboDates.TabIndex = 22;
-            this.comboDates.Visible = false;
-            this.comboDates.SelectedIndexChanged += new System.EventHandler(this.comboDates_SelectedIndexChanged);
-            // 
             // buttonPickDate
             // 
             this.buttonPickDate.Location = new System.Drawing.Point(6, 265);
@@ -330,13 +370,14 @@
             this.textDate.ReadOnly = true;
             this.textDate.Size = new System.Drawing.Size(94, 23);
             this.textDate.TabIndex = 24;
-            this.textDate.Text = "dupa";
+            this.textDate.Text = "lalamido";
             this.textDate.TextAlign = System.Windows.Forms.HorizontalAlignment.Center;
             // 
             // tabControl
             // 
             this.tabControl.Controls.Add(this.tabImage);
             this.tabControl.Controls.Add(this.tabSettings);
+            this.tabControl.Controls.Add(this.tabHistory);
             this.tabControl.Location = new System.Drawing.Point(661, 45);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
@@ -372,36 +413,40 @@
             this.tabSettings.Text = "Settings";
             this.tabSettings.UseVisualStyleBackColor = true;
             // 
-            // textCustomKey
+            // tabHistory
             // 
-            this.textCustomKey.Location = new System.Drawing.Point(6, 126);
-            this.textCustomKey.MaxLength = 40;
-            this.textCustomKey.Name = "textCustomKey";
-            this.textCustomKey.Size = new System.Drawing.Size(344, 23);
-            this.textCustomKey.TabIndex = 10;
-            this.textCustomKey.TextChanged += new System.EventHandler(this.textCustomKey_TextChanged);
+            this.tabHistory.Controls.Add(this.listHistory);
+            this.tabHistory.Location = new System.Drawing.Point(4, 24);
+            this.tabHistory.Name = "tabHistory";
+            this.tabHistory.Padding = new System.Windows.Forms.Padding(3);
+            this.tabHistory.Size = new System.Drawing.Size(368, 331);
+            this.tabHistory.TabIndex = 2;
+            this.tabHistory.Text = "History";
+            this.tabHistory.UseVisualStyleBackColor = true;
             // 
-            // linkHowToKey
+            // listHistory
             // 
-            this.linkHowToKey.AutoSize = true;
-            this.linkHowToKey.Location = new System.Drawing.Point(6, 152);
-            this.linkHowToKey.Name = "linkHowToKey";
-            this.linkHowToKey.Size = new System.Drawing.Size(147, 15);
-            this.linkHowToKey.TabIndex = 11;
-            this.linkHowToKey.TabStop = true;
-            this.linkHowToKey.Text = "How do I get my own key?";
-            this.linkHowToKey.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkHowToKey_LinkClicked);
+            this.listHistory.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.colDate,
+            this.colTitle});
+            this.listHistory.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listHistory.Location = new System.Drawing.Point(3, 3);
+            this.listHistory.Name = "listHistory";
+            this.listHistory.Size = new System.Drawing.Size(362, 325);
+            this.listHistory.TabIndex = 0;
+            this.listHistory.UseCompatibleStateImageBehavior = false;
+            this.listHistory.View = System.Windows.Forms.View.Details;
+            this.listHistory.DoubleClick += new System.EventHandler(this.listHistory_DoubleClick);
             // 
-            // checkCustomKey
+            // colDate
             // 
-            this.checkCustomKey.AutoSize = true;
-            this.checkCustomKey.Location = new System.Drawing.Point(6, 101);
-            this.checkCustomKey.Name = "checkCustomKey";
-            this.checkCustomKey.Size = new System.Drawing.Size(130, 19);
-            this.checkCustomKey.TabIndex = 9;
-            this.checkCustomKey.Text = "Use custom API key";
-            this.checkCustomKey.UseVisualStyleBackColor = true;
-            this.checkCustomKey.CheckedChanged += new System.EventHandler(this.checkCustomKey_CheckedChanged);
+            this.colDate.Text = "(date)";
+            this.colDate.Width = 105;
+            // 
+            // colTitle
+            // 
+            this.colTitle.Text = "(title)";
+            this.colTitle.Width = 150;
             // 
             // MainWindow
             // 
@@ -409,7 +454,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1046, 458);
             this.Controls.Add(this.tabControl);
-            this.Controls.Add(this.comboDates);
             this.Controls.Add(this.buttonCopyImage);
             this.Controls.Add(this.buttonCopyLink);
             this.Controls.Add(this.statusStrip1);
@@ -434,9 +478,15 @@
             this.tabImage.ResumeLayout(false);
             this.tabImage.PerformLayout();
             this.tabSettings.ResumeLayout(false);
+            this.tabHistory.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
+        }
+
+        private void PictureBox_LoadCompleted1(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        {
+            throw new System.NotImplementedException();
         }
 
         #endregion
@@ -458,13 +508,11 @@
         private System.Windows.Forms.Button buttonCopyLink;
         private System.Windows.Forms.Button buttonCopyImage;
         private System.Windows.Forms.NotifyIcon myIcon;
-        private System.Windows.Forms.ContextMenuStrip contextMenuStrip1;
         private System.Windows.Forms.Button buttonToday;
         private System.Windows.Forms.GroupBox groupBoxSettings;
         private System.Windows.Forms.Label labelImageDesc;
         private System.Windows.Forms.TextBox textBoxImgDesc;
         private System.Windows.Forms.MonthCalendar Calendar;
-        private System.Windows.Forms.ComboBox comboDates;
         private System.Windows.Forms.Button buttonPickDate;
         private System.Windows.Forms.TextBox textDate;
         private System.Windows.Forms.TabControl tabControl;
@@ -473,5 +521,11 @@
         private System.Windows.Forms.CheckBox checkCustomKey;
         private System.Windows.Forms.TextBox textCustomKey;
         private System.Windows.Forms.LinkLabel linkHowToKey;
+        private System.Windows.Forms.TabPage tabHistory;
+        private System.Windows.Forms.ListView listHistory;
+        private System.Windows.Forms.ColumnHeader colDate;
+        private System.Windows.Forms.ColumnHeader colTitle;
+        private System.Windows.Forms.Button buttonGrabAll;
+        private System.Windows.Forms.TextBox textGrabAll;
     }
 }

@@ -26,7 +26,7 @@ namespace NASA_APOD
         private const string _baseURL = "https://api.nasa.gov/planetary/apod";
         private const string _apiKeyDefault = "DFihYXvddhhd1KnnPtw3BgSxAXlx9yHz1CSTwbN8";
         private string _apiKey;
-        private WebClient _wc;
+        private static readonly WebClient _wc = new WebClient();
 
         //--- Default constructor ---------------------------------------------------
         public APOD()
@@ -87,12 +87,11 @@ namespace NASA_APOD
             //Call websvc and strip json to local vars
             try
             {
+                string json = _wc.DownloadString(_apiURL);
+                jsonDeserialize(json);
                 apiDate = datetime; //set the date for APOD object
-                _wc = new WebClient();
-                jsonDeserialize(_wc.DownloadString(_apiURL));
-                _wc.Dispose();
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 _wc.Dispose();
                 copyright       = null;
@@ -103,7 +102,7 @@ namespace NASA_APOD
                 service_version = null;
                 title           = null;
                 url             = null;
-                //throw e;
+                throw e;
             }
         }
 
