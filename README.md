@@ -7,3 +7,4 @@ NASA_APOD - simple wallpaper app using NASA's Astronomy Picture of the Day resou
 * browse through the archive
 
 ![NASA_APOD](NASA_APOD.PNG?raw=true "NASA_APOD")
+![NASA_APOD](SETTINGS.PNG?raw=true "NASA_APOD")      ![NASA_APOD](HISTORY.PNG?raw=true "NASA_APOD")
