@@ -33,14 +33,18 @@ namespace NASA_APOD
         const int SPIF_UPDATEINIFILE = 0x01;
         const int SPIF_SENDWININICHANGE = 0x02;
 
-        //Logging switch (maybe should be parsed from cmd line)
-        bool logging = true;
+        //Logging switch - disabled on startup, requires cmd line param to be enabled
+        bool logging = false;
 
         //--- Main class methods -----------------------------------------------------------------
 
         //Default constructor - will create program window and set everything up
         public MainWindow()
         {
+            //Enable logging if required - just pass anything as pgm parameter
+            if (Environment.GetCommandLineArgs().Length > 1)
+                logging = true;
+
             Log("\n--- PROGRAM START -----------------------------------------------");
             Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
             Log("initializing...");
