@@ -34,6 +34,7 @@
             this.pictureBox = new System.Windows.Forms.PictureBox();
             this.buttonRefresh = new System.Windows.Forms.Button();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
+            this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.statusBar = new System.Windows.Forms.ToolStripStatusLabel();
             this.checkSaveToDisk = new System.Windows.Forms.CheckBox();
             this.timer1 = new System.Windows.Forms.Timer(this.components);
@@ -65,7 +66,6 @@
             this.listHistory = new System.Windows.Forms.ListView();
             this.colDate = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colTitle = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.groupBoxSettings.SuspendLayout();
@@ -119,6 +119,12 @@
             this.statusStrip1.Size = new System.Drawing.Size(1046, 22);
             this.statusStrip1.TabIndex = 4;
             this.statusStrip1.Text = "statusStrip1";
+            // 
+            // progressBar
+            // 
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(128, 16);
+            this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             // 
             // statusBar
             // 
@@ -254,7 +260,7 @@
             this.groupBoxSettings.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.groupBoxSettings.Location = new System.Drawing.Point(6, 6);
             this.groupBoxSettings.Name = "groupBoxSettings";
-            this.groupBoxSettings.Size = new System.Drawing.Size(356, 319);
+            this.groupBoxSettings.Size = new System.Drawing.Size(356, 253);
             this.groupBoxSettings.TabIndex = 16;
             this.groupBoxSettings.TabStop = false;
             this.groupBoxSettings.Text = "Settings";
@@ -433,12 +439,6 @@
             // 
             this.colTitle.Text = "(title)";
             this.colTitle.Width = 150;
-            // 
-            // progressBar
-            // 
-            this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(128, 16);
-            this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
             // 
             // MainWindow
             // 
