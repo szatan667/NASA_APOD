@@ -159,7 +159,7 @@ namespace NASA_APOD
             listHistory.Columns[0].Text = "Date";
             listHistory.Columns[1].Text = "Title";
             listHistory.Items.Clear();
-            statusBar.Text = "Getting history items...";
+            statusBar.Text = "Getting history items... (0/0)";
 
             //Some history setup
             byte maxDays = 8; //how many history items
