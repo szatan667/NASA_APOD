@@ -30,8 +30,6 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainWindow));
-            this.progressBar = new System.Windows.Forms.ProgressBar();
             this.textURL = new System.Windows.Forms.TextBox();
             this.pictureBox = new System.Windows.Forms.PictureBox();
             this.buttonRefresh = new System.Windows.Forms.Button();
@@ -67,6 +65,7 @@
             this.listHistory = new System.Windows.Forms.ListView();
             this.colDate = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colTitle = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.groupBoxSettings.SuspendLayout();
@@ -75,14 +74,6 @@
             this.tabSettings.SuspendLayout();
             this.tabHistory.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // progressBar
-            // 
-            this.progressBar.Location = new System.Drawing.Point(15, 410);
-            this.progressBar.Name = "progressBar";
-            this.progressBar.Size = new System.Drawing.Size(1022, 20);
-            this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
-            this.progressBar.TabIndex = 0;
             // 
             // textURL
             // 
@@ -119,8 +110,9 @@
             // statusStrip1
             // 
             this.statusStrip1.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.progressBar,
             this.statusBar});
-            this.statusStrip1.Location = new System.Drawing.Point(0, 436);
+            this.statusStrip1.Location = new System.Drawing.Point(0, 414);
             this.statusStrip1.Name = "statusStrip1";
             this.statusStrip1.Padding = new System.Windows.Forms.Padding(1, 0, 16, 0);
             this.statusStrip1.RenderMode = System.Windows.Forms.ToolStripRenderMode.Professional;
@@ -189,7 +181,7 @@
             // buttonPrev
             // 
             this.buttonPrev.Enabled = false;
-            this.buttonPrev.Location = new System.Drawing.Point(6, 298);
+            this.buttonPrev.Location = new System.Drawing.Point(661, 377);
             this.buttonPrev.Name = "buttonPrev";
             this.buttonPrev.Size = new System.Drawing.Size(111, 27);
             this.buttonPrev.TabIndex = 11;
@@ -200,7 +192,7 @@
             // buttonNext
             // 
             this.buttonNext.Enabled = false;
-            this.buttonNext.Location = new System.Drawing.Point(240, 298);
+            this.buttonNext.Location = new System.Drawing.Point(926, 377);
             this.buttonNext.Name = "buttonNext";
             this.buttonNext.Size = new System.Drawing.Size(111, 27);
             this.buttonNext.TabIndex = 12;
@@ -239,7 +231,7 @@
             // buttonToday
             // 
             this.buttonToday.Enabled = false;
-            this.buttonToday.Location = new System.Drawing.Point(123, 298);
+            this.buttonToday.Location = new System.Drawing.Point(793, 377);
             this.buttonToday.Name = "buttonToday";
             this.buttonToday.Size = new System.Drawing.Size(111, 27);
             this.buttonToday.TabIndex = 15;
@@ -344,7 +336,7 @@
             // 
             // Calendar
             // 
-            this.Calendar.Location = new System.Drawing.Point(68, 128);
+            this.Calendar.Location = new System.Drawing.Point(723, 208);
             this.Calendar.Name = "Calendar";
             this.Calendar.TabIndex = 21;
             this.Calendar.Visible = false;
@@ -352,7 +344,7 @@
             // 
             // buttonPickDate
             // 
-            this.buttonPickDate.Location = new System.Drawing.Point(6, 265);
+            this.buttonPickDate.Location = new System.Drawing.Point(661, 344);
             this.buttonPickDate.Name = "buttonPickDate";
             this.buttonPickDate.Size = new System.Drawing.Size(56, 27);
             this.buttonPickDate.TabIndex = 23;
@@ -365,7 +357,7 @@
             this.textDate.BackColor = System.Drawing.SystemColors.Control;
             this.textDate.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.textDate.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.textDate.Location = new System.Drawing.Point(68, 267);
+            this.textDate.Location = new System.Drawing.Point(723, 347);
             this.textDate.Name = "textDate";
             this.textDate.ReadOnly = true;
             this.textDate.Size = new System.Drawing.Size(94, 23);
@@ -381,23 +373,17 @@
             this.tabControl.Location = new System.Drawing.Point(661, 45);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(376, 359);
+            this.tabControl.Size = new System.Drawing.Size(376, 293);
             this.tabControl.TabIndex = 25;
             // 
             // tabImage
             // 
             this.tabImage.Controls.Add(this.labelImageDesc);
-            this.tabImage.Controls.Add(this.textDate);
             this.tabImage.Controls.Add(this.textBoxImgDesc);
-            this.tabImage.Controls.Add(this.buttonPickDate);
-            this.tabImage.Controls.Add(this.buttonPrev);
-            this.tabImage.Controls.Add(this.buttonNext);
-            this.tabImage.Controls.Add(this.buttonToday);
-            this.tabImage.Controls.Add(this.Calendar);
             this.tabImage.Location = new System.Drawing.Point(4, 24);
             this.tabImage.Name = "tabImage";
             this.tabImage.Padding = new System.Windows.Forms.Padding(3);
-            this.tabImage.Size = new System.Drawing.Size(368, 331);
+            this.tabImage.Size = new System.Drawing.Size(368, 265);
             this.tabImage.TabIndex = 0;
             this.tabImage.Text = "Image of the day";
             this.tabImage.UseVisualStyleBackColor = true;
@@ -408,7 +394,7 @@
             this.tabSettings.Location = new System.Drawing.Point(4, 24);
             this.tabSettings.Name = "tabSettings";
             this.tabSettings.Padding = new System.Windows.Forms.Padding(3);
-            this.tabSettings.Size = new System.Drawing.Size(368, 331);
+            this.tabSettings.Size = new System.Drawing.Size(368, 265);
             this.tabSettings.TabIndex = 1;
             this.tabSettings.Text = "Settings";
             this.tabSettings.UseVisualStyleBackColor = true;
@@ -419,7 +405,7 @@
             this.tabHistory.Location = new System.Drawing.Point(4, 24);
             this.tabHistory.Name = "tabHistory";
             this.tabHistory.Padding = new System.Windows.Forms.Padding(3);
-            this.tabHistory.Size = new System.Drawing.Size(368, 331);
+            this.tabHistory.Size = new System.Drawing.Size(368, 265);
             this.tabHistory.TabIndex = 2;
             this.tabHistory.Text = "History";
             this.tabHistory.UseVisualStyleBackColor = true;
@@ -432,7 +418,7 @@
             this.listHistory.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listHistory.Location = new System.Drawing.Point(3, 3);
             this.listHistory.Name = "listHistory";
-            this.listHistory.Size = new System.Drawing.Size(362, 325);
+            this.listHistory.Size = new System.Drawing.Size(362, 259);
             this.listHistory.TabIndex = 0;
             this.listHistory.UseCompatibleStateImageBehavior = false;
             this.listHistory.View = System.Windows.Forms.View.Details;
@@ -448,22 +434,32 @@
             this.colTitle.Text = "(title)";
             this.colTitle.Width = 150;
             // 
+            // progressBar
+            // 
+            this.progressBar.Name = "progressBar";
+            this.progressBar.Size = new System.Drawing.Size(128, 16);
+            this.progressBar.Style = System.Windows.Forms.ProgressBarStyle.Continuous;
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1046, 458);
+            this.ClientSize = new System.Drawing.Size(1046, 436);
             this.Controls.Add(this.tabControl);
+            this.Controls.Add(this.textDate);
+            this.Controls.Add(this.Calendar);
             this.Controls.Add(this.buttonCopyImage);
             this.Controls.Add(this.buttonCopyLink);
+            this.Controls.Add(this.buttonPickDate);
             this.Controls.Add(this.statusStrip1);
+            this.Controls.Add(this.buttonNext);
+            this.Controls.Add(this.buttonPrev);
+            this.Controls.Add(this.buttonToday);
             this.Controls.Add(this.buttonRefresh);
             this.Controls.Add(this.pictureBox);
             this.Controls.Add(this.textURL);
-            this.Controls.Add(this.progressBar);
             this.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
             this.Name = "MainWindow";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
@@ -490,8 +486,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.ProgressBar progressBar;
         private System.Windows.Forms.TextBox textURL;
         private System.Windows.Forms.PictureBox pictureBox;
         private System.Windows.Forms.Button buttonRefresh;
@@ -527,5 +521,6 @@
         private System.Windows.Forms.ColumnHeader colTitle;
         private System.Windows.Forms.Button buttonGrabAll;
         private System.Windows.Forms.TextBox textGrabAll;
+        private System.Windows.Forms.ToolStripProgressBar progressBar;
     }
 }

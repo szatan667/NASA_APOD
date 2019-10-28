@@ -83,7 +83,8 @@ namespace NASA_APOD
             myIconMenu.MenuItems.Add("Next", buttonNext_Click);
             myIconMenu.MenuItems.Add("Today", OnMenuToday);
             myIconMenu.MenuItems.Add("Exit", OnMenuExit);
-            myIcon.Icon = SystemIcons.Asterisk;
+            myIcon.Icon = Properties.Resources.NASA;
+            this.Icon = Properties.Resources.NASA;
             myIcon.ContextMenu = myIconMenu;
             pathToSave = iniFile.Read("pathToSave");
             textPath.Text = pathToSave;
@@ -154,27 +155,35 @@ namespace NASA_APOD
             APOD _apod = new APOD(); //local APOD just to get img title list
             _apod.setAPIKey(textCustomKey.Text);
 
-            //Column headers
+            //Column headers and rest of GUI
             listHistory.Columns[0].Text = "Date";
             listHistory.Columns[1].Text = "Title";
             listHistory.Items.Clear();
+            statusBar.Text = "Getting history items...";
 
-            int cnt = 0; //items loaded
-            int daysback = 0;
-            while (cnt < 5) //go a month back
+            //Some history setup
+            byte maxDays = 8; //how many history items
+            byte cnt = 0; //items loaded
+            int daysback = 0; //count days bacwards
+
+            //Now go back in time and fetch history items
+            while (cnt < maxDays)
             {
-                _apod.setAPIDate(apod.apiDate.AddDays(-daysback)); //go 'cnt' number of days back
+                _apod.setAPIDate(apod.apiDate.AddDays(-daysback)); //go back further back in time
                 if (_apod.media_type == "image") //add item only if media is image
                 {
                     listHistory.Items.Add(_apod.apiDate.ToShortDateString());
                     listHistory.Items[cnt].SubItems.Add(_apod.title);
                     cnt++;
+                    progressBar.Value = 100 * cnt / maxDays;
+                    statusBar.Text = "Getting history items... (" + cnt + "/" + maxDays + ")";
                     Log("History item added " + _apod.date);
                 }
                 daysback++;
             }
             _apod.Dispose(); //destroy local APOD
             listHistory.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+            statusBar.Text = string.Empty;
         }
 
         //Set current date for API - create URL and get json
@@ -298,6 +307,7 @@ namespace NASA_APOD
             //Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
 
             progressBar.Value = e.ProgressPercentage;
+            statusBar.Text = "Getting NASA picture of the day... " + e.ProgressPercentage + "%";
         }
 
         //Download completed event - do rest of the logic - actual wallpapering and saving to disk
@@ -351,7 +361,9 @@ namespace NASA_APOD
             textBoxImgDesc.Text = apod.explanation;
             textURL.Text = apod.hdurl;
             statusBar.Text = "Done!";
-            this.Text = "NASA Astronomy Picture of the Day - " + apod.apiDate.ToShortDateString();
+            this.Text = "NASA Astronomy Picture of the Day - " +
+                apod.apiDate.ToShortDateString() + " - " +
+                apod.title;
             textDate.ForeColor = Color.Black;
             textDate.Text = apod.apiDate.ToShortDateString();
 
