@@ -30,6 +30,30 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.Windows.Forms.ListViewItem listViewItem9 = new System.Windows.Forms.ListViewItem(new string[] {
+            "copyright",
+            ""}, -1);
+            System.Windows.Forms.ListViewItem listViewItem10 = new System.Windows.Forms.ListViewItem(new string[] {
+            "date",
+            ""}, -1);
+            System.Windows.Forms.ListViewItem listViewItem11 = new System.Windows.Forms.ListViewItem(new string[] {
+            "explanation",
+            ""}, -1);
+            System.Windows.Forms.ListViewItem listViewItem12 = new System.Windows.Forms.ListViewItem(new string[] {
+            "hdurl",
+            ""}, -1);
+            System.Windows.Forms.ListViewItem listViewItem13 = new System.Windows.Forms.ListViewItem(new string[] {
+            "media_type",
+            ""}, -1);
+            System.Windows.Forms.ListViewItem listViewItem14 = new System.Windows.Forms.ListViewItem(new string[] {
+            "service_version",
+            ""}, -1);
+            System.Windows.Forms.ListViewItem listViewItem15 = new System.Windows.Forms.ListViewItem(new string[] {
+            "title",
+            ""}, -1);
+            System.Windows.Forms.ListViewItem listViewItem16 = new System.Windows.Forms.ListViewItem(new string[] {
+            "url",
+            ""}, -1);
             this.textURL = new System.Windows.Forms.TextBox();
             this.pictureBox = new System.Windows.Forms.PictureBox();
             this.buttonRefresh = new System.Windows.Forms.Button();
@@ -66,6 +90,10 @@
             this.listHistory = new System.Windows.Forms.ListView();
             this.colDate = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.colTitle = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.tabDebug = new System.Windows.Forms.TabPage();
+            this.listDebug = new System.Windows.Forms.ListView();
+            this.debugField = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.debugValue = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.groupBoxSettings.SuspendLayout();
@@ -73,6 +101,7 @@
             this.tabImage.SuspendLayout();
             this.tabSettings.SuspendLayout();
             this.tabHistory.SuspendLayout();
+            this.tabDebug.SuspendLayout();
             this.SuspendLayout();
             // 
             // textURL
@@ -268,14 +297,14 @@
             // textGrabAll
             // 
             this.textGrabAll.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
-            this.textGrabAll.Location = new System.Drawing.Point(7, 293);
+            this.textGrabAll.Location = new System.Drawing.Point(6, 224);
             this.textGrabAll.Name = "textGrabAll";
-            this.textGrabAll.Size = new System.Drawing.Size(343, 23);
+            this.textGrabAll.Size = new System.Drawing.Size(344, 23);
             this.textGrabAll.TabIndex = 13;
             // 
             // buttonGrabAll
             // 
-            this.buttonGrabAll.Location = new System.Drawing.Point(6, 264);
+            this.buttonGrabAll.Location = new System.Drawing.Point(6, 195);
             this.buttonGrabAll.Name = "buttonGrabAll";
             this.buttonGrabAll.Size = new System.Drawing.Size(344, 23);
             this.buttonGrabAll.TabIndex = 12;
@@ -363,7 +392,7 @@
             this.textDate.BackColor = System.Drawing.SystemColors.Control;
             this.textDate.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.textDate.ForeColor = System.Drawing.SystemColors.WindowText;
-            this.textDate.Location = new System.Drawing.Point(723, 347);
+            this.textDate.Location = new System.Drawing.Point(723, 346);
             this.textDate.Name = "textDate";
             this.textDate.ReadOnly = true;
             this.textDate.Size = new System.Drawing.Size(94, 23);
@@ -376,6 +405,7 @@
             this.tabControl.Controls.Add(this.tabImage);
             this.tabControl.Controls.Add(this.tabSettings);
             this.tabControl.Controls.Add(this.tabHistory);
+            this.tabControl.Controls.Add(this.tabDebug);
             this.tabControl.Location = new System.Drawing.Point(661, 45);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
@@ -440,6 +470,48 @@
             this.colTitle.Text = "(title)";
             this.colTitle.Width = 150;
             // 
+            // tabDebug
+            // 
+            this.tabDebug.Controls.Add(this.listDebug);
+            this.tabDebug.Location = new System.Drawing.Point(4, 24);
+            this.tabDebug.Name = "tabDebug";
+            this.tabDebug.Padding = new System.Windows.Forms.Padding(3);
+            this.tabDebug.Size = new System.Drawing.Size(368, 265);
+            this.tabDebug.TabIndex = 3;
+            this.tabDebug.Text = "Debug";
+            this.tabDebug.UseVisualStyleBackColor = true;
+            // 
+            // listDebug
+            // 
+            this.listDebug.Alignment = System.Windows.Forms.ListViewAlignment.Default;
+            this.listDebug.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
+            this.debugField,
+            this.debugValue});
+            this.listDebug.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listDebug.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
+            listViewItem9,
+            listViewItem10,
+            listViewItem11,
+            listViewItem12,
+            listViewItem13,
+            listViewItem14,
+            listViewItem15,
+            listViewItem16});
+            this.listDebug.Location = new System.Drawing.Point(3, 3);
+            this.listDebug.Name = "listDebug";
+            this.listDebug.Size = new System.Drawing.Size(362, 259);
+            this.listDebug.TabIndex = 0;
+            this.listDebug.UseCompatibleStateImageBehavior = false;
+            this.listDebug.View = System.Windows.Forms.View.Details;
+            // 
+            // debugField
+            // 
+            this.debugField.Text = "field";
+            // 
+            // debugValue
+            // 
+            this.debugValue.Text = "value";
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -475,6 +547,7 @@
             this.tabImage.PerformLayout();
             this.tabSettings.ResumeLayout(false);
             this.tabHistory.ResumeLayout(false);
+            this.tabDebug.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -522,5 +595,9 @@
         private System.Windows.Forms.Button buttonGrabAll;
         private System.Windows.Forms.TextBox textGrabAll;
         private System.Windows.Forms.ToolStripProgressBar progressBar;
+        private System.Windows.Forms.TabPage tabDebug;
+        private System.Windows.Forms.ListView listDebug;
+        private System.Windows.Forms.ColumnHeader debugField;
+        private System.Windows.Forms.ColumnHeader debugValue;
     }
 }

@@ -26,7 +26,9 @@ namespace NASA_APOD
         IniFile iniFile = new IniFile();
 
         //Wallpapering
-        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        [DllImport("kernel32.dll")]
+        static extern uint GetLastError();
+        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
         const int SPI_SETDESKWALLPAPER = 20;
         const int SPIF_SENDCHANGE = 0x2;
@@ -69,6 +71,10 @@ namespace NASA_APOD
 
             //GUI items
             Log("setting up GUI items...");
+
+            if (!logging)
+                tabDebug.Dispose();
+
             LinkLabel.Link lnk = new LinkLabel.Link();
             lnk.LinkData = "https://api.nasa.gov/#signUp";
             linkHowToKey.Links.Add(lnk);
@@ -147,6 +153,25 @@ namespace NASA_APOD
                 }
         }
 
+        //Logging to tab
+        public void DebugTab(APOD apod)
+        {
+            if (logging)
+            {
+                //nothing fancy, use hard-coded list items to display API call response
+                listDebug.Items[0].SubItems[1].Text = apod.copyright;
+                listDebug.Items[1].SubItems[1].Text = apod.date;
+                listDebug.Items[2].SubItems[1].Text = apod.explanation;
+                listDebug.Items[3].SubItems[1].Text = apod.hdurl;
+                listDebug.Items[4].SubItems[1].Text = apod.media_type;
+                listDebug.Items[5].SubItems[1].Text = apod.service_version;
+                listDebug.Items[6].SubItems[1].Text = apod.title;
+                listDebug.Items[7].SubItems[1].Text = apod.url;
+                listDebug.Columns[0].Width = 75;
+                listDebug.Columns[1].Width = 1350;
+            }
+        }
+
         //Fill in history tab
         private void fillHistory()
         {
@@ -160,6 +185,7 @@ namespace NASA_APOD
             listHistory.Columns[1].Text = "Title";
             listHistory.Items.Clear();
             statusBar.Text = "Getting history items... (0/0)";
+            Application.DoEvents();
 
             //Some history setup
             byte maxDays = 8; //how many history items
@@ -177,6 +203,7 @@ namespace NASA_APOD
                     cnt++;
                     progressBar.Value = 100 * cnt / maxDays;
                     statusBar.Text = "Getting history items... (" + cnt + "/" + maxDays + ")";
+                    Application.DoEvents();
                     Log("History item added " + _apod.date);
                 }
                 daysback++;
@@ -206,6 +233,7 @@ namespace NASA_APOD
                 buttonNext.Text = apod.apiDate.AddDays(1).ToShortDateString() + ">>";
 
                 Log("Call succesful! apod.date = " + apod.apiDate);
+                DebugTab(apod);
                 fillHistory();
             }
             catch (Exception e)
@@ -272,6 +300,8 @@ namespace NASA_APOD
                 {
                     //Download the image directly to image box
                     //"Image" property will allow to save it later
+                    //(try normal-res picture by default)
+                    //(hd images are large and use too much memory)
                     Log("API says that image is there: " + apod.hdurl);
                     pictureBox.LoadAsync(apod.hdurl);
                     Log("async download started");
@@ -315,6 +345,8 @@ namespace NASA_APOD
         {
             Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
 
+            WebClient _wc = new WebClient(); //to download hi-res image
+
             pictureBox.SizeMode = PictureBoxSizeMode.Zoom;
             pictureBox.Visible = true;
 
@@ -334,17 +366,24 @@ namespace NASA_APOD
             //    1,
             //    apodPath,
             //    SPIF_SENDCHANGE);
+            Log("Wallpapering...");
             RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true);
+            Log("registry file BEFORE = " + key.GetValue("Wallpaper"));
             key.SetValue(@"WallpaperStyle", 6.ToString()); //always fit image to screen (zoom mode)
             key.SetValue(@"TileWallpaper", 0.ToString()); //do not tile
+            Log("registry set...");
 
-            SystemParametersInfo(SPI_SETDESKWALLPAPER,
+            int _out = SystemParametersInfo(SPI_SETDESKWALLPAPER,
                 0,
                 apodPath,
                 SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
 
-            //save current URL as last processed URL in INI file
-            //TODO: image date would be more relevant, since we're using API now
+            Log("Wallpapering result = " + _out);
+            Log("error msg = " + GetLastError());
+            key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true);
+            Log("registry file AFTER = " + key.GetValue("Wallpaper"));
+
+            //save last image date
             iniFile.Write("lastDate", apod.apiDate.ToString());
 
             //setup UI elements
@@ -360,7 +399,10 @@ namespace NASA_APOD
             myIcon.ShowBalloonTip(5000);
             textBoxImgDesc.Text = apod.explanation;
             textURL.Text = apod.hdurl;
-            statusBar.Text = "Done!";
+            if (_out == 0)
+                statusBar.Text = "Downloaded but not set :(";
+            else
+                statusBar.Text = "Done!";
             this.Text = "NASA Astronomy Picture of the Day - " +
                 apod.apiDate.ToShortDateString() + " - " +
                 apod.title;
