@@ -261,7 +261,7 @@
             // 
             this.myIcon.Text = "NASA picture of the day";
             this.myIcon.Visible = true;
-            this.myIcon.MouseDoubleClick += new System.Windows.Forms.MouseEventHandler(this.myIcon_MouseDoubleClick);
+            this.myIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(this.myIcon_MouseClick);
             // 
             // buttonToday
             // 

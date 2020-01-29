@@ -566,8 +566,8 @@ namespace NASA_APOD
             if (pictureBox.Image != null) Clipboard.SetImage(pictureBox.Image);
         }
 
-        //Tray icon double-click - hide/show window
-        private void myIcon_MouseDoubleClick(object sender, MouseEventArgs e)
+        //Tray icon click - hide/show window
+        private void myIcon_MouseClick(object sender, MouseEventArgs e)
         {
             Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
 
