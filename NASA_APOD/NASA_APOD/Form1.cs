@@ -64,9 +64,10 @@ namespace NASA_APOD
                 iniFile.Write("lastDate", DateTime.Today.ToString());
                 iniFile.Write("autoRefresh", checkAutoRefresh.Checked.ToString());
                 iniFile.Write("saveToDisk", checkSaveToDisk.Checked.ToString());
-                iniFile.Write("pathToSave", string.Empty);
+                iniFile.Write("pathToSave", String.Empty);
                 iniFile.Write("useCustomKey", "False");
-                iniFile.Write("customKey", string.Empty);
+                iniFile.Write("customKey", String.Empty);
+                iniFile.Write("enableHistory", String.Empty);
             }
 
             //GUI items
@@ -82,8 +83,8 @@ namespace NASA_APOD
             {
                 ctl.Enabled = true;
             }
-            labelImageDesc.Text = string.Empty;
-            textDate.Text = string.Empty;
+            labelImageDesc.Text = String.Empty;
+            textDate.Text = String.Empty;
             myIconMenu = new ContextMenu();
             myIconMenu.MenuItems.Add("Previous", buttonPrev_Click);
             myIconMenu.MenuItems.Add("Next", buttonNext_Click);
@@ -113,6 +114,18 @@ namespace NASA_APOD
                 textCustomKey.Enabled = false;
             }
             textCustomKey.Text = iniFile.Read("customKey");
+            listHistory.Columns[0].Text = "Date";
+            listHistory.Columns[1].Text = "Title";
+            if (iniFile.Read("enableHistory") == "True")
+            {
+                checkEnableHistory.Checked = true;
+                tabHistory.Show();
+            }
+            else
+            {
+                checkEnableHistory.Checked = false;
+                tabHistory.Hide();
+            }
             Log("DONE!");
 
             //Subscribe for events
@@ -181,8 +194,6 @@ namespace NASA_APOD
             _apod.setAPIKey(textCustomKey.Text);
 
             //Column headers and rest of GUI
-            listHistory.Columns[0].Text = "Date";
-            listHistory.Columns[1].Text = "Title";
             listHistory.Items.Clear();
             statusBar.Text = "Getting history items... (0/0)";
             Application.DoEvents();
@@ -210,7 +221,7 @@ namespace NASA_APOD
             }
             _apod.Dispose(); //destroy local APOD
             listHistory.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
-            statusBar.Text = string.Empty;
+            statusBar.Text = String.Empty;
         }
 
         //Set current date for API - create URL and get json
@@ -234,7 +245,11 @@ namespace NASA_APOD
 
                 Log("Call succesful! apod.date = " + apod.apiDate);
                 DebugTab(apod);
-                fillHistory();
+
+                if (checkEnableHistory.Checked)
+                    fillHistory();
+                else
+                    listHistory.Items.Clear();
             }
             catch (Exception e)
             {
@@ -286,8 +301,8 @@ namespace NASA_APOD
             buttonToday.Enabled = false;
             buttonNext.Enabled = false;
             buttonRefresh.Enabled = false;
-            labelImageDesc.Text = string.Empty;
-            textBoxImgDesc.Text = string.Empty;
+            labelImageDesc.Text = String.Empty;
+            textBoxImgDesc.Text = String.Empty;
             Log("done!");
 
             //Download image to picture box
@@ -313,7 +328,7 @@ namespace NASA_APOD
                     pictureBox.Image = null;
                     statusBar.Text = "Sorry, no picture today.";
                     textBoxImgDesc.Text = "(media_type = " + apod.media_type + ")";
-                    textDate.Text = string.Empty;
+                    textDate.Text = String.Empty;
                     myIcon.Text = statusBar.Text;
                     myIcon.BalloonTipText = statusBar.Text;
                     myIcon.ShowBalloonTip(5000);
@@ -391,7 +406,7 @@ namespace NASA_APOD
             setupButtons();
             myIcon.Text = apod.title;
             labelImageDesc.Text = apod.title;
-            if (apod.copyright != null && apod.copyright != string.Empty)
+            if (apod.copyright != null && apod.copyright != String.Empty)
                 labelImageDesc.Text += "\n© " + apod.copyright.Replace("\n", " ");
             labelImageDesc.Width = 375;
             myIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
@@ -444,8 +459,8 @@ namespace NASA_APOD
             Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
 
             //First build custom path if desired
-            if ((pathToSave != null && pathToSave != string.Empty) &&
-                (apod.hdurl != null && apod.hdurl != string.Empty)) //custom path found, concatenate path with image filename
+            if ((pathToSave != null && pathToSave != String.Empty) &&
+                (apod.hdurl != null && apod.hdurl != String.Empty)) //custom path found, concatenate path with image filename
             {
                 int begin = apod.hdurl.LastIndexOf('/') + 1;
                 int len = apod.hdurl.Length - begin;
@@ -509,10 +524,10 @@ namespace NASA_APOD
             {
                 buttonPath.Enabled = true; //enable path selection button [...]
                 textPath.Enabled = true;   //enable custom path text box
-                if (textPath.Text == null || textPath.Text == string.Empty) //first click, no custom path saved
+                if (textPath.Text == null || textPath.Text == String.Empty) //first click, no custom path saved
                 {
                     buttonPath_Click(this, e); //invoke path selection dialog
-                    if (dialogPath.SelectedPath == string.Empty) //if dialog cancelled, revert UI changes
+                    if (dialogPath.SelectedPath == String.Empty) //if dialog cancelled, revert UI changes
                     {
                         buttonPath.Enabled = false;
                         textPath.Enabled = false;
@@ -541,7 +556,7 @@ namespace NASA_APOD
 
             dialogPath.ShowDialog(); //display path selection dialog
 
-            if (dialogPath.SelectedPath != string.Empty)
+            if (dialogPath.SelectedPath != String.Empty)
             {
                 pathToSave = dialogPath.SelectedPath; //save the path
                 textPath.Text = pathToSave; //and display it in path text box
@@ -555,7 +570,7 @@ namespace NASA_APOD
         {
             Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
 
-            if (textURL.Text != string.Empty) Clipboard.SetText(textURL.Text);
+            if (textURL.Text != String.Empty) Clipboard.SetText(textURL.Text);
         }
 
         //Copy image to clipboard
@@ -795,6 +810,21 @@ namespace NASA_APOD
             _apod.Dispose();
             buttonGrabAll.Enabled = true;
             timer1.Enabled = true;
+        }
+
+        //Enable or disable history function
+        private void checkEnableHistory_CheckedChanged(object sender, EventArgs e)
+        {
+            if (checkEnableHistory.Checked)
+            {
+                iniFile.Write("enableHistory", "True");
+                listHistory.Enabled = true;
+            }
+            else
+            {
+                iniFile.Write("enableHistory", "False");
+                listHistory.Enabled = false;
+            }
         }
     }
 }

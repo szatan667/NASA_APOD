@@ -94,6 +94,7 @@
             this.listDebug = new System.Windows.Forms.ListView();
             this.debugField = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.debugValue = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.checkEnableHistory = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.groupBoxSettings.SuspendLayout();
@@ -276,6 +277,7 @@
             // 
             // groupBoxSettings
             // 
+            this.groupBoxSettings.Controls.Add(this.checkEnableHistory);
             this.groupBoxSettings.Controls.Add(this.textGrabAll);
             this.groupBoxSettings.Controls.Add(this.buttonGrabAll);
             this.groupBoxSettings.Controls.Add(this.checkCustomKey);
@@ -315,7 +317,7 @@
             // checkCustomKey
             // 
             this.checkCustomKey.AutoSize = true;
-            this.checkCustomKey.Location = new System.Drawing.Point(6, 101);
+            this.checkCustomKey.Location = new System.Drawing.Point(6, 126);
             this.checkCustomKey.Name = "checkCustomKey";
             this.checkCustomKey.Size = new System.Drawing.Size(130, 19);
             this.checkCustomKey.TabIndex = 9;
@@ -325,7 +327,7 @@
             // 
             // textCustomKey
             // 
-            this.textCustomKey.Location = new System.Drawing.Point(6, 126);
+            this.textCustomKey.Location = new System.Drawing.Point(6, 151);
             this.textCustomKey.MaxLength = 40;
             this.textCustomKey.Name = "textCustomKey";
             this.textCustomKey.Size = new System.Drawing.Size(344, 23);
@@ -335,7 +337,7 @@
             // linkHowToKey
             // 
             this.linkHowToKey.AutoSize = true;
-            this.linkHowToKey.Location = new System.Drawing.Point(6, 152);
+            this.linkHowToKey.Location = new System.Drawing.Point(203, 127);
             this.linkHowToKey.Name = "linkHowToKey";
             this.linkHowToKey.Size = new System.Drawing.Size(147, 15);
             this.linkHowToKey.TabIndex = 11;
@@ -512,6 +514,17 @@
             // 
             this.debugValue.Text = "value";
             // 
+            // checkEnableHistory
+            // 
+            this.checkEnableHistory.AutoSize = true;
+            this.checkEnableHistory.Location = new System.Drawing.Point(6, 101);
+            this.checkEnableHistory.Name = "checkEnableHistory";
+            this.checkEnableHistory.Size = new System.Drawing.Size(100, 19);
+            this.checkEnableHistory.TabIndex = 14;
+            this.checkEnableHistory.Text = "Enable history";
+            this.checkEnableHistory.UseVisualStyleBackColor = true;
+            this.checkEnableHistory.CheckedChanged += new System.EventHandler(this.checkEnableHistory_CheckedChanged);
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -599,5 +612,6 @@
         private System.Windows.Forms.ListView listDebug;
         private System.Windows.Forms.ColumnHeader debugField;
         private System.Windows.Forms.ColumnHeader debugValue;
+        private System.Windows.Forms.CheckBox checkEnableHistory;
     }
 }
