@@ -140,7 +140,15 @@ namespace NASA_APOD
             apod = new APOD();
             apod.setAPIKey(textCustomKey.Text);
             Log("setting date - STARTUP...");
-            setAPIDate(apod, DateTime.Parse(iniFile.Read("lastDate")));
+            //If auto-refresh option is set, always use today's date
+            if (checkAutoRefresh.Checked)
+            {
+                setAPIDate(apod, DateTime.Today);
+            }
+            else
+            {
+                setAPIDate(apod, DateTime.Parse(iniFile.Read("lastDate")));
+            }
             Log("STARTUP DATE = " + apod.apiDate);
 
             //Get the image on startup, but only if API call was succesful
@@ -482,7 +490,7 @@ namespace NASA_APOD
         }
 
         //Timer event handler - reload image with today date
-        private void timer1_Tick(object sender, System.EventArgs e)
+        private void timer1_Tick(object sender, EventArgs e)
         {
             Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
             Log("--- TIMER TICK! ---");
@@ -503,7 +511,7 @@ namespace NASA_APOD
         }
 
         //Auto refresh checkbox - enable or disable automatic refresh
-        private void checkAutoRefresh_CheckedChanged(object sender, System.EventArgs e)
+        private void checkAutoRefresh_CheckedChanged(object sender, EventArgs e)
         {
             Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
 
@@ -516,7 +524,7 @@ namespace NASA_APOD
         }
 
         //Save to custom path checkbox
-        private void checkSaveToDisk_CheckedChanged(object sender, System.EventArgs e)
+        private void checkSaveToDisk_CheckedChanged(object sender, EventArgs e)
         {
             Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
 
@@ -550,7 +558,7 @@ namespace NASA_APOD
         }
 
         //Custom path selection button
-        private void buttonPath_Click(object sender, System.EventArgs e)
+        private void buttonPath_Click(object sender, EventArgs e)
         {
             Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
 
@@ -566,7 +574,7 @@ namespace NASA_APOD
         }
 
         //Copy link to clipboard
-        private void buttonCopyLink_Click(object sender, System.EventArgs e)
+        private void buttonCopyLink_Click(object sender, EventArgs e)
         {
             Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
 
@@ -574,7 +582,7 @@ namespace NASA_APOD
         }
 
         //Copy image to clipboard
-        private void buttonCopyImage_Click(object sender, System.EventArgs e)
+        private void buttonCopyImage_Click(object sender, EventArgs e)
         {
             Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
 
@@ -615,7 +623,7 @@ namespace NASA_APOD
         }
 
         //Previous button click
-        private void buttonPrev_Click(object sender, System.EventArgs e)
+        private void buttonPrev_Click(object sender, EventArgs e)
         {
             Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
 
@@ -624,7 +632,7 @@ namespace NASA_APOD
         }
 
         //Next button click
-        private void buttonNext_Click(object sender, System.EventArgs e)
+        private void buttonNext_Click(object sender, EventArgs e)
         {
             Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
 
@@ -644,7 +652,7 @@ namespace NASA_APOD
         }
 
         //Refresh button - simply reload current image
-        private void buttonRefresh_Click(object sender, System.EventArgs e)
+        private void buttonRefresh_Click(object sender, EventArgs e)
         {
             Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
 
@@ -724,7 +732,7 @@ namespace NASA_APOD
         }
 
         //Just move your mouse over the description to be able to scroll it
-        private void TextBoxImgDesc_MouseHover(object sender, System.EventArgs e)
+        private void TextBoxImgDesc_MouseHover(object sender, EventArgs e)
         {
             Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
 
