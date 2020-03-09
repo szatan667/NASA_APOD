@@ -3,6 +3,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Net;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using Microsoft.Win32;
@@ -48,7 +49,7 @@ namespace NASA_APOD
                 logging = true;
 
             Log("\n--- PROGRAM START -----------------------------------------------");
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
             Log("initializing...");
             InitializeComponent();
             Log("DONE!");
@@ -196,7 +197,7 @@ namespace NASA_APOD
         //Fill in history tab
         private void fillHistory()
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             APOD _apod = new APOD(); //local APOD just to get img title list
             _apod.setAPIKey(textCustomKey.Text);
@@ -235,7 +236,7 @@ namespace NASA_APOD
         //Set current date for API - create URL and get json
         private void setAPIDate(APOD apod, DateTime datetime)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
             Log("trying this date: " + datetime);
 
             //Clear date related GUI fields
@@ -274,7 +275,7 @@ namespace NASA_APOD
         //Context menu "today" event handler
         private void OnMenuToday(object sender, EventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             //force getting today's image
             apod.setAPIDate(DateTime.Today);
@@ -285,7 +286,7 @@ namespace NASA_APOD
         //Tray icon menu "exit" event handler
         private void OnMenuExit(object sender, EventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             Application.Exit();
         }
@@ -293,14 +294,14 @@ namespace NASA_APOD
         //App exit event?
         private void OnAppExit(object sender, EventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
             Log("--- THE END! ------------------------------------------------");
         }
 
         //Get the picture and possibly save it to disk (if required in GUI)
         private void getNASAApod()
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             Log("setting some gui items...");
             statusBar.Text = "Getting NASA picture of the day...";
@@ -357,7 +358,7 @@ namespace NASA_APOD
         //Download progress bar - event handler
         private void PictureBox_LoadProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
         {
-            //Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            //Log(MethodBase.GetCurrentMethod().Name);
 
             progressBar.Value = e.ProgressPercentage;
             statusBar.Text = "Getting NASA picture of the day... " + e.ProgressPercentage + "%";
@@ -366,7 +367,7 @@ namespace NASA_APOD
         //Download completed event - do rest of the logic - actual wallpapering and saving to disk
         private void PictureBox_LoadCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             WebClient _wc = new WebClient(); //to download hi-res image
 
@@ -439,7 +440,7 @@ namespace NASA_APOD
         //Enable or disable prev/today/buttons depending on current API date
         private void setupButtons()
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             //Enable/disable 'previous' and 'next' buttons, depending on the API date
             //TODAY - previous enabled, today enabled, next disabled
@@ -464,7 +465,7 @@ namespace NASA_APOD
         //Save current image to disk
         private void saveToDisk()
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             //First build custom path if desired
             if ((pathToSave != null && pathToSave != String.Empty) &&
@@ -492,7 +493,7 @@ namespace NASA_APOD
         //Timer event handler - reload image with today date
         private void timer1_Tick(object sender, EventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
             Log("--- TIMER TICK! ---");
 
             if (DateTime.Today != apod.apiDate)
@@ -513,7 +514,7 @@ namespace NASA_APOD
         //Auto refresh checkbox - enable or disable automatic refresh
         private void checkAutoRefresh_CheckedChanged(object sender, EventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             if (checkAutoRefresh.Checked)
                 timer1.Enabled = true;
@@ -526,7 +527,7 @@ namespace NASA_APOD
         //Save to custom path checkbox
         private void checkSaveToDisk_CheckedChanged(object sender, EventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             if (checkSaveToDisk.Checked) //custom path checked
             {
@@ -560,7 +561,7 @@ namespace NASA_APOD
         //Custom path selection button
         private void buttonPath_Click(object sender, EventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             dialogPath.ShowDialog(); //display path selection dialog
 
@@ -576,7 +577,7 @@ namespace NASA_APOD
         //Copy link to clipboard
         private void buttonCopyLink_Click(object sender, EventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             if (textURL.Text != String.Empty) Clipboard.SetText(textURL.Text);
         }
@@ -584,7 +585,7 @@ namespace NASA_APOD
         //Copy image to clipboard
         private void buttonCopyImage_Click(object sender, EventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             if (pictureBox.Image != null) Clipboard.SetImage(pictureBox.Image);
         }
@@ -592,7 +593,7 @@ namespace NASA_APOD
         //Tray icon click - hide/show window
         private void myIcon_MouseClick(object sender, MouseEventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             if (hidden)
             {
@@ -610,7 +611,7 @@ namespace NASA_APOD
         //Minimize to system tray
         private void windowResize(object sender, EventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             if (this.WindowState == FormWindowState.Minimized)
             {
@@ -625,7 +626,7 @@ namespace NASA_APOD
         //Previous button click
         private void buttonPrev_Click(object sender, EventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             setAPIDate(apod, apod.apiDate.AddDays(-1));
             getNASAApod();
@@ -634,7 +635,7 @@ namespace NASA_APOD
         //Next button click
         private void buttonNext_Click(object sender, EventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             //TODO: handle today date - should be prohibited to click next if date = today
             setAPIDate(apod, apod.apiDate.AddDays(1));
@@ -644,7 +645,7 @@ namespace NASA_APOD
         //Today button click
         private void buttonToday_Click(object sender, EventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             setAPIDate(apod, DateTime.Today);
             if (apod.media_type != null)
@@ -654,7 +655,7 @@ namespace NASA_APOD
         //Refresh button - simply reload current image
         private void buttonRefresh_Click(object sender, EventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             setAPIDate(apod, apod.apiDate); //refresh json strings with current setup
             if (apod.media_type != null)
@@ -664,7 +665,7 @@ namespace NASA_APOD
         //EXPERIMANTAL - draw the title over the picture
         private void pictureBox_Paint(object sender, PaintEventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             /*
             //get picture box size
@@ -705,7 +706,7 @@ namespace NASA_APOD
         //Pick a date - show calendar
         private void buttonPickDate_Click(object sender, EventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             if (!Calendar.Visible)
             {
@@ -721,7 +722,7 @@ namespace NASA_APOD
         //Calendar click - set the date and get the image at once
         private void Calendar_DateSelected(object sender, DateRangeEventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             Calendar.Visible = false;
             if (Calendar.SelectionStart > DateTime.Today)
@@ -734,7 +735,7 @@ namespace NASA_APOD
         //Just move your mouse over the description to be able to scroll it
         private void TextBoxImgDesc_MouseHover(object sender, EventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             textBoxImgDesc.Focus();
             textBoxImgDesc.Select(0, 0);
@@ -743,7 +744,7 @@ namespace NASA_APOD
         //Go to 'how to' link
         private void linkHowToKey_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             Process.Start(e.Link.LinkData as string);
         }
@@ -751,7 +752,7 @@ namespace NASA_APOD
         //Use custom key checkbox
         private void checkCustomKey_CheckedChanged(object sender, EventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             if (checkCustomKey.Checked) textCustomKey.Enabled = true;
             else textCustomKey.Enabled = false;
@@ -762,14 +763,14 @@ namespace NASA_APOD
         //Custom key value - save in INI file
         private void textCustomKey_TextChanged(object sender, EventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             iniFile.Write("customKey", textCustomKey.Text);
         }
 
         private void listHistory_DoubleClick(object sender, EventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             setAPIDate(apod, DateTime.Parse(listHistory.SelectedItems[0].Text));
             getNASAApod();
@@ -777,7 +778,7 @@ namespace NASA_APOD
 
         private void buttonGrabAll_Click(object sender, EventArgs e)
         {
-            Log(System.Reflection.MethodBase.GetCurrentMethod().Name);
+            Log(MethodBase.GetCurrentMethod().Name);
 
             buttonGrabAll.Enabled = false;
             timer1.Enabled = false;

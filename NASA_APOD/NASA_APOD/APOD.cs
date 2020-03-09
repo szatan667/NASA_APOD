@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net;
+using System.Text.RegularExpressions;
 
 namespace NASA_APOD
 {
@@ -27,6 +28,8 @@ namespace NASA_APOD
         private const string _apiKeyDefault = "DFihYXvddhhd1KnnPtw3BgSxAXlx9yHz1CSTwbN8";
         private string _apiKey;
         private static readonly WebClient _wc = new WebClient();
+
+        private static readonly DateTime _DATE_MIN = DateTime.Parse("1995-06-16");
 
         //--- Default constructor ---------------------------------------------------
         public APOD()
@@ -64,13 +67,12 @@ namespace NASA_APOD
         //Set current date for API - create URL and get json
         public void setAPIDate(DateTime datetime)
         {
-            if (datetime < DateTime.Parse("1995-06-16"))
-                datetime = DateTime.Parse("1995-06-16");
+            if (datetime < _DATE_MIN) datetime = _DATE_MIN;
 
             string _apiURL;
 
             //Double check API key and fall back to default if needed
-            if (_apiKey == null || _apiKey == string.Empty || _apiKey.Length != 40)
+            if (_apiKey == null || _apiKey == String.Empty || _apiKey.Length != 40)
                 if (_apiKey != "DEMO_KEY")
                     _apiKey = _apiKeyDefault;
 
@@ -111,7 +113,7 @@ namespace NASA_APOD
         //Parse APOD json
         private void jsonDeserialize(string json)
         {
-            json = System.Text.RegularExpressions.Regex.Unescape(json); //get rid of escape slashes that API returns
+            json = Regex.Unescape(json); //get rid of escape slashes that API returns
 
             copyright       = jsonGetSingle(json, "copyright");
             date            = jsonGetSingle(json, "date");
