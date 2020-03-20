@@ -32,7 +32,6 @@ namespace NASA_APOD
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
         static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
         const int SPI_SETDESKWALLPAPER = 20;
-        const int SPIF_SENDCHANGE = 0x2;
         const int SPIF_UPDATEINIFILE = 0x01;
         const int SPIF_SENDWININICHANGE = 0x02;
 

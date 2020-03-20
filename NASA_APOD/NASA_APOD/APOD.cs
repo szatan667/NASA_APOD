@@ -25,6 +25,7 @@ namespace NASA_APOD
 
         //--- Private fields --------------------------------------------------------
         private const string _baseURL = "https://api.nasa.gov/planetary/apod";
+        //private const string _baseURL = "https://bing.biturl.top/";
         private const string _apiKeyDefault = "DFihYXvddhhd1KnnPtw3BgSxAXlx9yHz1CSTwbN8";
         private string _apiKey;
         private static readonly WebClient _wc = new WebClient();
