@@ -95,6 +95,8 @@ namespace NASA_APOD
             myIconMenu.MenuItems[myIconMenu.MenuItems.Count - 1].Name = "menuNext";
             myIconMenu.MenuItems.Add("Today", OnMenuToday);
             myIconMenu.MenuItems[myIconMenu.MenuItems.Count - 1].Name = "menuToday";
+            myIconMenu.MenuItems.Add("-");
+            myIconMenu.MenuItems[myIconMenu.MenuItems.Count - 1].Name = "menuSeparator";
             myIconMenu.MenuItems.Add("Exit", OnMenuExit);
             myIconMenu.MenuItems[myIconMenu.MenuItems.Count - 1].Name = "menuExit";
             myIcon.ContextMenu = myIconMenu;
