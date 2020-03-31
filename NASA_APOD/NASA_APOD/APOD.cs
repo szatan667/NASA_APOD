@@ -73,7 +73,7 @@ namespace NASA_APOD
             string _apiURL;
 
             //Double check API key and fall back to default if needed
-            if (_apiKey == null || _apiKey == String.Empty || _apiKey.Length != 40)
+            if (_apiKey == null || _apiKey == string.Empty || _apiKey.Length != 40)
                 if (_apiKey != "DEMO_KEY")
                     _apiKey = _apiKeyDefault;
 

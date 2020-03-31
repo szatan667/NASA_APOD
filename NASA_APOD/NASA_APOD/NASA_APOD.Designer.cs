@@ -30,28 +30,28 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewItem listViewItem9 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
             "copyright",
             ""}, -1);
-            System.Windows.Forms.ListViewItem listViewItem10 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
             "date",
             ""}, -1);
-            System.Windows.Forms.ListViewItem listViewItem11 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem(new string[] {
             "explanation",
             ""}, -1);
-            System.Windows.Forms.ListViewItem listViewItem12 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem(new string[] {
             "hdurl",
             ""}, -1);
-            System.Windows.Forms.ListViewItem listViewItem13 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem(new string[] {
             "media_type",
             ""}, -1);
-            System.Windows.Forms.ListViewItem listViewItem14 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem(new string[] {
             "service_version",
             ""}, -1);
-            System.Windows.Forms.ListViewItem listViewItem15 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem(new string[] {
             "title",
             ""}, -1);
-            System.Windows.Forms.ListViewItem listViewItem16 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem(new string[] {
             "url",
             ""}, -1);
             this.textURL = new System.Windows.Forms.TextBox();
@@ -61,7 +61,7 @@
             this.progressBar = new System.Windows.Forms.ToolStripProgressBar();
             this.statusBar = new System.Windows.Forms.ToolStripStatusLabel();
             this.checkSaveToDisk = new System.Windows.Forms.CheckBox();
-            this.timer1 = new System.Windows.Forms.Timer(this.components);
+            this.timerRefresh = new System.Windows.Forms.Timer(this.components);
             this.checkAutoRefresh = new System.Windows.Forms.CheckBox();
             this.buttonPath = new System.Windows.Forms.Button();
             this.textPath = new System.Windows.Forms.TextBox();
@@ -73,6 +73,7 @@
             this.myIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.buttonToday = new System.Windows.Forms.Button();
             this.groupBoxSettings = new System.Windows.Forms.GroupBox();
+            this.checkEnableHistory = new System.Windows.Forms.CheckBox();
             this.textGrabAll = new System.Windows.Forms.TextBox();
             this.buttonGrabAll = new System.Windows.Forms.Button();
             this.checkCustomKey = new System.Windows.Forms.CheckBox();
@@ -94,7 +95,6 @@
             this.listDebug = new System.Windows.Forms.ListView();
             this.debugField = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.debugValue = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
-            this.checkEnableHistory = new System.Windows.Forms.CheckBox();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.statusStrip1.SuspendLayout();
             this.groupBoxSettings.SuspendLayout();
@@ -173,11 +173,11 @@
             this.checkSaveToDisk.UseVisualStyleBackColor = true;
             this.checkSaveToDisk.CheckedChanged += new System.EventHandler(this.checkSaveToDisk_CheckedChanged);
             // 
-            // timer1
+            // timerRefresh
             // 
-            this.timer1.Enabled = true;
-            this.timer1.Interval = 3600000;
-            this.timer1.Tick += new System.EventHandler(this.timer1_Tick);
+            this.timerRefresh.Enabled = true;
+            this.timerRefresh.Interval = 3600000;
+            this.timerRefresh.Tick += new System.EventHandler(this.timerRefresh_Tick);
             // 
             // checkAutoRefresh
             // 
@@ -287,7 +287,6 @@
             this.groupBoxSettings.Controls.Add(this.checkSaveToDisk);
             this.groupBoxSettings.Controls.Add(this.buttonPath);
             this.groupBoxSettings.Controls.Add(this.textPath);
-            this.groupBoxSettings.Enabled = false;
             this.groupBoxSettings.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.groupBoxSettings.Location = new System.Drawing.Point(6, 6);
             this.groupBoxSettings.Name = "groupBoxSettings";
@@ -295,6 +294,17 @@
             this.groupBoxSettings.TabIndex = 16;
             this.groupBoxSettings.TabStop = false;
             this.groupBoxSettings.Text = "Settings";
+            // 
+            // checkEnableHistory
+            // 
+            this.checkEnableHistory.AutoSize = true;
+            this.checkEnableHistory.Location = new System.Drawing.Point(6, 101);
+            this.checkEnableHistory.Name = "checkEnableHistory";
+            this.checkEnableHistory.Size = new System.Drawing.Size(100, 19);
+            this.checkEnableHistory.TabIndex = 14;
+            this.checkEnableHistory.Text = "Enable history";
+            this.checkEnableHistory.UseVisualStyleBackColor = true;
+            this.checkEnableHistory.CheckedChanged += new System.EventHandler(this.checkEnableHistory_CheckedChanged);
             // 
             // textGrabAll
             // 
@@ -454,6 +464,7 @@
             this.colDate,
             this.colTitle});
             this.listHistory.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listHistory.HideSelection = false;
             this.listHistory.Location = new System.Drawing.Point(3, 3);
             this.listHistory.Name = "listHistory";
             this.listHistory.Size = new System.Drawing.Size(362, 259);
@@ -490,15 +501,16 @@
             this.debugField,
             this.debugValue});
             this.listDebug.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.listDebug.HideSelection = false;
             this.listDebug.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem9,
-            listViewItem10,
-            listViewItem11,
-            listViewItem12,
-            listViewItem13,
-            listViewItem14,
-            listViewItem15,
-            listViewItem16});
+            listViewItem1,
+            listViewItem2,
+            listViewItem3,
+            listViewItem4,
+            listViewItem5,
+            listViewItem6,
+            listViewItem7,
+            listViewItem8});
             this.listDebug.Location = new System.Drawing.Point(3, 3);
             this.listDebug.Name = "listDebug";
             this.listDebug.Size = new System.Drawing.Size(362, 259);
@@ -509,21 +521,11 @@
             // debugField
             // 
             this.debugField.Text = "field";
+            this.debugField.Width = 99;
             // 
             // debugValue
             // 
             this.debugValue.Text = "value";
-            // 
-            // checkEnableHistory
-            // 
-            this.checkEnableHistory.AutoSize = true;
-            this.checkEnableHistory.Location = new System.Drawing.Point(6, 101);
-            this.checkEnableHistory.Name = "checkEnableHistory";
-            this.checkEnableHistory.Size = new System.Drawing.Size(100, 19);
-            this.checkEnableHistory.TabIndex = 14;
-            this.checkEnableHistory.Text = "Enable history";
-            this.checkEnableHistory.UseVisualStyleBackColor = true;
-            this.checkEnableHistory.CheckedChanged += new System.EventHandler(this.checkEnableHistory_CheckedChanged);
             // 
             // MainWindow
             // 
@@ -566,11 +568,6 @@
 
         }
 
-        private void PictureBox_LoadCompleted1(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
-        {
-            throw new System.NotImplementedException();
-        }
-
         #endregion
         private System.Windows.Forms.TextBox textURL;
         private System.Windows.Forms.PictureBox pictureBox;
@@ -578,7 +575,7 @@
         private System.Windows.Forms.StatusStrip statusStrip1;
         private System.Windows.Forms.ToolStripStatusLabel statusBar;
         private System.Windows.Forms.CheckBox checkSaveToDisk;
-        private System.Windows.Forms.Timer timer1;
+        private System.Windows.Forms.Timer timerRefresh;
         private System.Windows.Forms.CheckBox checkAutoRefresh;
         private System.Windows.Forms.Button buttonPath;
         private System.Windows.Forms.TextBox textPath;
