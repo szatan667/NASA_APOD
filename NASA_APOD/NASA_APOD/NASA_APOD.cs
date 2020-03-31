@@ -29,7 +29,7 @@ namespace NASA_APOD
         //Wallpapering
         [DllImport("kernel32.dll")]
         static extern uint GetLastError();
-        [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
+        [DllImport("user32.dll")]
         static extern int SystemParametersInfo(int Action, int nParam, string sParam, int WinIni);
         const int SPI_SETDESKWALLPAPER = 20;
         const int SPIF_UPDATEINIFILE = 0x01;
@@ -417,10 +417,10 @@ namespace NASA_APOD
             Log("registry set...");
 
             //Save wallpaper proc output
-            int _out = SystemParametersInfo(SPI_SETDESKWALLPAPER,
-                0,
-                imagePath,
-                SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
+            int _out = SystemParametersInfo(SPI_SETDESKWALLPAPER, //action
+                0, //parm
+                imagePath, //parm
+                SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE); //winini
 
             Log("Wallpapering result = " + _out);
             Log("error msg = " + GetLastError());
