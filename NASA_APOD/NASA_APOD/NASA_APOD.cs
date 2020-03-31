@@ -30,13 +30,13 @@ namespace NASA_APOD
         [DllImport("kernel32.dll")]
         static extern uint GetLastError();
         [DllImport("user32.dll", SetLastError = true, CharSet = CharSet.Auto)]
-        static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
+        static extern int SystemParametersInfo(int Action, int nParam, string sParam, int WinIni);
         const int SPI_SETDESKWALLPAPER = 20;
         const int SPIF_UPDATEINIFILE = 0x01;
         const int SPIF_SENDWININICHANGE = 0x02;
 
         //Logging switch - disabled on startup, requires cmd line param to be enabled
-        bool logging = false;
+        readonly bool logging = false;
 
         //--- Main class methods -----------------------------------------------------------------
 
@@ -147,6 +147,7 @@ namespace NASA_APOD
             //GUI items - END -------------------------------------------------------
 
             //Subscribe for events
+            AppDomain.CurrentDomain.ProcessExit += OnAppExit;
             pictureBox.LoadProgressChanged += PictureBox_LoadProgressChanged; //image download progress bar
             pictureBox.LoadCompleted += PictureBox_LoadCompleted; //image downloaded - rest of the logis is there
 
