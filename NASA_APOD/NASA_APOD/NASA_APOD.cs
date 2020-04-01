@@ -235,7 +235,7 @@ namespace NASA_APOD
             while (cnt < maxDays)
             {
                 _apod.setAPIDate(apod.apiDate.AddDays(daysback)); //go back further back in time
-                if (_apod.media_type == "image") //add item only if media is image
+                if (_apod.isImage) //add item only if media is image
                 {
                     listHistory.Items.Add(_apod.apiDate.ToShortDateString()); //history date
                     listHistory.Items[cnt].SubItems.Add(_apod.title); //history img name 
@@ -252,7 +252,7 @@ namespace NASA_APOD
             statusBar.Text = string.Empty;
         }
 
-        //Set current date for API - create URL and get json
+        //Set current date for APOD object
         private void setApodDate(APOD apod, DateTime datetime)
         {
             Log(MethodBase.GetCurrentMethod().Name);
@@ -346,7 +346,7 @@ namespace NASA_APOD
             try
             {
                 //Get it from apod url, only if it's an image (sometimes they post videos, gifs, etc.)
-                if (apod.media_type == "image")
+                if (apod.isImage)
                 {
                     //Download the image directly to image box
                     //"Image" property will allow to save it later
@@ -845,51 +845,96 @@ namespace NASA_APOD
             getNASAApod();
         }
 
-        //EXPERIMENTAL, NOT TESTED AT ALL, WILL CRASH PROBABLY :)
-        //Try to grab WHOLE archive
+        //EXPERIMENTAL, NOT FULLY TESTED, HIGH POTENTIAL TO CRASH SOMEHOW
+        //Try to grab WHOLE apod archive
+        //TODO: create list of URLs first and then download everything in parallel
         private void buttonGrabAll_Click(object sender, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
-            buttonGrabAll.Enabled = false;
-            timerRefresh.Enabled = false;
+            WebClient _wc = new WebClient();
+            _wc.DownloadProgressChanged += PictureBox_LoadProgressChanged;
+            DateTime _min = DateTime.Parse("1995-06-16"); //first day in APOD archive
+            int _span = 1 + (int)(DateTime.Today - _min).TotalDays; //number of days from today to minimum date
+            int _prog = 0; //progress percentage
+            int _err = 0; //number of errors or non-images
 
-            WebClient wc = new WebClient();
-            DateTime _min = DateTime.Parse("1995-06-16");
-            int _span = (int)(DateTime.Today - _min).TotalDays;
-            int _prog = 0;
-
+            //Create local apod object
             APOD _apod = new APOD();
             _apod.setAPIKey(textCustomKey.Text);
-            _apod.setAPIDate(_min);
 
-            textGrabAll.Text = "Download progress: " + _prog * 100 / _span + '%';
-            textGrabAll.Text += " (" + (_span - _prog) + " left to process)";
+            //Set some GUI items
+            buttonGrabAll.Enabled = false;
+            timerRefresh.Enabled = false;
+            statusBar.Text = "Grabbing the archive...";
+            textGrabAll.Text = "Download begins... (" + _prog * 100 / _span + '%';
+            textGrabAll.Text += ", " + (_span - _prog) + " left to download)";
+            textGrabAll.Invalidate();
+            Application.DoEvents();
 
+            //Save files in subdir of current folder
             string _dir = Directory.CreateDirectory("APOD_ARCHIVE").Name;
-            while (_apod.apiDate <= DateTime.Today)
+            
+            //Go from today (progress = 0) to minimum date (progress = span)
+            while (_prog < _span)
             {
-                if (_apod.media_type == "image")
+                //Set API date according to progress (starting with zero increase)
+                try
                 {
-                    int begin = _apod.hdurl.LastIndexOf('/') + 1;
-                    int len = _apod.hdurl.Length - begin;
+                    _apod.setAPIDate(_min.AddDays(_prog));
+                }
+                catch (Exception)
+                {}
 
-                    wc.DownloadFile(new Uri(_apod.hdurl),
-                        _dir + '\\' +
-                        _apod.apiDate.ToShortDateString().Replace(' ', '_') + '_' +
-                        _apod.hdurl.Substring(begin, len));
-                } //end image type
+                //Try to download actual image
+                if (_apod.isImage)
+                {
+                    try
+                    {
+                        //Image name begin and length - to create final filename
+                        int begin = _apod.hdurl.LastIndexOf('/') + 1;
+                        int len = _apod.hdurl.Length - begin;
+
+                        //Double check image URL, if HD not available try regular
+                        if (_apod.hdurl != null && _apod.hdurl != string.Empty)
+                            _wc.DownloadFileAsync(new Uri(_apod.hdurl),
+                                _dir + '\\' +
+                                _apod.apiDate.ToShortDateString().Replace(' ', '_') + '_' +
+                                _apod.hdurl.Substring(begin, len));
+                        else if (_apod.url != null && _apod.url != string.Empty)
+                            _wc.DownloadFileAsync(new Uri(_apod.url),
+                                _dir + '\\' +
+                                _apod.apiDate.ToShortDateString().Replace(' ', '_') + '_' +
+                                _apod.url.Substring(begin, len));
+                    }
+                    catch (Exception)
+                    {
+                        _err++;
+                    }
+                }
+                else
+                {
+                    _err++;
+                }
+
+                while (_wc.IsBusy) ; //dummy wait until previous download completes
 
                 _prog++;
                 textGrabAll.Text = "Download progress: " + _prog * 100 / _span + '%';
-                textGrabAll.Text += " (" + (_span - _prog) + " dates left to process)";
+                textGrabAll.Text += " (" + (_span - _prog) + " left to download)";
+                textDate.Text = _apod.apiDate.ToShortDateString();
                 textGrabAll.Invalidate();
-                _apod.setAPIDate(_apod.apiDate.AddDays(1));
-            } //end loop
+                Application.DoEvents();
+            }
 
             _apod.Dispose();
+            _wc.Dispose();
             buttonGrabAll.Enabled = true;
             timerRefresh.Enabled = true;
+            textGrabAll.Text = "Done! Downloaded " + (_span - _err).ToString() + " images (" + _span.ToString() + " total)";
+            textDate.Text = _apod.apiDate.ToShortDateString();
+            statusBar.Text = "Done!";
+            Application.DoEvents();
         }
 
         //Enable or disable history function

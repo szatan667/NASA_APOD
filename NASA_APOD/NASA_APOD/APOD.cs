@@ -22,6 +22,7 @@ namespace NASA_APOD
     {
         //--- Public fields ---------------------------------------------------------
         public DateTime apiDate;
+        public bool isImage = false;
 
         //--- Private fields --------------------------------------------------------
         private const string _baseURL = "https://api.nasa.gov/planetary/apod";
@@ -68,9 +69,8 @@ namespace NASA_APOD
         //Set current date for API - create URL and get json
         public void setAPIDate(DateTime datetime)
         {
+            //Don't go below minimum date
             if (datetime < _DATE_MIN) datetime = _DATE_MIN;
-
-            string _apiURL;
 
             //Double check API key and fall back to default if needed
             if (_apiKey == null || _apiKey == string.Empty || _apiKey.Length != 40)
@@ -78,7 +78,7 @@ namespace NASA_APOD
                     _apiKey = _apiKeyDefault;
 
             //Create API URL
-            _apiURL  = _baseURL;
+            string _apiURL = _baseURL;
             _apiURL += "?api_key=" + _apiKey;
             _apiURL += "&hd=true";
             _apiURL += "&date=" + datetime.Year + "-";
@@ -93,6 +93,15 @@ namespace NASA_APOD
                 string json = _wc.DownloadString(_apiURL);
                 jsonDeserialize(json);
                 apiDate = datetime; //set the date for APOD object
+
+                if (media_type == "image") //set media type tag
+                {
+                    isImage = true;
+                }
+                else
+                {
+                    isImage = false;
+                }
             }
             catch (Exception e)
             {
@@ -105,6 +114,8 @@ namespace NASA_APOD
                 service_version = null;
                 title           = null;
                 url             = null;
+                apiDate         = DateTime.MinValue;
+                isImage         = false;
                 throw e;
             }
         }
