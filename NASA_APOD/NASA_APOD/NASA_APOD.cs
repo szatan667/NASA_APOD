@@ -335,10 +335,10 @@ namespace NASA_APOD
             labelImageDesc.Text = string.Empty;
             textBoxImgDesc.Text = string.Empty;
             buttonPickDate.Enabled = false;
-            myIconMenu.MenuItems["menuPrev"].Enabled = false;
-            myIconMenu.MenuItems["menuNext"].Enabled = false;
-            myIconMenu.MenuItems["menuToday"].Enabled = false;
-            myIconMenu.MenuItems["menuExit"].Enabled = false;
+            foreach (MenuItem mi in myIconMenu.MenuItems)
+            {
+                mi.Enabled = false;
+            }
             Log("done!");
 
             //Download image to picture box
