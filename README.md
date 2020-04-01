@@ -8,8 +8,8 @@ NASA_APOD - simple wallpaper app using NASA's Astronomy Picture of the Day resou
 
 Below TODOs still needs some work:
 * save HD image to disk, but use regular res in GUI to reduce mem usage - sometimes HD version are really large
-* fix handling of API call errors when filling history list (example date 2014-02-10 - 500 server error)
 * wallpaper setting sometimes fails in Windows 7 - why?
+* grab whole archive - still 'experimental', not fully tested
 
 ![NASA_APOD](NASA_APOD.PNG?raw=true "NASA_APOD")
 ![NASA_APOD](SETTINGS.PNG?raw=true "NASA_APOD")      ![NASA_APOD](HISTORY.PNG?raw=true "NASA_APOD")
