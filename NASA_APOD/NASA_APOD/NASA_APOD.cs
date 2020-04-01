@@ -334,6 +334,7 @@ namespace NASA_APOD
             buttonRefresh.Enabled = false;
             labelImageDesc.Text = string.Empty;
             textBoxImgDesc.Text = string.Empty;
+            buttonPickDate.Enabled = false;
             myIconMenu.MenuItems["menuPrev"].Enabled = false;
             myIconMenu.MenuItems["menuNext"].Enabled = false;
             myIconMenu.MenuItems["menuToday"].Enabled = false;
@@ -414,6 +415,7 @@ namespace NASA_APOD
             Log("Wallpapering...");
             RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true);
             Log("registry file BEFORE = " + key.GetValue("Wallpaper"));
+            key.SetValue(@"Wallpaper", imagePath);
             key.SetValue(@"WallpaperStyle", 6.ToString()); //always fit image to screen (zoom mode)
             key.SetValue(@"TileWallpaper", 0.ToString()); //do not tile
             Log("registry set...");
@@ -474,6 +476,7 @@ namespace NASA_APOD
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
+            buttonPickDate.Enabled = true;
             myIconMenu.MenuItems["menuToday"].Enabled = true;
             myIconMenu.MenuItems["menuExit"].Enabled = true;
 
