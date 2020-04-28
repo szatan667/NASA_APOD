@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32;
 
@@ -20,7 +22,6 @@ namespace NASA_APOD
         public string imagePath = "temp.jpg"; //default file to save
 
         //GUI items
-        ContextMenu myIconMenu; //context menu for tray icon
         bool hidden = false;    //main form state - hidden or not
 
         //setup ini file to store usage statistics
@@ -86,20 +87,28 @@ namespace NASA_APOD
             //Clear some labels
             labelImageDesc.Text = string.Empty;
             textDate.Text = string.Empty;
-            
+
             //Add menu to tray icon
-            myIconMenu = new ContextMenu();
-            myIconMenu.MenuItems.Add("Previous", buttonPrev_Click);
-            myIconMenu.MenuItems[myIconMenu.MenuItems.Count - 1].Name = "menuPrev";
-            myIconMenu.MenuItems.Add("Next", buttonNext_Click);
-            myIconMenu.MenuItems[myIconMenu.MenuItems.Count - 1].Name = "menuNext";
-            myIconMenu.MenuItems.Add("Today", OnMenuToday);
-            myIconMenu.MenuItems[myIconMenu.MenuItems.Count - 1].Name = "menuToday";
-            myIconMenu.MenuItems.Add("-");
-            myIconMenu.MenuItems[myIconMenu.MenuItems.Count - 1].Name = "menuSeparator";
-            myIconMenu.MenuItems.Add("Exit", OnMenuExit);
-            myIconMenu.MenuItems[myIconMenu.MenuItems.Count - 1].Name = "menuExit";
-            myIcon.ContextMenu = myIconMenu;
+            myIcon.ContextMenu = new ContextMenu(new MenuItem[]
+            {
+                new MenuItem("Previous", buttonPrev_Click)
+                {
+                    Name = "menuPrev"
+                },
+                new MenuItem("Next", buttonNext_Click)
+                {
+                    Name = "menuNext"
+                },
+                new MenuItem("Today", OnMenuToday)
+                {
+                    Name = "menuToday"
+                },
+                new MenuItem("-"),
+                new MenuItem("Exit", OnMenuExit)
+                {
+                    Name = "menuExit"
+                }
+            });
 
             //Setup icons for window and tray icon
             myIcon.Icon = Properties.Resources.NASA;
@@ -178,7 +187,7 @@ namespace NASA_APOD
         }
 
         //Logging to file
-        public void Log(string msg)
+        private void Log(string msg)
         {
             if (logging)
                 try
@@ -194,7 +203,7 @@ namespace NASA_APOD
         }
 
         //Logging to tab
-        public void DebugTab(APOD apod)
+        private void DebugTab(APOD apod)
         {
             if (logging)
             {
@@ -217,39 +226,40 @@ namespace NASA_APOD
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
-            //Local APOD just to get img title list
-            APOD _apod = new APOD();
-            _apod.setAPIKey(textCustomKey.Text);
-
-            //Clear history list
-            listHistory.Items.Clear();
-            statusBar.Text = "Getting history items... (0/0)";
-            Application.DoEvents();
-
-            //Some history setup
-            byte maxDays = 8; //how many history items, hardcoded
-            byte cnt = 0; //items loaded
-            int daysback = 0; //start going back in time today
-
-            //Now go back in time and fetch history items
-            while (cnt < maxDays)
+            //Local APOD to get img title list
+            using (APOD a = new APOD())
             {
-                _apod.setAPIDate(apod.apiDate.AddDays(daysback)); //go back further back in time
-                if (_apod.isImage) //add item only if media is image
+                a.setAPIKey(textCustomKey.Text);
+
+                //Clear history list
+                listHistory.Items.Clear();
+                statusBar.Text = "Getting history items... (0/0)";
+                Application.DoEvents();
+
+                //Some history setup
+                byte maxDays = 8; //how many history items, hardcoded
+                byte cnt = 0; //items loaded
+                int daysback = 0; //start going back in time today
+
+                //Now go back in time and fetch history items
+                while (cnt < maxDays)
                 {
-                    listHistory.Items.Add(_apod.apiDate.ToShortDateString()); //history date
-                    listHistory.Items[cnt].SubItems.Add(_apod.title); //history img name 
-                    cnt++; //item loaded!
-                    progressBar.Value = 100 * cnt / maxDays; //update progress bar and status text
-                    statusBar.Text = "Getting history items... (" + cnt + "/" + maxDays + ")";
-                    Application.DoEvents();
-                    Log("History item added " + _apod.date);
+                    a.setAPIDate(apod.apiDate.AddDays(daysback)); //go back further back in time
+                    if (a.isImage) //add item only if media is image
+                    {
+                        listHistory.Items.Add(a.apiDate.ToShortDateString()); //history date
+                        listHistory.Items[cnt].SubItems.Add(a.title); //history img name 
+                        cnt++; //item loaded!
+                        progressBar.Value = 100 * cnt / maxDays; //update progress bar and status text
+                        statusBar.Text = "Getting history items... (" + cnt + "/" + maxDays + ")";
+                        Application.DoEvents();
+                        Log("History item added " + a.date);
+                    }
+                    daysback--; //time travel!
                 }
-                daysback--; //time travel!
+                listHistory.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+                statusBar.Text = string.Empty;
             }
-            _apod.Dispose(); //destroy local APOD
-            listHistory.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
-            statusBar.Text = string.Empty;
         }
 
         //Set current date for APOD object
@@ -335,7 +345,7 @@ namespace NASA_APOD
             labelImageDesc.Text = string.Empty;
             textBoxImgDesc.Text = string.Empty;
             buttonPickDate.Enabled = false;
-            foreach (MenuItem mi in myIconMenu.MenuItems)
+            foreach (MenuItem mi in myIcon.ContextMenu.MenuItems)
             {
                 mi.Enabled = false;
             }
@@ -477,8 +487,9 @@ namespace NASA_APOD
             Log(MethodBase.GetCurrentMethod().Name);
 
             buttonPickDate.Enabled = true;
-            myIconMenu.MenuItems["menuToday"].Enabled = true;
-            myIconMenu.MenuItems["menuExit"].Enabled = true;
+
+            myIcon.ContextMenu.MenuItems["menuToday"].Enabled = true;
+            myIcon.ContextMenu.MenuItems["menuExit"].Enabled = true;
 
             //Enable/disable 'previous' and 'next' buttons, depending on the API date
             //TODAY - previous enabled, today enabled, next disabled
@@ -492,8 +503,14 @@ namespace NASA_APOD
                 buttonRefresh.Enabled = true;
 
                 //Tray menu buttons
-                myIconMenu.MenuItems["menuPrev"].Enabled = true;
-                myIconMenu.MenuItems["menuNext"].Enabled = false;
+                using (APOD a = new APOD(apod.apiDate.AddDays(-1)))
+                {
+                    myIcon.ContextMenu.MenuItems["menuPrev"].Enabled = true;
+                    myIcon.ContextMenu.MenuItems["menuPrev"].Text =
+                        string.Join(" - ", "Previous", a.title);
+                }
+                myIcon.ContextMenu.MenuItems["menuNext"].Enabled = false;
+                myIcon.ContextMenu.MenuItems["menuToday"].Text = string.Join(" - ", "Today", apod.title);
             }
             else
             //EARLIER - all enabled
@@ -505,8 +522,18 @@ namespace NASA_APOD
                 buttonRefresh.Enabled = true;
 
                 //Tray menu buttons
-                myIconMenu.MenuItems["menuPrev"].Enabled = true;
-                myIconMenu.MenuItems["menuNext"].Enabled = true;
+                using (APOD a = new APOD(apod.apiDate.AddDays(-1)))
+                {
+                    myIcon.ContextMenu.MenuItems["menuPrev"].Enabled = true;
+                    myIcon.ContextMenu.MenuItems["menuPrev"].Text =
+                        string.Join(" - ", "Previous", a.title);
+                }
+                using (APOD a = new APOD(apod.apiDate.AddDays(1)))
+                {
+                    myIcon.ContextMenu.MenuItems["menuNext"].Enabled = true;
+                    myIcon.ContextMenu.MenuItems["menuNext"].Text =
+                        string.Join(" - ", "Next", a.title);
+                }
             }
         }
 
@@ -852,89 +879,125 @@ namespace NASA_APOD
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
-            WebClient _wc = new WebClient();
-            _wc.DownloadProgressChanged += PictureBox_LoadProgressChanged;
-            DateTime _min = DateTime.Parse("1995-06-16"); //first day in APOD archive
+            //Some initial values
+            //DateTime _min = DateTime.Parse("1995-06-16"); //first day in APOD archive
+            DateTime _min = DateTime.Parse("2020-03-29"); //first day in APOD archive
             int _span = 1 + (int)(DateTime.Today - _min).TotalDays; //number of days from today to minimum date
-            int _prog = 0; //progress percentage
             int _err = 0; //number of errors or non-images
 
             //Create local apod object
-            APOD _apod = new APOD();
-            _apod.setAPIKey(textCustomKey.Text);
-
-            //Set some GUI items
-            buttonGrabAll.Enabled = false;
-            timerRefresh.Enabled = false;
-            statusBar.Text = "Grabbing the archive...";
-            textGrabAll.Text = "Download begins... (" + _prog * 100 / _span + '%';
-            textGrabAll.Text += ", " + (_span - _prog) + " left to download)";
-            textGrabAll.Invalidate();
-            Application.DoEvents();
-
-            //Save files in subdir of current folder
-            string _dir = Directory.CreateDirectory("APOD_ARCHIVE").Name;
-            
-            //Go from today (progress = 0) to minimum date (progress = span)
-            while (_prog < _span)
+            using (APOD a = new APOD())
             {
-                //Set API date according to progress (starting with zero increase)
-                try
-                {
-                    _apod.setAPIDate(_min.AddDays(_prog));
-                }
-                catch (Exception)
-                {}
+                a.setAPIKey(textCustomKey.Text);
 
-                //Try to download actual image
-                if (_apod.isImage)
-                {
-                    try
-                    {
-                        //Image name begin and length - to create final filename
-                        int begin = _apod.hdurl.LastIndexOf('/') + 1;
-                        int len = _apod.hdurl.Length - begin;
+                //List of download tasks
+                var tasks = new List<Task>();
 
-                        //Double check image URL, if HD not available try regular
-                        if (_apod.hdurl != null && _apod.hdurl != string.Empty)
-                            _wc.DownloadFileAsync(new Uri(_apod.hdurl),
-                                _dir + '\\' +
-                                _apod.apiDate.ToShortDateString().Replace(' ', '_') + '_' +
-                                _apod.hdurl.Substring(begin, len));
-                        else if (_apod.url != null && _apod.url != string.Empty)
-                            _wc.DownloadFileAsync(new Uri(_apod.url),
-                                _dir + '\\' +
-                                _apod.apiDate.ToShortDateString().Replace(' ', '_') + '_' +
-                                _apod.url.Substring(begin, len));
-                    }
-                    catch (Exception)
-                    {
-                        _err++;
-                    }
-                }
-                else
-                {
-                    _err++;
-                }
-
-                while (_wc.IsBusy) ; //dummy wait until previous download completes
-
-                _prog++;
-                textGrabAll.Text = "Download progress: " + _prog * 100 / _span + '%';
-                textGrabAll.Text += " (" + (_span - _prog) + " left to download)";
-                textDate.Text = _apod.apiDate.ToShortDateString();
+                //Set some GUI items
+                buttonGrabAll.Enabled = false;
+                timerRefresh.Enabled = false;
+                statusBar.Text = "Grabbing the archive...";
+                textGrabAll.Text = "Processing begins...";
                 textGrabAll.Invalidate();
                 Application.DoEvents();
-            }
 
-            _apod.Dispose();
-            _wc.Dispose();
-            buttonGrabAll.Enabled = true;
-            timerRefresh.Enabled = true;
-            textGrabAll.Text = "Done! Downloaded " + (_span - _err).ToString() + " images (" + _span.ToString() + " total)";
-            textDate.Text = _apod.apiDate.ToShortDateString();
+                //Save files in subdir of current folder
+                string _dir = Directory.CreateDirectory("APOD_ARCHIVE").Name;
+
+                //Go from today (progress = 0) to minimum date (progress = span)
+                Log("GRAB WHOLE ARCHIVE - main loop start ----------------------------");
+                for (int _prog = 0; _prog <= _span; _prog++)
+                {
+                    //Some tasks may have cpmpleted already, remove them from task list
+                    for (int i = 0; i < tasks.Count; i++)
+                    {
+                        if (tasks[i].IsCompleted)
+                        {
+                            Log("Removing completed task: " + tasks[i].ToString());
+                            tasks.Remove(tasks[i]);
+                            break;
+                        }
+                    }
+
+                    //Set API date according to progress (starting with zero increase)
+                    try
+                    {
+                        Log("Setting api date to " + _min.AddDays(_prog).ToShortDateString());
+                        a.setAPIDate(_min.AddDays(_prog));
+                    }
+                    catch (Exception ex)
+                    {
+                        Log("Error setting date to " + _min.AddDays(_prog).ToShortDateString());
+                        Log("msg = " + ex.Message);
+                    }
+
+                    //Try to download actual image
+                    if (a.isImage)
+                    {
+                        //Image name begin and length - to create final filename
+                        int begin = a.hdurl.LastIndexOf('/') + 1;
+                        int len = a.hdurl.Length - begin;
+
+                        //Double check image URL, if HD not available try regular
+                        if (a.hdurl != null && a.hdurl != string.Empty)
+                        {
+                            Log("Trying hd url " + a.hdurl);
+                            tasks.Add(downloadAsync(a.hdurl,
+                                _dir + '\\' + a.apiDate.ToShortDateString().Replace(' ', '_') + '_' +
+                                a.hdurl.Substring(begin, len)));
+                        }
+                        else if (a.url != null && a.url != string.Empty)
+                        {
+                            Log("Trying regular url " + a.url);
+                            tasks.Add(downloadAsync(a.url,
+                                _dir + '\\' + a.apiDate.ToShortDateString().Replace(' ', '_') + '_' +
+                                a.url.Substring(begin, len)));
+                        }
+                    }
+                    else
+                    {
+                        Log("Date set to " + _min.AddDays(_prog).ToShortDateString() + ", no image found");
+                        _err++;
+                    }
+
+                    textGrabAll.Text = "Processing " + a.apiDate.ToShortDateString() + " (";
+                    textGrabAll.Text += _prog * 100 / _span + "%, " + (_span - _prog) + " left)";
+                    textDate.Text = a.apiDate.ToShortDateString();
+                    textGrabAll.Invalidate();
+                    Application.DoEvents();
+                }
+
+                //Wait for remaining download tasks to finish
+                Log("GRAB WHOLE ARCHIVE - main loop stop ----------------------------");
+                //Task.WaitAll(tasks.ToArray());
+                //tasks.Clear();
+
+                buttonGrabAll.Enabled = true;
+                timerRefresh.Enabled = true;
+                textGrabAll.Text = "Done! Downloaded " + (_span - _err).ToString() + " images (" + _span.ToString() + " total)";
+                textDate.Text = a.apiDate.ToShortDateString();
+            }
             statusBar.Text = "Done!";
             Application.DoEvents();
+        }
+
+        //Download task
+        private async Task downloadAsync(string url, string path)
+        {
+            using (var _wc = new WebClient())
+            {
+                try
+                {
+                    Log("Trying to download " + url + "...");
+                    await _wc.DownloadFileTaskAsync(url, path);
+                    Log("Download succesful " + url + "...");
+                }
+                catch (Exception e)
+                {
+                    Log("Error downloading " + url);
+                    Log("msg = " + e.Message);
+                }
+            }
         }
 
         //Enable or disable history function

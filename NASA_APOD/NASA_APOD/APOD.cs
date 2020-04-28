@@ -4,7 +4,6 @@ using System.Text.RegularExpressions;
 
 namespace NASA_APOD
 {
-    //Simple container for API fields - used to deserialize retrieved json
     public class APOD_API
     {
         //Json fields for NASA API
@@ -17,8 +16,7 @@ namespace NASA_APOD
         public string title;
         public string url;
     }
-
-    public class APOD : APOD_API
+    public partial class APOD : APOD_API
     {
         //--- Public fields ---------------------------------------------------------
         public DateTime apiDate;
@@ -39,20 +37,10 @@ namespace NASA_APOD
             //nothing special...
         }
 
-        //--- Dispose stuff ---------------------------------------------------------
-        protected virtual void Dispose(bool disposing)
+        //--- Date-based constructor ---------------------------------------------------
+        public APOD(DateTime apiDate)
         {
-            if (disposing)
-            {
-                // dispose managed resources
-                _wc.Dispose();
-            }
-            // free native resources
-        }
-        public void Dispose()
-        {
-            Dispose(true);
-            GC.SuppressFinalize(this);
+            setAPIDate(apiDate);
         }
 
         //--- Public methods --------------------------------------------------------
@@ -153,6 +141,25 @@ namespace NASA_APOD
                 return json.Substring(valueStartPos, valueLength - valueStartPos);
             }
             else return null;
+        }
+    }
+    
+    //Dispose it properly
+    public partial class APOD : IDisposable
+    {
+        private bool isDisposed = false;
+        protected virtual void Dispose(bool disposing)
+        {
+            if (!isDisposed)
+                if (disposing)
+                    if (_wc != null)
+                        _wc.Dispose();
+            isDisposed = true;
+        }
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }
