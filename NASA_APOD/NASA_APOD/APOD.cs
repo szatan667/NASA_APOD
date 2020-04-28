@@ -4,6 +4,9 @@ using System.Text.RegularExpressions;
 
 namespace NASA_APOD
 {
+    /// <summary>
+    /// Simple container for NASA APOD returned fields
+    /// </summary>
     public class APOD_API
     {
         //Json fields for NASA API
@@ -16,6 +19,10 @@ namespace NASA_APOD
         public string title;
         public string url;
     }
+
+    /// <summary>
+    /// Astronomy picture of the day object. Allows to call NASA API and retrieve image URL and description for given date.
+    /// </summary>
     public partial class APOD : APOD_API
     {
         //--- Public fields ---------------------------------------------------------
@@ -32,12 +39,19 @@ namespace NASA_APOD
         private static readonly DateTime _DATE_MIN = DateTime.Parse("1995-06-16");
 
         //--- Default constructor ---------------------------------------------------
+        /// <summary>
+        /// Create empty picture of the day object. 
+        /// </summary>
         public APOD()
         {
             //nothing special...
         }
 
         //--- Date-based constructor ---------------------------------------------------
+        /// <summary>
+        /// Create picture of the date object for given date,
+        /// </summary>
+        /// <param name="apiDate">Date of picture of the day</param>
         public APOD(DateTime apiDate)
         {
             setAPIDate(apiDate);
@@ -46,19 +60,27 @@ namespace NASA_APOD
         //--- Public methods --------------------------------------------------------
 
         //Set API key
-        public void setAPIKey(string key)
+        /// <summary>
+        /// Set key for NASA API. Has to be 40-char custom key or "DEMO_KEY".
+        /// </summary>
+        /// <param name="apiKey">40-character long key string</param>
+        public void setAPIKey(string apiKey)
         {
-            if (key.Length == 40 || key == "DEMO_KEY")
-                _apiKey = key;
+            if (apiKey.Length == 40 || apiKey == "DEMO_KEY")
+                _apiKey = apiKey;
             else
                 _apiKey = _apiKeyDefault;
         }
 
         //Set current date for API - create URL and get json
-        public void setAPIDate(DateTime datetime)
+        /// <summary>
+        /// Set current date for APOD API
+        /// </summary>
+        /// <param name="apiDate">API date</param>
+        public void setAPIDate(DateTime apiDate)
         {
             //Don't go below minimum date
-            if (datetime < _DATE_MIN) datetime = _DATE_MIN;
+            if (apiDate < _DATE_MIN) apiDate = _DATE_MIN;
 
             //Double check API key and fall back to default if needed
             if (_apiKey == null || _apiKey == string.Empty || _apiKey.Length != 40)
@@ -69,18 +91,18 @@ namespace NASA_APOD
             string _apiURL = _baseURL;
             _apiURL += "?api_key=" + _apiKey;
             _apiURL += "&hd=true";
-            _apiURL += "&date=" + datetime.Year + "-";
-            if (datetime.Month < 10) _apiURL += "0" + datetime.Month + "-";
-            else _apiURL += datetime.Month + "-";
-            if (datetime.Day < 10) _apiURL += "0" + datetime.Day;
-            else _apiURL += datetime.Day;
+            _apiURL += "&date=" + apiDate.Year + "-";
+            if (apiDate.Month < 10) _apiURL += "0" + apiDate.Month + "-";
+            else _apiURL += apiDate.Month + "-";
+            if (apiDate.Day < 10) _apiURL += "0" + apiDate.Day;
+            else _apiURL += apiDate.Day;
 
             //Call websvc and strip json to local vars
             try
             {
                 string json = _wc.DownloadString(_apiURL);
                 jsonDeserialize(json);
-                apiDate = datetime; //set the date for APOD object
+                this.apiDate = apiDate; //set the date for APOD object
 
                 if (media_type == "image") //set media type tag
                 {
@@ -102,7 +124,7 @@ namespace NASA_APOD
                 service_version = null;
                 title           = null;
                 url             = null;
-                apiDate         = DateTime.MinValue;
+                this.apiDate         = DateTime.MinValue;
                 isImage         = false;
                 throw e;
             }
@@ -111,6 +133,10 @@ namespace NASA_APOD
         //--- Private methods -------------------------------------------------------
 
         //Parse APOD json
+        /// <summary>
+        /// Deserialize json string returned by APOD API
+        /// </summary>
+        /// <param name="json">Json string in APOD API format</param>
         private void jsonDeserialize(string json)
         {
             json = Regex.Unescape(json); //get rid of escape slashes that API returns
@@ -126,6 +152,12 @@ namespace NASA_APOD
         }
 
         //Parse out single field from json string
+        /// <summary>
+        /// Get single key value from APOD API json string
+        /// </summary>
+        /// <param name="json">Json string in APOD API format</param>
+        /// <param name="key">Key name</param>
+        /// <returns></returns>
         private string jsonGetSingle(string json, string key)
         {
             string _key = '"' + key + '"'; //build key with quotes
