@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.IO;
 using System.Net;
 using System.Reflection;
@@ -92,23 +93,23 @@ namespace NASA_APOD
             myIcon.ContextMenu = new ContextMenu(new MenuItem[]
             {
                 new MenuItem("Previous", buttonPrev_Click)
-                {
-                    Name = "menuPrev"
-                },
+                { Name = "menuPrev", OwnerDraw = true },
                 new MenuItem("Next", buttonNext_Click)
-                {
-                    Name = "menuNext"
-                },
+                { Name = "menuNext", OwnerDraw = true },
                 new MenuItem("Today", OnMenuToday)
-                {
-                    Name = "menuToday"
-                },
-                new MenuItem("-"),
+                { Name = "menuToday", OwnerDraw = true },
+                new MenuItem("-")
+                { OwnerDraw = false },
                 new MenuItem("Exit", OnMenuExit)
-                {
-                    Name = "menuExit"
-                }
+                { Name = "menuExit", DefaultItem = true, OwnerDraw = true }
             });
+
+            //Register custom menu measure&draw routines
+            foreach (MenuItem mi in myIcon.ContextMenu.MenuItems)
+            {
+                mi.MeasureItem += MenuItemMeasure;
+                mi.DrawItem += MenuItemDraw;
+            }
 
             //Setup icons for window and tray icon
             myIcon.Icon = Properties.Resources.NASA;
@@ -1044,6 +1045,49 @@ namespace NASA_APOD
             {
                 iniFile.Write("enableHistory", "False");
                 tabControl.TabPages.Remove(tabHistory);
+            }
+        }
+
+        //Custom menu item drawing - measure the area
+        private void MenuItemMeasure(object sender, MeasureItemEventArgs e)
+        {
+            //Use bold font for default menu item and regular one for other items
+            //(works as long as system default menu font is not bold ;))
+            using (Font f = (sender as MenuItem).DefaultItem ?   //is it default
+                new Font(SystemFonts.MenuFont, FontStyle.Bold) : //yes it is, use bold font
+                SystemFonts.MenuFont)                            //no, use default font
+            {
+                SizeF sz = e.Graphics.MeasureString((sender as MenuItem).Text, f);
+
+                e.ItemWidth = (int)(1.1 * sz.Width);
+                e.ItemHeight = (int)(1.30 * sz.Height);
+            }
+        }
+
+        //Custom menu item drawing - draw item
+        private void MenuItemDraw(object sender, DrawItemEventArgs e)
+        {
+            using (Font f = (sender as MenuItem).DefaultItem ? new Font(SystemFonts.MenuFont, FontStyle.Bold) : SystemFonts.MenuFont)
+            {
+                //Draw backgrounds - mouse over...
+                if ((e.State & DrawItemState.Selected) != DrawItemState.None)
+                {
+                    //Horizontal gradient and outside box
+                    e.Graphics.FillRectangle(new LinearGradientBrush(e.Bounds, SystemColors.GradientActiveCaption, SystemColors.Control, (float)0), e.Bounds);
+                    e.Graphics.DrawRectangle(SystemPens.ControlDark, e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1);
+                }
+                //...and mouse out
+                else
+                {
+                    //Clear gradient and box with "control" color so they disappear
+                    e.Graphics.FillRectangle(SystemBrushes.Control, e.Bounds);
+                    e.Graphics.DrawRectangle(SystemPens.Control, e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1);
+                }
+
+                e.Graphics.DrawString((sender as MenuItem).Text, f,
+                    SystemBrushes.ControlText,
+                    e.Bounds.X + e.Graphics.MeasureString("-", f).Width,
+                    e.Bounds.Y + (e.Bounds.Height - e.Graphics.MeasureString((sender as MenuItem).Text, f).Height) / 2);
             }
         }
     }
