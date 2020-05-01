@@ -23,7 +23,7 @@ namespace NASA_APOD
         public string imagePath = "temp.jpg"; //default file to save
 
         //GUI items
-        bool hidden = false;    //main form state - hidden or not
+        bool formHidden = false;
 
         //setup ini file to store usage statistics
         readonly IniFile iniFile = new IniFile();
@@ -705,16 +705,16 @@ namespace NASA_APOD
             
             {
                 //Toggle window state
-                if (hidden)
+                if (formHidden)
                 {
                     this.Show();
                     this.WindowState = FormWindowState.Normal;
-                    hidden = false;
+                    formHidden = false;
                 }
                 else
                 {
                     this.Hide();
-                    hidden = true;
+                    formHidden = true;
                 }
             }
         }
@@ -727,7 +727,7 @@ namespace NASA_APOD
             if (this.WindowState == FormWindowState.Minimized)
             {
                 this.Hide();
-                hidden = true;
+                formHidden = true;
                 myIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
                 myIcon.BalloonTipText = myIcon.Text;
                 myIcon.ShowBalloonTip(1000);
