@@ -40,6 +40,12 @@ namespace NASA_APOD
         //Logging switch - disabled on startup, requires cmd line param to be enabled
         readonly bool logging = false;
 
+        //Grab archive
+        static DateTime dateMin = DateTime.Parse("1995-06-16"); //first day in APOD archive
+        int daysSpan = 1 + (int)(DateTime.Today - dateMin).TotalDays; //number of days from today to minimum date
+        int daysProg = 0; //download progress
+        int daysErrors = 0; //number of errors or non-images
+
         //--- Main class methods -----------------------------------------------------------------
 
         //Default constructor - will create program window and set everything up
@@ -74,6 +80,9 @@ namespace NASA_APOD
 
             //GUI items - START -------------------------------------------------------
             Log("setting up GUI items...");
+
+            pictureBox.ErrorImage = Properties.Resources.NASA.ToBitmap();
+            pictureBox.InitialImage = Properties.Resources.NASA.ToBitmap();
 
             if (!logging) //remove debugging tab if not desired by pgm parameter
                 tabControl.TabPages.Remove(tabDebug);
@@ -286,7 +295,7 @@ namespace NASA_APOD
             Log("trying this date: " + apodDate);
 
             //Clear date related GUI fields
-            textDate.ForeColor = Color.LightSlateGray;
+            textDate.ForeColor = SystemColors.GrayText;
             textDate.Text = "Wait...";
             Log("date field \"wait\" and grey");
 
@@ -313,7 +322,7 @@ namespace NASA_APOD
                 Log("API SET DATE FAILED! requested date = " + apodDate.ToString());
                 Log(e.Message);
                 statusBar.Text = e.Message;
-                textDate.ForeColor = Color.Black;
+                textDate.ForeColor = SystemColors.ControlText;
                 textDate.Text = "(none)";
             }
         }
@@ -387,7 +396,8 @@ namespace NASA_APOD
                 {
                     Log("not a picture section - either a video link or null");
                     //Not a picture today, clear the image and show some text
-                    pictureBox.Image = null;
+                    pictureBox.Image = Properties.Resources.NASA.ToBitmap();
+                    pictureBox.SizeMode = PictureBoxSizeMode.CenterImage;
                     statusBar.Text = "Sorry, no picture today.";
                     textBoxImgDesc.Text = "(media_type = " + apod.media_type + ")" + Environment.NewLine;
                     if (apod.url != string.Empty && apod.url != null)
@@ -486,7 +496,7 @@ namespace NASA_APOD
             this.Text = "NASA Astronomy Picture of the Day - " +
                 apod.apiDate.ToShortDateString() + " - " +
                 apod.title;
-            textDate.ForeColor = Color.Black;
+            textDate.ForeColor = SystemColors.ControlText;
             textDate.Text = apod.apiDate.ToShortDateString();
 
             //TODO: Sometimes wallpapering does not work - why? This happens in Win7 only
@@ -913,25 +923,26 @@ namespace NASA_APOD
             Log(MethodBase.GetCurrentMethod().Name);
 
             //Some initial values
-            DateTime _min = DateTime.Parse("1995-06-16"); //first day in APOD archive
-            //DateTime _min = DateTime.Parse("2020-03-29"); //first day in APOD archive
-            int _span = 1 + (int)(DateTime.Today - _min).TotalDays; //number of days from today to minimum date
-            int _err = 0; //number of errors or non-images
+            daysProg = 0; //global download progress
+            daysErrors = 0;
+            int _daysProg; //queueing progress (different that actual download progress!)
+
+            //List of download tasks
+            List<Task> tasks = new List<Task>();
 
             //Create local apod object
             using (APOD a = new APOD())
             {
                 a.setAPIKey(textCustomKey.Text);
 
-                //List of download tasks
-                var tasks = new List<Task>();
-
                 //Set some GUI items
                 buttonGrabAll.Enabled = false;
                 timerRefresh.Enabled = false;
+                progressBar.Value = 0;
                 statusBar.Text = "Grabbing the archive...";
-                textGrabAll.Text = "Processing begins...";
+                textGrabAll.Text = "Creating download queue...";
                 textGrabAll.Invalidate();
+                progressBar.Invalidate();
                 Application.DoEvents();
 
                 //Save files in subdir of current folder
@@ -939,28 +950,26 @@ namespace NASA_APOD
 
                 //Go from today (progress = 0) to minimum date (progress = span)
                 Log("GRAB WHOLE ARCHIVE - main loop start ----------------------------");
-                for (int _prog = 0; _prog <= _span; _prog++)
+                for (_daysProg = 0; _daysProg < daysSpan; _daysProg++)
                 {
-                    //Some tasks may have cpmpleted already, remove them from task list
-                    for (int i = 0; i < tasks.Count; i++)
-                    {
-                        if (tasks[i].IsCompleted)
+                    //Some tasks may have completed already, remove them from task list
+                    foreach (Task t in tasks)
+                        if (t.IsCompleted)
                         {
-                            Log("Removing completed task: " + tasks[i].ToString());
-                            tasks.Remove(tasks[i]);
+                            Log("Removing completed task: " + t.ToString());
+                            tasks.Remove(t);
                             break;
                         }
-                    }
 
                     //Set API date according to progress (starting with zero increase)
                     try
                     {
-                        Log("Setting api date to " + _min.AddDays(_prog).ToShortDateString());
-                        a.setAPIDate(_min.AddDays(_prog));
+                        Log("Setting api date to " + dateMin.AddDays(_daysProg).ToShortDateString());
+                        a.setAPIDate(dateMin.AddDays(_daysProg));
                     }
                     catch (Exception ex)
                     {
-                        Log("Error setting date to " + _min.AddDays(_prog).ToShortDateString());
+                        Log("Error setting date to " + dateMin.AddDays(_daysProg).ToShortDateString());
                         Log("msg = " + ex.Message);
                     }
 
@@ -989,12 +998,13 @@ namespace NASA_APOD
                     }
                     else
                     {
-                        Log("Date set to " + _min.AddDays(_prog).ToShortDateString() + ", no image found");
-                        _err++;
+                        Log("Date set to " + dateMin.AddDays(_daysProg).ToShortDateString() + ", no image found");
+                        daysErrors++;
                     }
-
-                    textGrabAll.Text = "Processing " + a.apiDate.ToShortDateString() + " (";
-                    textGrabAll.Text += _prog * 100 / _span + "%, " + (_span - _prog) + " left)";
+                    
+                    textGrabAll.Text = "Queueing " + a.apiDate.ToShortDateString() + " (" +
+                        _daysProg * 100 / daysSpan + "%, " + 
+                        (daysSpan - _daysProg) + " left)";
                     textDate.Text = a.apiDate.ToShortDateString();
                     textGrabAll.Invalidate();
                     Application.DoEvents();
@@ -1002,15 +1012,11 @@ namespace NASA_APOD
 
                 //Wait for remaining download tasks to finish
                 Log("GRAB WHOLE ARCHIVE - main loop stop ----------------------------");
-                //Task.WaitAll(tasks.ToArray());
-                //tasks.Clear();
+                tasks.Clear();
 
                 buttonGrabAll.Enabled = true;
                 timerRefresh.Enabled = true;
-                textGrabAll.Text = "Done! Downloaded " + (_span - _err).ToString() + " images (" + _span.ToString() + " total)";
-                textDate.Text = a.apiDate.ToShortDateString();
             }
-            statusBar.Text = "Done!";
             Application.DoEvents();
         }
 
@@ -1023,10 +1029,10 @@ namespace NASA_APOD
         private async Task downloadAsync(string url, string path)
         {
             using (var _wc = new WebClient())
-            {
                 try
                 {
                     Log("Trying to download " + url + "...");
+                    _wc.DownloadFileCompleted += _wc_DownloadFileCompleted;
                     await _wc.DownloadFileTaskAsync(url, path);
                     Log("Download succesful " + url + "...");
                 }
@@ -1035,7 +1041,28 @@ namespace NASA_APOD
                     Log("Error downloading " + url);
                     Log("msg = " + e.Message);
                 }
+        }
+
+        private void _wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        {
+            daysProg++;
+
+            if (daysProg < daysSpan)
+                textGrabAll.Text = "Downloading... " +
+                    daysProg * 100 / daysSpan + "%, " +
+                    (daysSpan - daysProg) + " left";
+            else
+            {
+                textGrabAll.Text = "Download complete! " +
+                    "(" + daysProg + " downloaded, " +
+                    daysErrors + " errors)";
+                statusBar.Text = textGrabAll.Text;
             }
+
+            progressBar.Value = daysProg * 100 / daysSpan;
+            textGrabAll.Invalidate();
+            progressBar.Invalidate();
+            Application.DoEvents();
         }
 
         //Enable or disable history function
