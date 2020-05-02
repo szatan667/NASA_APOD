@@ -913,8 +913,8 @@ namespace NASA_APOD
             Log(MethodBase.GetCurrentMethod().Name);
 
             //Some initial values
-            //DateTime _min = DateTime.Parse("1995-06-16"); //first day in APOD archive
-            DateTime _min = DateTime.Parse("2020-03-29"); //first day in APOD archive
+            DateTime _min = DateTime.Parse("1995-06-16"); //first day in APOD archive
+            //DateTime _min = DateTime.Parse("2020-03-29"); //first day in APOD archive
             int _span = 1 + (int)(DateTime.Today - _min).TotalDays; //number of days from today to minimum date
             int _err = 0; //number of errors or non-images
 
