@@ -389,6 +389,8 @@ namespace NASA_APOD
                     //(hd images are large and use too much memory)
                     Log("API says that image is there: " + apod.hdurl);
                     //Since this is async action, rest of the logic will be called whenever download is completed
+                    labelImageDesc.Text = apod.title;
+                    textBoxImgDesc.Text = "Loading...";
                     pictureBox.LoadAsync(apod.hdurl);
                     Log("async download started");
                 }
@@ -998,7 +1000,8 @@ namespace NASA_APOD
                     }
                     else
                     {
-                        Log("Date set to " + dateMin.AddDays(_daysProg).ToShortDateString() + ", no image found");
+                        Log("Date set to " + dateMin.AddDays(_daysProg).ToShortDateString() + 
+                            ", no image found (" + a.media_type + ")");
                         daysErrors++;
                     }
                     
@@ -1043,7 +1046,8 @@ namespace NASA_APOD
                 }
         }
 
-        private void _wc_DownloadFileCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        // Update GUI when single donwload thread is completed
+        private void _wc_DownloadFileCompleted(object s, System.ComponentModel.AsyncCompletedEventArgs e)
         {
             daysProg++;
 
