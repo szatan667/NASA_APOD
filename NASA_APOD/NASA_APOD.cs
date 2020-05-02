@@ -181,10 +181,9 @@ namespace NASA_APOD
             }
             Log("STARTUP DATE = " + apod.apiDate);
 
-            //Get the image on startup, but only if API call was succesful (eg. prevent network errors)
+            //Get the image on startup
             Log("Getting the image on startup...");
-            if (apod.media_type != null)
-                getNASAApod();
+            getNASAApod();
         }
 
         /// <summary>
@@ -251,9 +250,10 @@ namespace NASA_APOD
                 int daysback = 0; //start going back in time today
 
                 //Now go back in time and fetch history items
-                while (cnt < maxDays)
+                a.setAPIDate(apod.apiDate.AddDays(daysback)); //go back further back in time
+
+                while (cnt < maxDays && apod.apiDate.AddDays(daysback) >= DateTime.Parse("1995-06-16"))
                 {
-                    a.setAPIDate(apod.apiDate.AddDays(daysback)); //go back further back in time
                     if (a.isImage) //add item only if media is image
                     {
                         listHistory.Items.Add(a.apiDate.ToShortDateString()); //history date
@@ -264,9 +264,13 @@ namespace NASA_APOD
                         Application.DoEvents();
                         Log("History item added " + a.date);
                     }
-                    daysback--; //time travel!
+
+                    //Time travel
+                    daysback--;
+                    a.setAPIDate(apod.apiDate.AddDays(daysback));
                 }
                 listHistory.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+                progressBar.Value = 100;
                 statusBar.Text = string.Empty;
             }
         }
@@ -293,7 +297,7 @@ namespace NASA_APOD
                 apod.setAPIDate(apodDate);
                 //Setup prev/next buttons with previous and next dates ←→►◄
                 buttonPrev.Text = "<< " + apod.apiDate.AddDays(-1).ToShortDateString();
-                buttonNext.Text = apod.apiDate.AddDays(1).ToShortDateString() + ">>";
+                buttonNext.Text = apod.apiDate.AddDays(1).ToShortDateString() + " >>";
 
                 Log("Call succesful! apod.date = " + apod.apiDate);
                 DebugTab(apod);
@@ -309,10 +313,8 @@ namespace NASA_APOD
                 Log("API SET DATE FAILED! requested date = " + apodDate.ToString());
                 Log(e.Message);
                 statusBar.Text = e.Message;
-                apod.media_type = null;
                 textDate.ForeColor = Color.Black;
                 textDate.Text = "(none)";
-                //setupButtons();
             }
         }
 
@@ -323,8 +325,7 @@ namespace NASA_APOD
 
             //Get today's image
             apod.setAPIDate(DateTime.Today);
-            if (apod.media_type != null)
-                getNASAApod();
+            getNASAApod();
         }
 
         //Tray icon menu "exit" event handler
@@ -533,20 +534,32 @@ namespace NASA_APOD
                 myIcon.ContextMenu.MenuItems["menuToday"].Text = string.Join(" - ", "Today", apod.date, apod.title);
             }
             else
-            //EARLIER - all enabled
+            //EARLIER - all enabled, or disable previous if minimum date reached
             {
                 //Window buttons
-                buttonPrev.Enabled = true;
+                if (apod.apiDate <= DateTime.Parse("1995-06-16"))
+                    buttonPrev.Enabled = false;
+                else
+                    buttonPrev.Enabled = true;
+
                 buttonToday.Enabled = true;
                 buttonNext.Enabled = true;
                 buttonRefresh.Enabled = true;
 
                 //Tray menu buttons
-                using (APOD a = new APOD(apod.apiDate.AddDays(-1)))
+                if (apod.apiDate <= DateTime.Parse("1995-06-16"))
                 {
-                    myIcon.ContextMenu.MenuItems["menuPrev"].Enabled = true;
-                    myIcon.ContextMenu.MenuItems["menuPrev"].Text =
-                        string.Join(" - ", "Previous", a.date, a.title);
+                    myIcon.ContextMenu.MenuItems["menuPrev"].Enabled = false;
+                    myIcon.ContextMenu.MenuItems["menuPrev"].Text = "Previous";
+                }
+                else
+                {
+                    using (APOD a = new APOD(apod.apiDate.AddDays(-1)))
+                    {
+                        myIcon.ContextMenu.MenuItems["menuPrev"].Enabled = true;
+                        myIcon.ContextMenu.MenuItems["menuPrev"].Text =
+                            string.Join(" - ", "Previous", a.date, a.title);
+                    }
                 }
                 using (APOD a = new APOD(apod.apiDate.AddDays(1)))
                 {
@@ -600,8 +613,7 @@ namespace NASA_APOD
                 Log("API date = " + apod.apiDate);
                 Log("TODAY date = " + DateTime.Today);
                 setApodDate(apod, DateTime.Today);
-                if (apod.media_type != null)
-                    getNASAApod();
+                getNASAApod();
             }
             else
             {
@@ -740,8 +752,7 @@ namespace NASA_APOD
             Log(MethodBase.GetCurrentMethod().Name);
 
             setApodDate(apod, apod.apiDate.AddDays(-1));
-            if (apod.media_type != null)
-                getNASAApod();
+            getNASAApod();
         }
 
         //Next button click
@@ -752,8 +763,7 @@ namespace NASA_APOD
             if (apod.apiDate < DateTime.Today)
             {
                 setApodDate(apod, apod.apiDate.AddDays(1));
-                if (apod.media_type != null)
-                    getNASAApod();
+                getNASAApod();
             }
         }
 
@@ -763,8 +773,7 @@ namespace NASA_APOD
             Log(MethodBase.GetCurrentMethod().Name);
 
             setApodDate(apod, DateTime.Today);
-            if (apod.media_type != null)
-                getNASAApod();
+            getNASAApod();
         }
 
         //Refresh button - simply reload current image
@@ -772,9 +781,8 @@ namespace NASA_APOD
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
-            setApodDate(apod, apod.apiDate); //refresh json strings with current setup
-            if (apod.media_type != null)
-                getNASAApod();
+            setApodDate(apod, apod.apiDate);
+            getNASAApod();
         }
 
         //EXPERIMANTAL - draw the title over the picture
@@ -843,8 +851,7 @@ namespace NASA_APOD
             if (Calendar.SelectionStart > DateTime.Today) //don't allow future date
                 Calendar.SelectionStart = DateTime.Today;
             setApodDate(apod, Calendar.SelectionStart);
-            if (apod.media_type != null)
-                getNASAApod();
+            getNASAApod();
         }
 
         //Just move your mouse over the description to be able to scroll it
@@ -1049,15 +1056,15 @@ namespace NASA_APOD
         }
 
         //Custom menu item drawing - measure the area
-        private void MenuItemMeasure(object sender, MeasureItemEventArgs e)
+        private void MenuItemMeasure(object ClickedItem, MeasureItemEventArgs e)
         {
             //Use bold font for default menu item and regular one for other items
             //(works as long as system default menu font is not bold ;))
-            using (Font f = (sender as MenuItem).DefaultItem ?   //is it default
+            using (Font f = (ClickedItem as MenuItem).DefaultItem ?   //is it default
                 new Font(SystemFonts.MenuFont, FontStyle.Bold) : //yes it is, use bold font
                 SystemFonts.MenuFont)                            //no, use default font
             {
-                SizeF sz = e.Graphics.MeasureString((sender as MenuItem).Text, f);
+                SizeF sz = e.Graphics.MeasureString((ClickedItem as MenuItem).Text, f);
 
                 e.ItemWidth = (int)(1.1 * sz.Width);
                 e.ItemHeight = (int)(1.30 * sz.Height);
@@ -1065,16 +1072,21 @@ namespace NASA_APOD
         }
 
         //Custom menu item drawing - draw item
-        private void MenuItemDraw(object sender, DrawItemEventArgs e)
+        private void MenuItemDraw(object ClickedItem, DrawItemEventArgs e)
         {
-            using (Font f = (sender as MenuItem).DefaultItem ? new Font(SystemFonts.MenuFont, FontStyle.Bold) : SystemFonts.MenuFont)
+            //Bold font for default menu item, regular font for other items
+            using (Font f = (ClickedItem as MenuItem).DefaultItem ? new Font(SystemFonts.MenuFont, FontStyle.Bold) : SystemFonts.MenuFont)
             {
                 //Draw backgrounds - mouse over...
                 if ((e.State & DrawItemState.Selected) != DrawItemState.None)
                 {
-                    //Horizontal gradient and outside box
-                    e.Graphics.FillRectangle(new LinearGradientBrush(e.Bounds, SystemColors.GradientActiveCaption, SystemColors.Control, (float)0), e.Bounds);
-                    e.Graphics.DrawRectangle(SystemPens.ControlDark, e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1);
+                    //Distinguish between enabled and disabled items
+                    if ((ClickedItem as MenuItem).Enabled)
+                    {
+                        //Horizontal gradient and outside box
+                        e.Graphics.FillRectangle(new LinearGradientBrush(e.Bounds, SystemColors.GradientActiveCaption, SystemColors.Control, (float)0), e.Bounds);
+                        e.Graphics.DrawRectangle(SystemPens.ControlDark, e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1);
+                    }
                 }
                 //...and mouse out
                 else
@@ -1084,10 +1096,17 @@ namespace NASA_APOD
                     e.Graphics.DrawRectangle(SystemPens.Control, e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1);
                 }
 
-                e.Graphics.DrawString((sender as MenuItem).Text, f,
+                //Distinguish between enabled and disabled items
+                if ((ClickedItem as MenuItem).Enabled)
+                    e.Graphics.DrawString((ClickedItem as MenuItem).Text, f,
                     SystemBrushes.ControlText,
                     e.Bounds.X + e.Graphics.MeasureString("-", f).Width,
-                    e.Bounds.Y + (e.Bounds.Height - e.Graphics.MeasureString((sender as MenuItem).Text, f).Height) / 2);
+                    e.Bounds.Y + (e.Bounds.Height - e.Graphics.MeasureString((ClickedItem as MenuItem).Text, f).Height) / 2);
+                else
+                    e.Graphics.DrawString((ClickedItem as MenuItem).Text, f,
+                    SystemBrushes.ControlDark,
+                    e.Bounds.X + e.Graphics.MeasureString("-", f).Width,
+                    e.Bounds.Y + (e.Bounds.Height - e.Graphics.MeasureString((ClickedItem as MenuItem).Text, f).Height) / 2);
             }
         }
     }

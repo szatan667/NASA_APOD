@@ -120,13 +120,13 @@ namespace NASA_APOD
                 date            = null;
                 explanation     = null;
                 hdurl           = null;
-                media_type      = null;
+                media_type = e.Message;
                 service_version = null;
                 title           = null;
                 url             = null;
-                this.apiDate         = DateTime.MinValue;
+                this.apiDate = apiDate;// DateTime.MinValue;
                 isImage         = false;
-                throw e;
+                //throw e;
             }
         }
 
