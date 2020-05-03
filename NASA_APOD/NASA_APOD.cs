@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -17,6 +18,7 @@ namespace NASA_APOD
     {
         //Main photo of the day object
         public APOD apod;
+        WebBrowser web = null;
 
         //Paths
         public string pathToSave; //will hold path from folder dialog
@@ -52,7 +54,7 @@ namespace NASA_APOD
         public MainWindow()
         {
             //Enable logging if required - just pass anything as pgm parameter
-            if (Environment.GetCommandLineArgs().Length > 1)
+            //if (Environment.GetCommandLineArgs().Length > 1)
                 logging = true;
 
             Log("\n--- PROGRAM START -----------------------------------------------");
@@ -380,6 +382,15 @@ namespace NASA_APOD
             Log("trying to download the image...");
             try
             {
+                //If video was shown, disable it
+                if (web != null)
+                {
+                    pictureBox.Visible = true;
+                    web.Visible = false;
+                    web.Dispose();
+                    web = null;
+                }
+
                 //Get it from apod url, only if it's an image (sometimes they post videos, gifs, etc.)
                 if (apod.isImage)
                 {
@@ -388,6 +399,7 @@ namespace NASA_APOD
                     //(try normal-res picture by default)
                     //(hd images are large and use too much memory)
                     Log("API says that image is there: " + apod.hdurl);
+
                     //Since this is async action, rest of the logic will be called whenever download is completed
                     labelImageDesc.Text = apod.title;
                     textBoxImgDesc.Text = "Loading...";
@@ -411,8 +423,31 @@ namespace NASA_APOD
                     Log("\"no image\" gui setup done");
                     //Enable/disable 'previous' and 'next' buttons, depending on the API date
                     setupButtons();
+
+                    //Try to play youtube or vimeo
+                    if (apod.url.Contains("youtube") || apod.url.Contains("vimeo"))
+                    {
+                        string embed = string.Empty;
+                        string url = string.Empty;
+                        web = new WebBrowser
+                        {
+                            Location = pictureBox.Location,
+                            Size = pictureBox.Size,
+                            ScrollBarsEnabled = false,
+                            Visible = true
+                        };
+                        Controls.Add(web);
+                        pictureBox.Visible = false;
+
+                        web.DocumentText =
+                            "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\"/>" +
+                            "<iframe width=" + web.Width * 0.98 + " " + "height=" + web.Height * 0.92 + " " +
+                            "src=\"" + ((apod.url.Contains("autoplay")) ? apod.url : apod.url + "&autoplay=1") + "\"" +
+                            "frameborder = \"0\" allow = \"autoplay; encrypted-media\" allowfullscreen></iframe>";
+                    }
                 }
             }
+
             //Download errors
             catch (Exception e)
             {
@@ -929,12 +964,12 @@ namespace NASA_APOD
             daysErrors = 0;
             int _daysProg; //queueing progress (different that actual download progress!)
 
-            //List of download tasks
-            List<Task> tasks = new List<Task>();
-
             //Create local apod object
             using (APOD a = new APOD())
             {
+                //List of download tasks
+                List<Task> tasks = new List<Task>();
+
                 a.setAPIKey(textCustomKey.Text);
 
                 //Set some GUI items
@@ -955,13 +990,15 @@ namespace NASA_APOD
                 for (_daysProg = 0; _daysProg < daysSpan; _daysProg++)
                 {
                     //Some tasks may have completed already, remove them from task list
-                    foreach (Task t in tasks)
-                        if (t.IsCompleted)
-                        {
-                            Log("Removing completed task: " + t.ToString());
-                            tasks.Remove(t);
-                            break;
-                        }
+                    Log("Number of download tasks = " + tasks.Count);
+                    while (tasks.Count > 20)
+                        foreach (Task t in tasks)
+                            if (t.IsCompleted)
+                            {
+                                Log("Removing completed task: " + t.ToString());
+                                tasks.Remove(t);
+                                break;
+                            }
 
                     //Set API date according to progress (starting with zero increase)
                     try
@@ -1047,7 +1084,7 @@ namespace NASA_APOD
         }
 
         // Update GUI when single donwload thread is completed
-        private void _wc_DownloadFileCompleted(object s, System.ComponentModel.AsyncCompletedEventArgs e)
+        private void _wc_DownloadFileCompleted(object s, AsyncCompletedEventArgs e)
         {
             daysProg++;
 
@@ -1110,7 +1147,6 @@ namespace NASA_APOD
             {
                 //Draw backgrounds - mouse over...
                 if ((e.State & DrawItemState.Selected) != DrawItemState.None)
-                {
                     //Distinguish between enabled and disabled items
                     if ((ClickedItem as MenuItem).Enabled)
                     {
@@ -1118,7 +1154,6 @@ namespace NASA_APOD
                         e.Graphics.FillRectangle(new LinearGradientBrush(e.Bounds, SystemColors.GradientActiveCaption, SystemColors.Control, (float)0), e.Bounds);
                         e.Graphics.DrawRectangle(SystemPens.ControlDark, e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1);
                     }
-                }
                 //...and mouse out
                 else
                 {
