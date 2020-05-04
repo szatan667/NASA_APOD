@@ -95,6 +95,7 @@
             this.listDebug = new System.Windows.Forms.ListView();
             this.debugField = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
             this.debugValue = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+            this.web = new System.Windows.Forms.WebBrowser();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).BeginInit();
             this.statusStrip.SuspendLayout();
             this.groupBoxSettings.SuspendLayout();
@@ -216,7 +217,7 @@
             // buttonPrev
             // 
             this.buttonPrev.Enabled = false;
-            this.buttonPrev.Location = new System.Drawing.Point(661, 377);
+            this.buttonPrev.Location = new System.Drawing.Point(661, 378);
             this.buttonPrev.Name = "buttonPrev";
             this.buttonPrev.Size = new System.Drawing.Size(111, 27);
             this.buttonPrev.TabIndex = 11;
@@ -227,7 +228,7 @@
             // buttonNext
             // 
             this.buttonNext.Enabled = false;
-            this.buttonNext.Location = new System.Drawing.Point(926, 377);
+            this.buttonNext.Location = new System.Drawing.Point(926, 378);
             this.buttonNext.Name = "buttonNext";
             this.buttonNext.Size = new System.Drawing.Size(111, 27);
             this.buttonNext.TabIndex = 12;
@@ -266,7 +267,7 @@
             // buttonToday
             // 
             this.buttonToday.Enabled = false;
-            this.buttonToday.Location = new System.Drawing.Point(793, 377);
+            this.buttonToday.Location = new System.Drawing.Point(793, 378);
             this.buttonToday.Name = "buttonToday";
             this.buttonToday.Size = new System.Drawing.Size(111, 27);
             this.buttonToday.TabIndex = 15;
@@ -527,11 +528,23 @@
             // 
             this.debugValue.Text = "value";
             // 
+            // web
+            // 
+            this.web.Location = new System.Drawing.Point(15, 44);
+            this.web.MinimumSize = new System.Drawing.Size(20, 20);
+            this.web.Name = "web";
+            this.web.ScriptErrorsSuppressed = true;
+            this.web.ScrollBarsEnabled = false;
+            this.web.Size = new System.Drawing.Size(640, 360);
+            this.web.TabIndex = 26;
+            this.web.Visible = false;
+            // 
             // MainWindow
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1046, 436);
+            this.Controls.Add(this.web);
             this.Controls.Add(this.tabControl);
             this.Controls.Add(this.textDate);
             this.Controls.Add(this.Calendar);
@@ -610,5 +623,6 @@
         private System.Windows.Forms.ColumnHeader debugField;
         private System.Windows.Forms.ColumnHeader debugValue;
         private System.Windows.Forms.CheckBox checkEnableHistory;
+        private System.Windows.Forms.WebBrowser web;
     }
 }

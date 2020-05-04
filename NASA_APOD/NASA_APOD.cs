@@ -18,7 +18,6 @@ namespace NASA_APOD
     {
         //Main photo of the day object
         public APOD apod;
-        WebBrowser web = null;
 
         //Paths
         public string pathToSave; //will hold path from folder dialog
@@ -310,6 +309,9 @@ namespace NASA_APOD
                 buttonPrev.Text = "<< " + apod.apiDate.AddDays(-1).ToShortDateString();
                 buttonNext.Text = apod.apiDate.AddDays(1).ToShortDateString() + " >>";
 
+                //Save last image date to INI file
+                iniFile.Write("lastDate", apod.apiDate.ToString());
+
                 Log("Call succesful! apod.date = " + apod.apiDate);
                 DebugTab(apod);
 
@@ -318,6 +320,7 @@ namespace NASA_APOD
                     fillHistory();
                 else
                     listHistory.Items.Clear();
+
             }
             catch (Exception e)
             {
@@ -373,25 +376,15 @@ namespace NASA_APOD
             textBoxImgDesc.Text = string.Empty;
             buttonPickDate.Enabled = false;
             foreach (MenuItem mi in myIcon.ContextMenu.MenuItems)
-            {
                 mi.Enabled = false;
-            }
             Log("done!");
 
             //Download image to picture box
             Log("trying to download the image...");
             try
             {
-                //If video was shown, disable it
-                if (web != null)
-                {
-                    pictureBox.Visible = true;
-                    web.Visible = false;
-                    web.Dispose();
-                    web = null;
-                }
-
-                //Get it from apod url, only if it's an image (sometimes they post videos, gifs, etc.)
+                //APOD can be either an image or video
+                //If it's an image - use picture box method to download picture in async...
                 if (apod.isImage)
                 {
                     //Download the image directly to image box
@@ -403,55 +396,60 @@ namespace NASA_APOD
                     //Since this is async action, rest of the logic will be called whenever download is completed
                     labelImageDesc.Text = apod.title;
                     textBoxImgDesc.Text = "Loading...";
+                    pictureBox.Visible = true;
+                    web.Visible = false;
+                    pictureBox.SizeMode = PictureBoxSizeMode.CenterImage;
+                    pictureBox.Image = Properties.Resources.NASA.ToBitmap();
                     pictureBox.LoadAsync(apod.hdurl);
                     Log("async download started");
                 }
+                //...otherwise try to play video link
                 else
                 {
-                    Log("not a picture section - either a video link or null");
-                    //Not a picture today, clear the image and show some text
-                    pictureBox.Image = Properties.Resources.NASA.ToBitmap();
-                    pictureBox.SizeMode = PictureBoxSizeMode.CenterImage;
-                    statusBar.Text = "Sorry, no picture today.";
-                    textBoxImgDesc.Text = "(media_type = " + apod.media_type + ")" + Environment.NewLine;
-                    if (apod.url != string.Empty && apod.url != null)
-                        textBoxImgDesc.Text += apod.url;
-                    textDate.Text = string.Empty;
-                    myIcon.Text = statusBar.Text;
-                    myIcon.BalloonTipText = statusBar.Text;
-                    myIcon.ShowBalloonTip(5000);
-                    Log("\"no image\" gui setup done");
-                    //Enable/disable 'previous' and 'next' buttons, depending on the API date
-                    setupButtons();
-
                     //Try to play youtube or vimeo
-                    if (apod.url.Contains("youtube") || apod.url.Contains("vimeo"))
+                    if (apod.url.Contains("youtube") || apod.url.Contains("vimeo") ||
+                        apod.hdurl.Contains("youtube") || apod.hdurl.Contains("vimeo"))
                     {
-                        string embed = string.Empty;
-                        string url = string.Empty;
-                        web = new WebBrowser
-                        {
-                            Location = pictureBox.Location,
-                            Size = pictureBox.Size,
-                            ScrollBarsEnabled = false,
-                            Visible = true
-                        };
-                        Controls.Add(web);
+                        web.Visible = true;
                         pictureBox.Visible = false;
 
-                        web.DocumentText =
+                        //Create document to be displayed by web browser control
+                        string DocumentText =
                             "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\"/>" +
-                            "<iframe width=" + web.Width * 0.98 + " " + "height=" + web.Height * 0.92 + " " +
-                            "src=\"" + ((apod.url.Contains("autoplay")) ? apod.url : apod.url + "&autoplay=1") + "\"" +
+                            "<iframe width=" + web.Width + " " + "height=" + web.Height + " " +
+                            "style=\"overflow: hidden; overflow - x:hidden; overflow - y:hidden; height: 100 %; width: 100 %; position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px\"" +
+                            "src=\"" + "{0}" + "\"" +
                             "frameborder = \"0\" allow = \"autoplay; encrypted-media\" allowfullscreen></iframe>";
+
+                        //Youtube or vimeo? Below code is for simple idiot-proofing of uncomplete urls seen in api
+                        string vsrc = string.Empty;
+                        
+                        if (apod.url.Contains("youtube"))
+                            vsrc = apod.url.Substring(apod.url.IndexOf("youtube"));
+                        else if (apod.hdurl.Contains("youtube"))
+                            vsrc = apod.hdurl.Substring(apod.hdurl.IndexOf("youtube"));
+                        else if (apod.url.Contains("vimeo"))
+                            vsrc = apod.url.Substring(apod.url.IndexOf("vimeo"));
+                        else if (apod.hdurl.Contains("vimeo"))
+                            vsrc = apod.hdurl.Substring(apod.hdurl.IndexOf("vimeo"));
+
+                        web.DocumentText = string.Format(DocumentText, "https://" + vsrc + "&autoplay=1");
                     }
+
+                    Log("not a picture section - either a video link or null");
+                    //Not a picture today, clear the image and show some text
+                    pictureBox.SizeMode = PictureBoxSizeMode.CenterImage;
+                    pictureBox.Image = Properties.Resources.NASA.ToBitmap();
+                    Log("\"no image\" gui setup done");
+                    //Enable/disable 'previous' and 'next' buttons, depending on the API date
+                    setupGUIWhenCompleted();
                 }
             }
 
             //Download errors
             catch (Exception e)
             {
-                Log("error while downloading image!");
+                Log("Error while downloading image!");
                 Log(e.Message);
                 statusBar.Text = e.Message;
             }
@@ -506,35 +504,9 @@ namespace NASA_APOD
             key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true);
             Log("registry file AFTER = " + key.GetValue("Wallpaper"));
 
-            //Save last image date to INI file
-            iniFile.Write("lastDate", apod.apiDate.ToString());
-
             //Setup UI elements
             //Activate tray menu and then enable/disable 'previous' and 'next' buttons, depending on the API date
-            setupButtons();
-
-            //Set image title
-            myIcon.Text = apod.title;
-            labelImageDesc.Text = apod.title;
-            labelImageDesc.Width = 375;
-
-            //Copyright is not always there
-            if (apod.copyright != null && apod.copyright != string.Empty)
-                labelImageDesc.Text += "\n© " + apod.copyright.Replace("\n", " ");
-
-            //Tray ballon
-            myIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
-            myIcon.BalloonTipText = apod.title;
-            myIcon.ShowBalloonTip(5000);
-            
-            //Image description and URL
-            textBoxImgDesc.Text = apod.explanation;
-            textURL.Text = apod.hdurl;
-            this.Text = "NASA Astronomy Picture of the Day - " +
-                apod.apiDate.ToShortDateString() + " - " +
-                apod.title;
-            textDate.ForeColor = SystemColors.ControlText;
-            textDate.Text = apod.apiDate.ToShortDateString();
+            setupGUIWhenCompleted();
 
             //TODO: Sometimes wallpapering does not work - why? This happens in Win7 only
             if (_out == 0)
@@ -549,9 +521,44 @@ namespace NASA_APOD
         /// <summary>
         /// Enable or disable GUI/tray items depending on current API date
         /// </summary>
-        private void setupButtons()
+        private void setupGUIWhenCompleted()
         {
             Log(MethodBase.GetCurrentMethod().Name);
+
+            //Set image title
+            myIcon.Text = apod.title;
+            labelImageDesc.Text = apod.title;
+
+            //Copyright is not always there
+            if (apod.copyright != null && apod.copyright != string.Empty)
+                labelImageDesc.Text += "\n© " + apod.copyright.Replace("\n", " ");
+
+            //Tray ballon
+            myIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
+            myIcon.BalloonTipText = apod.title;
+            myIcon.ShowBalloonTip(5000);
+
+            //Image description and URL
+            textBoxImgDesc.Text = apod.explanation;
+            if (apod.hdurl != null && apod.hdurl != string.Empty)
+                textURL.Text = apod.hdurl;
+            else if (apod.url != null && apod.url != string.Empty)
+                textURL.Text = apod.url;
+            if (!apod.isImage)
+            {
+                buttonCopyImage.Enabled = false;
+                progressBar.Value = 100;
+                statusBar.Text = "Done!";
+            }
+            else
+            {
+                buttonCopyImage.Enabled = true;
+            }
+            this.Text = "NASA Astronomy Picture of the Day - " +
+                apod.apiDate.ToShortDateString() + " - " +
+                apod.title;
+            textDate.ForeColor = SystemColors.ControlText;
+            textDate.Text = apod.apiDate.ToShortDateString();
 
             buttonPickDate.Enabled = true;
 
