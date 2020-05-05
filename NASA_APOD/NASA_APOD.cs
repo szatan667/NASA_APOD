@@ -1161,6 +1161,7 @@ namespace NASA_APOD
                         e.Graphics.FillRectangle(new LinearGradientBrush(e.Bounds, SystemColors.GradientActiveCaption, SystemColors.Control, (float)0), e.Bounds);
                         e.Graphics.DrawRectangle(SystemPens.ControlDark, e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1);
                     }
+                    else { }
                 //...and mouse out
                 else
                 {
@@ -1170,16 +1171,15 @@ namespace NASA_APOD
                 }
 
                 //Distinguish between enabled and disabled items
+                Brush b;
                 if ((ClickedItem as MenuItem).Enabled)
-                    e.Graphics.DrawString((ClickedItem as MenuItem).Text, f,
-                    SystemBrushes.ControlText,
-                    e.Bounds.X + e.Graphics.MeasureString("-", f).Width,
-                    e.Bounds.Y + (e.Bounds.Height - e.Graphics.MeasureString((ClickedItem as MenuItem).Text, f).Height) / 2);
+                    b = SystemBrushes.ControlText;
                 else
-                    e.Graphics.DrawString((ClickedItem as MenuItem).Text, f,
-                    SystemBrushes.ControlDark,
-                    e.Bounds.X + e.Graphics.MeasureString("-", f).Width,
-                    e.Bounds.Y + (e.Bounds.Height - e.Graphics.MeasureString((ClickedItem as MenuItem).Text, f).Height) / 2);
+                    b = SystemBrushes.ControlDark;
+                
+                e.Graphics.DrawString((ClickedItem as MenuItem).Text, f, b,
+                e.Bounds.X + e.Graphics.MeasureString("-", f).Width,
+                e.Bounds.Y + (e.Bounds.Height - e.Graphics.MeasureString((ClickedItem as MenuItem).Text, f).Height) / 2);
             }
         }
     }
