@@ -100,29 +100,24 @@ namespace NASA_APOD
             textDate.Text = string.Empty;
 
             //Add menu to tray icon
-            myIcon.ContextMenu = new ContextMenu(new MenuItem[]
+            trayIcon.ContextMenu = new ContextMenu(new MenuItem[]
             {
-                new MenuItem("Previous", buttonPrev_Click)
-                { Name = "menuPrev", OwnerDraw = true },
-                new MenuItem("Next", buttonNext_Click)
-                { Name = "menuNext", OwnerDraw = true },
-                new MenuItem("Today", OnMenuToday)
-                { Name = "menuToday", OwnerDraw = true },
-                new MenuItem("-")
-                { OwnerDraw = false },
-                new MenuItem("Exit", OnMenuExit)
-                { Name = "menuExit", DefaultItem = true, OwnerDraw = true }
+                new MenuItem("Previous", buttonPrev_Click) { Name = "menuPrev", OwnerDraw = true },
+                new MenuItem("Next", buttonNext_Click)     { Name = "menuNext", OwnerDraw = true },
+                new MenuItem("Today", OnMenuToday)         { Name = "menuToday", OwnerDraw = true },
+                new MenuItem("-")                          { OwnerDraw = false },
+                new MenuItem("Exit", OnMenuExit)           { Name = "menuExit", DefaultItem = true, OwnerDraw = true }
             });
 
             //Register custom menu measure&draw routines
-            foreach (MenuItem mi in myIcon.ContextMenu.MenuItems)
+            foreach (MenuItem mi in trayIcon.ContextMenu.MenuItems)
             {
                 mi.MeasureItem += MenuItemMeasure;
                 mi.DrawItem += MenuItemDraw;
             }
 
             //Setup icons for window and tray icon
-            myIcon.Icon = Properties.Resources.NASA;
+            trayIcon.Icon = Properties.Resources.NASA;
             this.Icon = Properties.Resources.NASA;
 
             //Now setup settings tab according to values stored in INI file
@@ -260,28 +255,35 @@ namespace NASA_APOD
                 int daysback = 0; //start going back in time today
 
                 //Now go back in time and fetch history items
-                a.setAPIDate(apod.apiDate.AddDays(daysback)); //go back further back in time
-
-                while (cnt < maxDays && apod.apiDate.AddDays(daysback) >= DateTime.Parse("1995-06-16"))
+                try
                 {
-                    if (a.isImage) //add item only if media is image
-                    {
-                        listHistory.Items.Add(a.apiDate.ToShortDateString()); //history date
-                        listHistory.Items[cnt].SubItems.Add(a.title); //history img name 
-                        cnt++; //item loaded!
-                        progressBar.Value = 100 * cnt / maxDays; //update progress bar and status text
-                        statusBar.Text = "Getting history items... (" + cnt + "/" + maxDays + ")";
-                        Application.DoEvents();
-                        Log("History item added " + a.date);
-                    }
+                    a.setAPIDate(apod.apiDate.AddDays(daysback)); //go back further back in time
 
-                    //Time travel
-                    daysback--;
-                    a.setAPIDate(apod.apiDate.AddDays(daysback));
+                    while (cnt < maxDays && apod.apiDate.AddDays(daysback) >= DateTime.Parse("1995-06-16"))
+                    {
+                        if (a.isImage) //add item only if media is image
+                        {
+                            listHistory.Items.Add(a.apiDate.ToShortDateString()); //history date
+                            listHistory.Items[cnt].SubItems.Add(a.title); //history img name 
+                            cnt++; //item loaded!
+                            progressBar.Value = 100 * cnt / maxDays; //update progress bar and status text
+                            statusBar.Text = "Getting history items... (" + cnt + "/" + maxDays + ")";
+                            Application.DoEvents();
+                            Log("History item added " + a.date);
+                        }
+
+                        //Time travel
+                        daysback--;
+                        a.setAPIDate(apod.apiDate.AddDays(daysback));
+                    }
+                    listHistory.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+                    progressBar.Value = 100;
+                    statusBar.Text = string.Empty;
                 }
-                listHistory.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
-                progressBar.Value = 100;
-                statusBar.Text = string.Empty;
+                catch (Exception e)
+                {
+                    statusBar.Text = e.Message;
+                }
             }
         }
 
@@ -367,7 +369,7 @@ namespace NASA_APOD
             //Setup GUI items for download time
             Log("setting some gui items...");
             statusBar.Text = "Getting NASA picture of the day...";
-            myIcon.Text = statusBar.Text;
+            trayIcon.Text = statusBar.Text;
             buttonPrev.Enabled = false;
             buttonToday.Enabled = false;
             buttonNext.Enabled = false;
@@ -375,83 +377,74 @@ namespace NASA_APOD
             labelImageDesc.Text = string.Empty;
             textBoxImgDesc.Text = string.Empty;
             buttonPickDate.Enabled = false;
-            foreach (MenuItem mi in myIcon.ContextMenu.MenuItems)
+            foreach (MenuItem mi in trayIcon.ContextMenu.MenuItems)
                 mi.Enabled = false;
             Log("done!");
 
             //Download image to picture box
             Log("trying to download the image...");
-            try
+
+            //At this point apod object should be already initialized (ie. date was set)
+            //APOD can be either an image or video
+            //If it's an image - use picture box method to download picture in async...
+            if (apod.isImage)
             {
-                //APOD can be either an image or video
-                //If it's an image - use picture box method to download picture in async...
-                if (apod.isImage)
-                {
-                    //Download the image directly to image box
-                    //"Image" property will allow to save it later
-                    //(try normal-res picture by default)
-                    //(hd images are large and use too much memory)
-                    Log("API says that image is there: " + apod.hdurl);
+                //Download the image directly to image box
+                //"Image" property will allow to save it later
+                //(try normal-res picture by default)
+                //(hd images are large and use too much memory)
+                Log("API says that image is there: " + apod.hdurl);
 
-                    //Since this is async action, rest of the logic will be called whenever download is completed
-                    labelImageDesc.Text = apod.title;
-                    textBoxImgDesc.Text = "Loading...";
-                    pictureBox.Visible = true;
-                    web.Visible = false;
-                    pictureBox.SizeMode = PictureBoxSizeMode.CenterImage;
-                    pictureBox.Image = Properties.Resources.NASA.ToBitmap();
-                    pictureBox.LoadAsync(apod.hdurl);
-                    Log("async download started");
-                }
-                //...otherwise try to play video link
-                else
-                {
-                    //Try to play youtube or vimeo
-                    if (apod.url.Contains("youtube") || apod.url.Contains("vimeo") ||
-                        apod.hdurl.Contains("youtube") || apod.hdurl.Contains("vimeo"))
-                    {
-                        web.Visible = true;
-                        pictureBox.Visible = false;
-
-                        //Create document to be displayed by web browser control
-                        string DocumentText =
-                            "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\"/>" +
-                            "<iframe width=" + web.Width + " " + "height=" + web.Height + " " +
-                            "style=\"overflow: hidden; overflow - x:hidden; overflow - y:hidden; height: 100 %; width: 100 %; position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px\"" +
-                            "src=\"" + "{0}" + "\"" +
-                            "frameborder = \"0\" allow = \"autoplay; encrypted-media\" allowfullscreen></iframe>";
-
-                        //Youtube or vimeo? Below code is for simple idiot-proofing of uncomplete urls seen in api
-                        string vsrc = string.Empty;
-                        
-                        if (apod.url.Contains("youtube"))
-                            vsrc = apod.url.Substring(apod.url.IndexOf("youtube"));
-                        else if (apod.hdurl.Contains("youtube"))
-                            vsrc = apod.hdurl.Substring(apod.hdurl.IndexOf("youtube"));
-                        else if (apod.url.Contains("vimeo"))
-                            vsrc = apod.url.Substring(apod.url.IndexOf("vimeo"));
-                        else if (apod.hdurl.Contains("vimeo"))
-                            vsrc = apod.hdurl.Substring(apod.hdurl.IndexOf("vimeo"));
-
-                        web.DocumentText = string.Format(DocumentText, "https://" + vsrc + "&autoplay=1");
-                    }
-
-                    Log("not a picture section - either a video link or null");
-                    //Not a picture today, clear the image and show some text
-                    pictureBox.SizeMode = PictureBoxSizeMode.CenterImage;
-                    pictureBox.Image = Properties.Resources.NASA.ToBitmap();
-                    Log("\"no image\" gui setup done");
-                    //Enable/disable 'previous' and 'next' buttons, depending on the API date
-                    setupGUIWhenCompleted();
-                }
+                //Since this is async action, rest of the logic will be called whenever download is completed
+                labelImageDesc.Text = apod.title;
+                textBoxImgDesc.Text = "Loading...";
+                pictureBox.Visible = true;
+                web.Visible = false;
+                pictureBox.SizeMode = PictureBoxSizeMode.CenterImage;
+                pictureBox.Image = Properties.Resources.NASA.ToBitmap();
+                pictureBox.LoadAsync(apod.hdurl);
+                Log("async download started");
             }
-
-            //Download errors
-            catch (Exception e)
+            //...otherwise try to play video link
+            else if (apod.hdurl != null || apod.url != null)
             {
-                Log("Error while downloading image!");
-                Log(e.Message);
-                statusBar.Text = e.Message;
+                //Try to play youtube or vimeo
+                if (apod.url.Contains("youtube") || apod.url.Contains("vimeo") ||
+                    apod.hdurl.Contains("youtube") || apod.hdurl.Contains("vimeo"))
+                {
+                    web.Visible = true;
+                    pictureBox.Visible = false;
+
+                    //Create document to be displayed by web browser control
+                    string DocumentText =
+                        "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\"/>" +
+                        "<iframe width=" + web.Width + " " + "height=" + web.Height + " " +
+                        "style=\"overflow: hidden; overflow - x:hidden; overflow - y:hidden; height: 100 %; width: 100 %; position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px\"" +
+                        "src=\"" + "{0}" + "\"" +
+                        "frameborder = \"0\" allow = \"autoplay; encrypted-media\" allowfullscreen></iframe>";
+
+                    //Youtube or vimeo? Below code is for simple idiot-proofing of uncomplete urls seen in api
+                    string vsrc = string.Empty;
+
+                    if (apod.url.Contains("youtube"))
+                        vsrc = apod.url.Substring(apod.url.IndexOf("youtube"));
+                    else if (apod.hdurl.Contains("youtube"))
+                        vsrc = apod.hdurl.Substring(apod.hdurl.IndexOf("youtube"));
+                    else if (apod.url.Contains("vimeo"))
+                        vsrc = apod.url.Substring(apod.url.IndexOf("vimeo"));
+                    else if (apod.hdurl.Contains("vimeo"))
+                        vsrc = apod.hdurl.Substring(apod.hdurl.IndexOf("vimeo"));
+
+                    web.DocumentText = string.Format(DocumentText, "https://" + vsrc + "&autoplay=1");
+                }
+
+                Log("not a picture section - either a video link or null");
+                //Not a picture today, clear the image and show some text
+                pictureBox.SizeMode = PictureBoxSizeMode.CenterImage;
+                pictureBox.Image = Properties.Resources.NASA.ToBitmap();
+                Log("\"no image\" gui setup done");
+                //Enable/disable 'previous' and 'next' buttons, depending on the API date
+                setupGUIWhenCompleted();
             }
         }
 
@@ -526,17 +519,18 @@ namespace NASA_APOD
             Log(MethodBase.GetCurrentMethod().Name);
 
             //Set image title
-            myIcon.Text = apod.title;
+            trayIcon.Text = apod.title;
             labelImageDesc.Text = apod.title;
 
             //Copyright is not always there
             if (apod.copyright != null && apod.copyright != string.Empty)
-                labelImageDesc.Text += "\n© " + apod.copyright.Replace("\n", " ");
+                labelImageDesc.Text += Environment.NewLine + "© " + apod.copyright.Replace("\n", " ");
 
             //Tray ballon
-            myIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
-            myIcon.BalloonTipText = apod.title;
-            myIcon.ShowBalloonTip(5000);
+            trayIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
+            trayIcon.BalloonTipText = apod.title;
+            if (trayIcon.BalloonTipText != string.Empty && trayIcon.BalloonTipText != null)
+                trayIcon.ShowBalloonTip(5000);
 
             //Image description and URL
             textBoxImgDesc.Text = apod.explanation;
@@ -554,7 +548,7 @@ namespace NASA_APOD
             {
                 buttonCopyImage.Enabled = true;
             }
-            this.Text = "NASA Astronomy Picture of the Day - " +
+            this.Text = "NASA Astronomy Picture of the Day - " + //TODO: conditional add of '-' if title not empty
                 apod.apiDate.ToShortDateString() + " - " +
                 apod.title;
             textDate.ForeColor = SystemColors.ControlText;
@@ -562,8 +556,8 @@ namespace NASA_APOD
 
             buttonPickDate.Enabled = true;
 
-            myIcon.ContextMenu.MenuItems["menuToday"].Enabled = true;
-            myIcon.ContextMenu.MenuItems["menuExit"].Enabled = true;
+            trayIcon.ContextMenu.MenuItems["menuToday"].Enabled = true;
+            trayIcon.ContextMenu.MenuItems["menuExit"].Enabled = true;
 
             //Enable/disable 'previous' and 'next' buttons, depending on the API date
             //TODAY - previous enabled, today enabled, next disabled
@@ -576,16 +570,11 @@ namespace NASA_APOD
                 buttonNext.Enabled = false;
                 buttonRefresh.Enabled = true;
 
-                //Tray menu buttons
-                using (APOD a = new APOD(apod.apiDate.AddDays(-1)))
-                {
-                    myIcon.ContextMenu.MenuItems["menuPrev"].Enabled = true;
-                    myIcon.ContextMenu.MenuItems["menuPrev"].Text =
-                        string.Join(" - ", "Previous", a.date, a.title);
-                }
-                myIcon.ContextMenu.MenuItems["menuNext"].Enabled = false;
-                myIcon.ContextMenu.MenuItems["menuNext"].Text = "Next - not available";
-                myIcon.ContextMenu.MenuItems["menuToday"].Text = string.Join(" - ", "Today", apod.date, apod.title);
+                //Try to get previous title from api
+                setupMenuItem("menuPrev", apod.apiDate.AddDays(-1));
+                trayIcon.ContextMenu.MenuItems["menuNext"].Enabled = false;
+                trayIcon.ContextMenu.MenuItems["menuNext"].Text = "Next - not available";
+                trayIcon.ContextMenu.MenuItems["menuToday"].Text = string.Join(" - ", "Today", apod.date, apod.title);
             }
             else
             //EARLIER - all enabled, or disable previous if minimum date reached
@@ -600,26 +589,54 @@ namespace NASA_APOD
                 buttonNext.Enabled = true;
                 buttonRefresh.Enabled = true;
 
-                //Tray menu buttons
+                //Try to get today, previous and next title from api
+                //PREVIOUS
                 if (apod.apiDate <= DateTime.Parse("1995-06-16"))
                 {
-                    myIcon.ContextMenu.MenuItems["menuPrev"].Enabled = false;
-                    myIcon.ContextMenu.MenuItems["menuPrev"].Text = "Previous";
+                    trayIcon.ContextMenu.MenuItems["menuPrev"].Enabled = false;
+                    trayIcon.ContextMenu.MenuItems["menuPrev"].Text = "Previous";
                 }
                 else
                 {
-                    using (APOD a = new APOD(apod.apiDate.AddDays(-1)))
+                    setupMenuItem("menuPrev", apod.apiDate.AddDays(-1));
+                }
+                //NEXT
+                setupMenuItem("menuNext", apod.apiDate.AddDays(1));
+                //TODAY
+                setupMenuItem("menuToday", DateTime.Today);
+            }
+
+            //Setup menu item label with api title for desired date
+            void setupMenuItem(string menuItem, DateTime date)
+            {
+                try
+                {
+                    using (APOD a = new APOD(date))
                     {
-                        myIcon.ContextMenu.MenuItems["menuPrev"].Enabled = true;
-                        myIcon.ContextMenu.MenuItems["menuPrev"].Text =
-                            string.Join(" - ", "Previous", a.date, a.title);
+                        trayIcon.ContextMenu.MenuItems[menuItem].Enabled = true;
+                        trayIcon.ContextMenu.MenuItems[menuItem].Text =
+                            string.Join(" - ", menuItem.Substring(4), a.date, a.title);
                     }
                 }
-                using (APOD a = new APOD(apod.apiDate.AddDays(1)))
+                catch (Exception e)
                 {
-                    myIcon.ContextMenu.MenuItems["menuNext"].Enabled = true;
-                    myIcon.ContextMenu.MenuItems["menuNext"].Text =
-                        string.Join(" - ", "Next", a.date, a.title);
+                    trayIcon.ContextMenu.MenuItems[menuItem].Enabled = false;
+                    trayIcon.ContextMenu.MenuItems[menuItem].Text = menuItem.Substring(4) + " - not available";
+                    switch (menuItem)
+                    {
+                        case "menuPrev":
+                            buttonNext.Enabled = false;
+                            break;
+                        case "menuToday":
+                            buttonToday.Enabled = false;
+                            break;
+                        case "menuNext":
+                            buttonNext.Enabled = false;
+                            break;
+                        default:
+                            break;
+                    }
+                    statusBar.Text = e.Message;
                 }
             }
         }
@@ -794,9 +811,9 @@ namespace NASA_APOD
             {
                 this.Hide();
                 formHidden = true;
-                myIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
-                myIcon.BalloonTipText = myIcon.Text;
-                myIcon.ShowBalloonTip(1000);
+                trayIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
+                trayIcon.BalloonTipText = trayIcon.Text;
+                trayIcon.ShowBalloonTip(1000);
             }
         }
 
@@ -1044,8 +1061,8 @@ namespace NASA_APOD
                     }
                     else
                     {
-                        Log("Date set to " + dateMin.AddDays(_daysProg).ToShortDateString() + 
-                            ", no image found (" + a.media_type + ")");
+                        Log("Date set to " + dateMin.AddDays(_daysProg).ToShortDateString() +
+                            ", no image found");// + a.media_type + ")") ;
                         daysErrors++;
                     }
                     

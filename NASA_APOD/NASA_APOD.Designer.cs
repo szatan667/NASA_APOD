@@ -16,7 +16,7 @@
             if (disposing && (components != null))
             {
                 components.Dispose();
-                myIcon.Dispose();
+                trayIcon.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -30,28 +30,28 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewItem listViewItem17 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
             "copyright",
             ""}, -1);
-            System.Windows.Forms.ListViewItem listViewItem18 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
             "date",
             ""}, -1);
-            System.Windows.Forms.ListViewItem listViewItem19 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem(new string[] {
             "explanation",
             ""}, -1);
-            System.Windows.Forms.ListViewItem listViewItem20 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem(new string[] {
             "hdurl",
             ""}, -1);
-            System.Windows.Forms.ListViewItem listViewItem21 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem(new string[] {
             "media_type",
             ""}, -1);
-            System.Windows.Forms.ListViewItem listViewItem22 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem(new string[] {
             "service_version",
             ""}, -1);
-            System.Windows.Forms.ListViewItem listViewItem23 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem(new string[] {
             "title",
             ""}, -1);
-            System.Windows.Forms.ListViewItem listViewItem24 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem(new string[] {
             "url",
             ""}, -1);
             this.textURL = new System.Windows.Forms.TextBox();
@@ -70,7 +70,7 @@
             this.buttonNext = new System.Windows.Forms.Button();
             this.buttonCopyLink = new System.Windows.Forms.Button();
             this.buttonCopyImage = new System.Windows.Forms.Button();
-            this.myIcon = new System.Windows.Forms.NotifyIcon(this.components);
+            this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.buttonToday = new System.Windows.Forms.Button();
             this.groupBoxSettings = new System.Windows.Forms.GroupBox();
             this.checkEnableHistory = new System.Windows.Forms.CheckBox();
@@ -258,11 +258,11 @@
             this.buttonCopyImage.UseVisualStyleBackColor = true;
             this.buttonCopyImage.Click += new System.EventHandler(this.buttonCopyImage_Click);
             // 
-            // myIcon
+            // trayIcon
             // 
-            this.myIcon.Text = "NASA picture of the day";
-            this.myIcon.Visible = true;
-            this.myIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(this.myIcon_MouseClick);
+            this.trayIcon.Text = "NASA picture of the day";
+            this.trayIcon.Visible = true;
+            this.trayIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(this.myIcon_MouseClick);
             // 
             // buttonToday
             // 
@@ -504,14 +504,14 @@
             this.listDebug.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listDebug.HideSelection = false;
             this.listDebug.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem17,
-            listViewItem18,
-            listViewItem19,
-            listViewItem20,
-            listViewItem21,
-            listViewItem22,
-            listViewItem23,
-            listViewItem24});
+            listViewItem1,
+            listViewItem2,
+            listViewItem3,
+            listViewItem4,
+            listViewItem5,
+            listViewItem6,
+            listViewItem7,
+            listViewItem8});
             this.listDebug.Location = new System.Drawing.Point(3, 3);
             this.listDebug.Name = "listDebug";
             this.listDebug.Size = new System.Drawing.Size(362, 259);
@@ -597,7 +597,7 @@
         private System.Windows.Forms.Button buttonNext;
         private System.Windows.Forms.Button buttonCopyLink;
         private System.Windows.Forms.Button buttonCopyImage;
-        private System.Windows.Forms.NotifyIcon myIcon;
+        private System.Windows.Forms.NotifyIcon trayIcon;
         private System.Windows.Forms.Button buttonToday;
         private System.Windows.Forms.GroupBox groupBoxSettings;
         private System.Windows.Forms.Label labelImageDesc;

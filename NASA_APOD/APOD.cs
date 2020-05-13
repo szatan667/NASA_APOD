@@ -116,17 +116,17 @@ namespace NASA_APOD
             catch (Exception e)
             {
                 _wc.Dispose();
-                copyright       = null;
-                date            = null;
-                explanation     = null;
-                hdurl           = null;
-                media_type = e.Message;
-                service_version = null;
-                title           = null;
-                url             = null;
-                this.apiDate = apiDate;// DateTime.MinValue;
+                copyright       = string.Empty;
+                date            = string.Empty;
+                explanation     = string.Empty;
+                hdurl           = string.Empty;
+                media_type      = string.Empty;
+                service_version = string.Empty;
+                title           = string.Empty;
+                url             = string.Empty;
+                this.apiDate    = apiDate;// DateTime.MinValue;
                 isImage         = false;
-                //throw e;
+                throw e;
             }
         }
 
