@@ -548,9 +548,9 @@ namespace NASA_APOD
             {
                 buttonCopyImage.Enabled = true;
             }
-            this.Text = "NASA Astronomy Picture of the Day - " + //TODO: conditional add of '-' if title not empty
-                apod.apiDate.ToShortDateString() + " - " +
-                apod.title;
+            this.Text = "NASA Astronomy Picture of the Day - " +
+                apod.apiDate.ToShortDateString() +
+                ((apod.title != string.Empty && apod.title != null) ? " - " + apod.title : string.Empty);
             textDate.ForeColor = SystemColors.ControlText;
             textDate.Text = apod.apiDate.ToShortDateString();
 
@@ -1198,6 +1198,28 @@ namespace NASA_APOD
                 e.Bounds.X + e.Graphics.MeasureString("-", f).Width,
                 e.Bounds.Y + (e.Bounds.Height - e.Graphics.MeasureString((ClickedItem as MenuItem).Text, f).Height) / 2);
             }
+        }
+        
+        //Define keyboard shortcuts here
+        protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
+        {
+            Log(MethodBase.GetCurrentMethod().Name);
+
+            switch (keyData)
+            {
+                case Keys.F5:
+                    buttonRefresh_Click(this, null);
+                    return true;
+                case Keys.Left:
+                    buttonPrev_Click(this, null);
+                    return true;
+                case Keys.Right:
+                    buttonNext_Click(this, null);
+                    return true;
+                default:
+                    break;
+            }
+            return base.ProcessCmdKey(ref msg, keyData);
         }
     }
 }
