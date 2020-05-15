@@ -400,6 +400,7 @@ namespace NASA_APOD
                 textBoxImgDesc.Text = "Loading...";
                 pictureBox.Visible = true;
                 web.Visible = false;
+                web.DocumentText = string.Empty;
                 pictureBox.SizeMode = PictureBoxSizeMode.CenterImage;
                 pictureBox.Image = Properties.Resources.NASA.ToBitmap();
                 pictureBox.LoadAsync(apod.hdurl);
