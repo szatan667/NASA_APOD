@@ -42,8 +42,8 @@ namespace NASA_APOD
         readonly bool logging = false;
 
         //Grab archive
-        static DateTime dateMin = DateTime.Parse("1995-06-16"); //first day in APOD archive
-        int daysSpan = 1 + (int)(DateTime.Today - dateMin).TotalDays; //number of days from today to minimum date
+        static readonly DateTime dateMin = DateTime.Parse("1995-06-16"); //first day in APOD archive
+        static readonly int daysSpan = 1 + (int)(DateTime.Today - dateMin).TotalDays; //number of days from today to minimum date
         int daysProg = 0; //download progress
         int daysErrors = 0; //number of errors or non-images
 
@@ -261,16 +261,13 @@ namespace NASA_APOD
 
                     while (cnt < maxDays && apod.apiDate.AddDays(daysback) >= DateTime.Parse("1995-06-16"))
                     {
-                        if (a.isImage) //add item only if media is image
-                        {
-                            listHistory.Items.Add(a.apiDate.ToShortDateString()); //history date
-                            listHistory.Items[cnt].SubItems.Add(a.title); //history img name 
-                            cnt++; //item loaded!
-                            progressBar.Value = 100 * cnt / maxDays; //update progress bar and status text
-                            statusBar.Text = "Getting history items... (" + cnt + "/" + maxDays + ")";
-                            Application.DoEvents();
-                            Log("History item added " + a.date);
-                        }
+                        listHistory.Items.Add(a.apiDate.ToShortDateString()); //history date
+                        listHistory.Items[cnt].SubItems.Add(a.title); //history img name 
+                        cnt++; //item loaded!
+                        progressBar.Value = 100 * cnt / maxDays; //update progress bar and status text
+                        statusBar.Text = "Getting history items... (" + cnt + "/" + maxDays + ")";
+                        Application.DoEvents();
+                        Log("History item added " + a.date);
 
                         //Time travel
                         daysback--;
@@ -420,21 +417,21 @@ namespace NASA_APOD
                     string DocumentText =
                         "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\"/>" +
                         "<iframe width=" + web.Width + " " + "height=" + web.Height + " " +
-                        "style=\"overflow: hidden; overflow - x:hidden; overflow - y:hidden; height: 100 %; width: 100 %; position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px\"" +
-                        "src=\"" + "{0}" + "\"" +
-                        "frameborder = \"0\" allow = \"autoplay; encrypted-media\" allowfullscreen></iframe>";
+                        "style=\"overflow: hidden; overflow - x:hidden; overflow - y:hidden; height: 100 %; width: 100 %; position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px\" " +
+                        "src=\"" + "{0}" + "\" " +
+                        "frameborder=\"0\" allow=\"autoplay; encrypted-media\" allowfullscreen></iframe>";
 
                     //Youtube or vimeo? Below code is for simple idiot-proofing of uncomplete urls seen in api
                     string vsrc = string.Empty;
 
-                    if (apod.url.Contains("youtube"))
+                    if (apod.url.Contains("youtube") && apod.url != null)
                         vsrc = apod.url.Substring(apod.url.IndexOf("youtube"));
-                    else if (apod.hdurl.Contains("youtube"))
+                    else if (apod.url.Contains("vimeo") && apod.url != null)
+                        vsrc = apod.url.Substring(apod.url.IndexOf("player.vimeo"));
+                    else if (apod.hdurl.Contains("youtube") && apod.hdurl != null)
                         vsrc = apod.hdurl.Substring(apod.hdurl.IndexOf("youtube"));
-                    else if (apod.url.Contains("vimeo"))
-                        vsrc = apod.url.Substring(apod.url.IndexOf("vimeo"));
-                    else if (apod.hdurl.Contains("vimeo"))
-                        vsrc = apod.hdurl.Substring(apod.hdurl.IndexOf("vimeo"));
+                    else if (apod.hdurl.Contains("vimeo") && apod.hdurl != null)
+                        vsrc = apod.hdurl.Substring(apod.hdurl.IndexOf("player.vimeo"));
 
                     web.DocumentText = string.Format(DocumentText, "https://" + vsrc + "&autoplay=1");
                 }
