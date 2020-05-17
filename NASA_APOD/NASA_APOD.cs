@@ -14,7 +14,7 @@ using Microsoft.Win32;
 
 namespace NASA_APOD
 {
-    public partial class MainWindow : Form
+    public partial class NASA_APOD : Form
     {
         //Main photo of the day object
         public APOD apod;
@@ -50,7 +50,7 @@ namespace NASA_APOD
         //--- Main class methods -----------------------------------------------------------------
 
         //Default constructor - will create program window and set everything up
-        public MainWindow()
+        public NASA_APOD()
         {
             //Enable logging if required - just pass anything as pgm parameter
             //if (Environment.GetCommandLineArgs().Length > 1)
@@ -550,9 +550,7 @@ namespace NASA_APOD
                 statusBar.Text = "Done!";
             }
             else
-            {
                 buttonCopyImage.Enabled = true;
-            }
             this.Text = "NASA Astronomy Picture of the Day - " +
                 apod.apiDate.ToShortDateString() +
                 ((apod.title != string.Empty && apod.title != null) ? " - " + apod.title : string.Empty);
@@ -686,15 +684,13 @@ namespace NASA_APOD
             if (DateTime.Today != apod.apiDate)
             {
                 Log("AUTO REFRESH - date rolled over");
-                Log("API date = " + apod.apiDate);
+                Log("API date   = " + apod.apiDate);
                 Log("TODAY date = " + DateTime.Today);
                 setApodDate(apod, DateTime.Today);
                 getNASAApod();
             }
             else
-            {
                 Log("Date not changed, nothing to do in auto-refresh end");
-            }
         }
 
         //Auto refresh checkbox - enable or disable automatic refresh
@@ -790,8 +786,6 @@ namespace NASA_APOD
 
             //Left click only
             if (e.Button == MouseButtons.Left)
-            
-            {
                 //Toggle window state
                 if (formHidden)
                 {
@@ -804,7 +798,6 @@ namespace NASA_APOD
                     this.Hide();
                     formHidden = true;
                 }
-            }
         }
 
         //Minimize to system tray

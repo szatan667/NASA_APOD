@@ -13,7 +13,7 @@ namespace NASA_APOD
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainWindow());
+            Application.Run(new NASA_APOD());
         }
     }
 }
