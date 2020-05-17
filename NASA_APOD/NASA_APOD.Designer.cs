@@ -129,7 +129,7 @@
             // buttonRefresh
             // 
             this.buttonRefresh.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonRefresh.Location = new System.Drawing.Point(847, 14);
+            this.buttonRefresh.Location = new System.Drawing.Point(847, 13);
             this.buttonRefresh.Name = "buttonRefresh";
             this.buttonRefresh.Size = new System.Drawing.Size(87, 25);
             this.buttonRefresh.TabIndex = 3;
@@ -239,7 +239,7 @@
             // buttonCopyLink
             // 
             this.buttonCopyLink.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonCopyLink.Location = new System.Drawing.Point(661, 14);
+            this.buttonCopyLink.Location = new System.Drawing.Point(661, 13);
             this.buttonCopyLink.Name = "buttonCopyLink";
             this.buttonCopyLink.Size = new System.Drawing.Size(87, 25);
             this.buttonCopyLink.TabIndex = 13;
@@ -250,7 +250,7 @@
             // buttonCopyImage
             // 
             this.buttonCopyImage.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.buttonCopyImage.Location = new System.Drawing.Point(754, 14);
+            this.buttonCopyImage.Location = new System.Drawing.Point(754, 13);
             this.buttonCopyImage.Name = "buttonCopyImage";
             this.buttonCopyImage.Size = new System.Drawing.Size(87, 25);
             this.buttonCopyImage.TabIndex = 14;

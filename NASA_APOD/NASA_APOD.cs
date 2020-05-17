@@ -364,9 +364,11 @@ namespace NASA_APOD
             Log(MethodBase.GetCurrentMethod().Name);
 
             //Setup GUI items for download time
+            tabImage.Focus();
             Log("setting some gui items...");
             statusBar.Text = "Getting NASA picture of the day...";
             trayIcon.Text = statusBar.Text;
+            textURL.Text = string.Empty;
             buttonPrev.Enabled = false;
             buttonToday.Enabled = false;
             buttonNext.Enabled = false;
@@ -374,6 +376,8 @@ namespace NASA_APOD
             labelImageDesc.Text = string.Empty;
             textBoxImgDesc.Text = string.Empty;
             buttonPickDate.Enabled = false;
+            buttonCopyImage.Enabled = false;
+            buttonCopyLink.Enabled = false;
             foreach (MenuItem mi in trayIcon.ContextMenu.MenuItems)
                 mi.Enabled = false;
             Log("done!");
@@ -444,19 +448,19 @@ namespace NASA_APOD
                 //Enable/disable 'previous' and 'next' buttons, depending on the API date
                 setupGUIWhenCompleted();
             }
+            else
+                setupGUIWhenCompleted();
         }
 
         //Download progress bar - event handler
-        private void PictureBox_LoadProgressChanged(object sender, System.ComponentModel.ProgressChangedEventArgs e)
+        private void PictureBox_LoadProgressChanged(object sender, ProgressChangedEventArgs e)
         {
-            //Log(MethodBase.GetCurrentMethod().Name); //no need to log this
-
             progressBar.Value = e.ProgressPercentage;
             statusBar.Text = "Getting NASA picture of the day... " + e.ProgressPercentage + "%";
         }
 
         //Download completed event - do rest of the logic - actual wallpapering and saving to disk
-        private void PictureBox_LoadCompleted(object sender, System.ComponentModel.AsyncCompletedEventArgs e)
+        private void PictureBox_LoadCompleted(object sender, AsyncCompletedEventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -516,6 +520,8 @@ namespace NASA_APOD
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
+            tabImage.Focus();
+
             //Set image title
             trayIcon.Text = apod.title;
             labelImageDesc.Text = apod.title;
@@ -528,7 +534,7 @@ namespace NASA_APOD
             trayIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
             trayIcon.BalloonTipText = apod.title;
             if (trayIcon.BalloonTipText != string.Empty && trayIcon.BalloonTipText != null)
-                trayIcon.ShowBalloonTip(5000);
+                trayIcon.ShowBalloonTip(1);
 
             //Image description and URL
             textBoxImgDesc.Text = apod.explanation;
@@ -536,6 +542,7 @@ namespace NASA_APOD
                 textURL.Text = apod.hdurl;
             else if (apod.url != null && apod.url != string.Empty)
                 textURL.Text = apod.url;
+            buttonCopyLink.Enabled = true;
             if (!apod.isImage)
             {
                 buttonCopyImage.Enabled = false;
@@ -811,7 +818,7 @@ namespace NASA_APOD
                 formHidden = true;
                 trayIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
                 trayIcon.BalloonTipText = trayIcon.Text;
-                trayIcon.ShowBalloonTip(1000);
+                trayIcon.ShowBalloonTip(1);
             }
         }
 
