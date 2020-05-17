@@ -1212,13 +1212,13 @@ namespace NASA_APOD
 
             switch (keyData)
             {
-                case Keys.F5:
+                case Keys.F5: //refresh
                     buttonRefresh_Click(this, null);
                     return true;
-                case Keys.Left:
+                case Keys.Left: //minus one day
                     buttonPrev_Click(this, null);
                     return true;
-                case Keys.Right:
+                case Keys.Right: //plus one day
                     buttonNext_Click(this, null);
                     return true;
                 default:
