@@ -54,7 +54,7 @@ namespace NASA_APOD
         {
             //Enable logging if required - just pass anything as pgm parameter
             //if (Environment.GetCommandLineArgs().Length > 1)
-                logging = true;
+            logging = true;
 
             Log("\n--- PROGRAM START -----------------------------------------------");
             Log(MethodBase.GetCurrentMethod().Name);
@@ -1180,7 +1180,7 @@ namespace NASA_APOD
                     if ((ClickedItem as MenuItem).Enabled)
                     {
                         //Horizontal gradient and outside box
-                        e.Graphics.FillRectangle(new LinearGradientBrush(e.Bounds, SystemColors.GradientActiveCaption, SystemColors.Control, (float)0), e.Bounds);
+                        e.Graphics.FillRectangle(new LinearGradientBrush(e.Bounds, SystemColors.ActiveCaption, SystemColors.Control, (float)0), e.Bounds);
                         e.Graphics.DrawRectangle(SystemPens.ControlDark, e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1);
                     }
                     else { }
