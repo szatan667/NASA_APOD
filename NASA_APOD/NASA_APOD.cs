@@ -65,7 +65,7 @@ namespace NASA_APOD
             //Read anything from INI file to check if it was already created
             //If not, write initial zero number of runs
             Log("Ini file first read");
-            var lastDate = iniFile.Read("lastDate");
+            string lastDate = iniFile.Read("lastDate");
 
             if (lastDate == string.Empty) //write default values to INI file
             {
@@ -453,10 +453,29 @@ namespace NASA_APOD
         }
 
         //Download progress bar - event handler
-        private void PictureBox_LoadProgressChanged(object sender, ProgressChangedEventArgs e)
+        private void PictureBox_LoadProgressChanged(object s, ProgressChangedEventArgs e)
         {
             progressBar.Value = e.ProgressPercentage;
             statusBar.Text = "Getting NASA picture of the day... " + e.ProgressPercentage + "%";
+
+            //Draw progress circle over tray icon, only if minimized
+            if (e.ProgressPercentage < 100 && e.ProgressPercentage > 0 && formHidden)
+                using (Bitmap bmp = new Bitmap(32, 32))
+                using (Graphics gfx = Graphics.FromImage(bmp))
+                using (Pen p = new Pen(new LinearGradientBrush(gfx.VisibleClipBounds,
+                    Color.FromArgb(0, 57, 146), Color.FromArgb(255, 57, 21), 90),
+                    gfx.VisibleClipBounds.Width / 4))
+                {
+                    gfx.Clear(Color.Transparent);
+                    gfx.SmoothingMode = SmoothingMode.AntiAlias;
+                    gfx.DrawArc(p,
+                        p.Width / 2, p.Width / 2,
+                        gfx.VisibleClipBounds.Width - p.Width, gfx.VisibleClipBounds.Height - p.Width,
+                        -90, 360 * e.ProgressPercentage / 100);
+                    trayIcon.Icon = Icon.FromHandle(bmp.GetHicon());
+                }
+            else
+                trayIcon.Icon = Properties.Resources.NASA;
         }
 
         //Download completed event - do rest of the logic - actual wallpapering and saving to disk
@@ -532,7 +551,7 @@ namespace NASA_APOD
 
             //Tray ballon
             trayIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
-            trayIcon.BalloonTipText = apod.title;
+            trayIcon.BalloonTipText = apod.title + ((apod.isImage) ? "" : " (video)");
             if (trayIcon.BalloonTipText != string.Empty && trayIcon.BalloonTipText != null)
                 trayIcon.ShowBalloonTip(1);
 
@@ -618,7 +637,7 @@ namespace NASA_APOD
                     {
                         trayIcon.ContextMenu.MenuItems[menuItem].Enabled = true;
                         trayIcon.ContextMenu.MenuItems[menuItem].Text =
-                            string.Join(" - ", menuItem.Substring(4), a.date, a.title);
+                            string.Join(" - ", menuItem.Substring(4), a.date, a.title + ((a.isImage) ? "" : " (video)"));
                     }
                 }
                 catch (Exception e)
@@ -1090,7 +1109,7 @@ namespace NASA_APOD
         /// <returns></returns>
         private async Task downloadAsync(string url, string path)
         {
-            using (var _wc = new WebClient())
+            using (WebClient _wc = new WebClient())
                 try
                 {
                     Log("Trying to download " + url + "...");
@@ -1173,7 +1192,7 @@ namespace NASA_APOD
                     if ((ClickedItem as MenuItem).Enabled)
                     {
                         //Horizontal gradient and outside box
-                        e.Graphics.FillRectangle(new LinearGradientBrush(e.Bounds, SystemColors.ActiveCaption, SystemColors.Control, (float)0), e.Bounds);
+                        e.Graphics.FillRectangle(new LinearGradientBrush(e.Bounds, SystemColors.ActiveCaption, SystemColors.Control, 0.0), e.Bounds);
                         e.Graphics.DrawRectangle(SystemPens.ControlDark, e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1);
                     }
                     else { }

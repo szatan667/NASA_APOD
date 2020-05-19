@@ -30,28 +30,28 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.ListViewItem listViewItem9 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem1 = new System.Windows.Forms.ListViewItem(new string[] {
             "copyright",
             ""}, -1);
-            System.Windows.Forms.ListViewItem listViewItem10 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem2 = new System.Windows.Forms.ListViewItem(new string[] {
             "date",
             ""}, -1);
-            System.Windows.Forms.ListViewItem listViewItem11 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem3 = new System.Windows.Forms.ListViewItem(new string[] {
             "explanation",
             ""}, -1);
-            System.Windows.Forms.ListViewItem listViewItem12 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem4 = new System.Windows.Forms.ListViewItem(new string[] {
             "hdurl",
             ""}, -1);
-            System.Windows.Forms.ListViewItem listViewItem13 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem5 = new System.Windows.Forms.ListViewItem(new string[] {
             "media_type",
             ""}, -1);
-            System.Windows.Forms.ListViewItem listViewItem14 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem6 = new System.Windows.Forms.ListViewItem(new string[] {
             "service_version",
             ""}, -1);
-            System.Windows.Forms.ListViewItem listViewItem15 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem7 = new System.Windows.Forms.ListViewItem(new string[] {
             "title",
             ""}, -1);
-            System.Windows.Forms.ListViewItem listViewItem16 = new System.Windows.Forms.ListViewItem(new string[] {
+            System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem(new string[] {
             "url",
             ""}, -1);
             this.textURL = new System.Windows.Forms.TextBox();
@@ -108,6 +108,7 @@
             // 
             // textURL
             // 
+            this.textURL.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.textURL.Location = new System.Drawing.Point(15, 14);
             this.textURL.Name = "textURL";
             this.textURL.ReadOnly = true;
@@ -207,6 +208,7 @@
             // 
             // textPath
             // 
+            this.textPath.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.textPath.Enabled = false;
             this.textPath.Location = new System.Drawing.Point(47, 47);
             this.textPath.Name = "textPath";
@@ -217,6 +219,7 @@
             // buttonPrev
             // 
             this.buttonPrev.Enabled = false;
+            this.buttonPrev.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonPrev.Location = new System.Drawing.Point(661, 378);
             this.buttonPrev.Name = "buttonPrev";
             this.buttonPrev.Size = new System.Drawing.Size(111, 27);
@@ -228,6 +231,7 @@
             // buttonNext
             // 
             this.buttonNext.Enabled = false;
+            this.buttonNext.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonNext.Location = new System.Drawing.Point(926, 378);
             this.buttonNext.Name = "buttonNext";
             this.buttonNext.Size = new System.Drawing.Size(111, 27);
@@ -267,6 +271,7 @@
             // buttonToday
             // 
             this.buttonToday.Enabled = false;
+            this.buttonToday.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonToday.Location = new System.Drawing.Point(793, 378);
             this.buttonToday.Name = "buttonToday";
             this.buttonToday.Size = new System.Drawing.Size(111, 27);
@@ -317,12 +322,14 @@
             // 
             // buttonGrabAll
             // 
+            this.buttonGrabAll.BackColor = System.Drawing.SystemColors.Control;
+            this.buttonGrabAll.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonGrabAll.Location = new System.Drawing.Point(6, 195);
             this.buttonGrabAll.Name = "buttonGrabAll";
             this.buttonGrabAll.Size = new System.Drawing.Size(344, 23);
             this.buttonGrabAll.TabIndex = 12;
             this.buttonGrabAll.Text = "EXPERIMENTAL - grab whole archive";
-            this.buttonGrabAll.UseVisualStyleBackColor = true;
+            this.buttonGrabAll.UseVisualStyleBackColor = false;
             this.buttonGrabAll.Click += new System.EventHandler(this.buttonGrabAll_Click);
             // 
             // checkCustomKey
@@ -338,6 +345,7 @@
             // 
             // textCustomKey
             // 
+            this.textCustomKey.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.textCustomKey.Location = new System.Drawing.Point(6, 151);
             this.textCustomKey.MaxLength = 40;
             this.textCustomKey.Name = "textCustomKey";
@@ -392,6 +400,7 @@
             // 
             // buttonPickDate
             // 
+            this.buttonPickDate.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.buttonPickDate.Location = new System.Drawing.Point(661, 344);
             this.buttonPickDate.Name = "buttonPickDate";
             this.buttonPickDate.Size = new System.Drawing.Size(56, 27);
@@ -403,6 +412,7 @@
             // textDate
             // 
             this.textDate.BackColor = System.Drawing.SystemColors.Control;
+            this.textDate.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.textDate.Font = new System.Drawing.Font("Segoe UI", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(238)));
             this.textDate.ForeColor = System.Drawing.SystemColors.WindowText;
             this.textDate.Location = new System.Drawing.Point(723, 346);
@@ -503,23 +513,23 @@
             this.debugValue});
             this.listDebug.Dock = System.Windows.Forms.DockStyle.Fill;
             this.listDebug.HideSelection = false;
-            listViewItem9.Tag = "";
-            listViewItem10.Tag = "";
-            listViewItem11.Tag = "";
-            listViewItem12.Tag = "";
-            listViewItem13.Tag = "";
-            listViewItem14.Tag = "";
-            listViewItem15.Tag = "";
-            listViewItem16.Tag = "";
+            listViewItem1.Tag = "";
+            listViewItem2.Tag = "";
+            listViewItem3.Tag = "";
+            listViewItem4.Tag = "";
+            listViewItem5.Tag = "";
+            listViewItem6.Tag = "";
+            listViewItem7.Tag = "";
+            listViewItem8.Tag = "";
             this.listDebug.Items.AddRange(new System.Windows.Forms.ListViewItem[] {
-            listViewItem9,
-            listViewItem10,
-            listViewItem11,
-            listViewItem12,
-            listViewItem13,
-            listViewItem14,
-            listViewItem15,
-            listViewItem16});
+            listViewItem1,
+            listViewItem2,
+            listViewItem3,
+            listViewItem4,
+            listViewItem5,
+            listViewItem6,
+            listViewItem7,
+            listViewItem8});
             this.listDebug.Location = new System.Drawing.Point(3, 3);
             this.listDebug.Name = "listDebug";
             this.listDebug.Size = new System.Drawing.Size(362, 259);
