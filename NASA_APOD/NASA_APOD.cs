@@ -476,12 +476,12 @@ namespace NASA_APOD
                         -90, 360 * e.ProgressPercentage / 100);
                     try
                     { trayIcon.Icon = Icon.FromHandle(bmp.GetHicon()); }
-                    catch (Exception){ }
+                    catch (Exception){ Log("tray icon from handle error"); }
                 }
             else
                 try
                 { trayIcon.Icon = Properties.Resources.NASA; }
-                catch (Exception){ }
+                catch (Exception){ Log("tray icon from resource error"); }
         }
 
         //Download completed event - do rest of the logic - actual wallpapering and saving to disk
