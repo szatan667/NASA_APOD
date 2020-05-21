@@ -475,16 +475,13 @@ namespace NASA_APOD
                         gfx.VisibleClipBounds.Width - p.Width, gfx.VisibleClipBounds.Height - p.Width,
                         -90, 360 * e.ProgressPercentage / 100);
                     try
-                    {
-                        trayIcon.Icon = Icon.FromHandle(bmp.GetHicon());
-                    }
-                    catch (Exception)
-                    {
-                        //throw;
-                    }
+                    { trayIcon.Icon = Icon.FromHandle(bmp.GetHicon()); }
+                    catch (Exception){ }
                 }
             else
-                trayIcon.Icon = Properties.Resources.NASA;
+                try
+                { trayIcon.Icon = Properties.Resources.NASA; }
+                catch (Exception){ }
         }
 
         //Download completed event - do rest of the logic - actual wallpapering and saving to disk
@@ -570,7 +567,7 @@ namespace NASA_APOD
                 textURL.Text = apod.hdurl;
             else if (apod.url != string.Empty)
                 textURL.Text = apod.url;
-            buttonCopyLink.Enabled = true;
+            buttonCopyLink.Enabled = (textURL.Text != string.Empty) ? true : false;
             if (!apod.isImage)
             {
                 buttonCopyImage.Enabled = false;
@@ -656,13 +653,10 @@ namespace NASA_APOD
                     switch (menuItem)
                     {
                         case "menuPrev":
-                            buttonNext.Enabled = false;
                             break;
                         case "menuToday":
-                            buttonToday.Enabled = false;
                             break;
                         case "menuNext":
-                            buttonNext.Enabled = false;
                             break;
                         default:
                             break;
