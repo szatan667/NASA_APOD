@@ -56,6 +56,9 @@ namespace NASA_APOD
             //if (Environment.GetCommandLineArgs().Length > 1)
             logging = true;
 
+            //Disable certificate checking - dirty and temporary
+            ServicePointManager.ServerCertificateValidationCallback += (a, b, c, d) => true;
+
             Log("\n--- PROGRAM START -----------------------------------------------");
             Log(MethodBase.GetCurrentMethod().Name);
             Log("Initializing...");
