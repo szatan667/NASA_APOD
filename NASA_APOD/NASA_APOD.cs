@@ -407,7 +407,14 @@ namespace NASA_APOD
                 web.DocumentText = string.Empty;
                 pictureBox.SizeMode = PictureBoxSizeMode.CenterImage;
                 pictureBox.Image = Properties.Resources.NASA.ToBitmap();
-                pictureBox.LoadAsync(apod.hdurl);
+
+                if (pathToSave != string.Empty && apod.hdurl != string.Empty) //custom path found, concatenate path with image filename
+                    imagePath = createFullPath(pathToSave, apod);
+
+                if (File.Exists(imagePath))
+                    pictureBox.LoadAsync(imagePath);
+                else
+                    pictureBox.LoadAsync(apod.hdurl);
                 Log("async download started");
             }
             //...otherwise try to play video link
@@ -455,6 +462,19 @@ namespace NASA_APOD
 
                 setupGUIWhenCompleted();
             }
+        }
+
+        /// <summary>
+        /// Create full path to local file. Put path picked fro GUI together with picture filename and current date
+        /// </summary>
+        /// <param name="path">Local disk path</param>
+        /// <param name="apod">APOD type object</param>
+        /// <returns></returns>
+        private string createFullPath(string path, APOD apod)
+        {
+            return path + "\\" + //folder path
+                apod.apiDate.ToShortDateString().Replace(' ', '_') + '_' + //inject date string at the begining of filename
+                apod.hdurl.Substring(apod.url.LastIndexOf('/') + 1); //filename from URL
         }
 
         //Download progress bar - event handler
@@ -676,15 +696,9 @@ namespace NASA_APOD
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
-            //First build custom path if desired
-            if (pathToSave != string.Empty && apod.hdurl != string.Empty) //custom path found, concatenate path with image filename
-            {
-                int begin = apod.hdurl.LastIndexOf('/') + 1;
-                int len = apod.hdurl.Length - begin;
-                imagePath = pathToSave + "\\" + //folder path
-                    apod.apiDate.ToShortDateString().Replace(' ', '_') + '_' + //inject date string at the begining of filename
-                    apod.hdurl.Substring(begin, len); //filename from URL
-            }
+            //First build custom path if desired and possible
+            if (pathToSave != string.Empty && apod.hdurl != string.Empty)
+                imagePath = createFullPath(pathToSave, apod);
 
             //Do actual saving
             try
