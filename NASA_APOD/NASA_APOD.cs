@@ -450,7 +450,7 @@ namespace NASA_APOD
                             break;
                     }
 
-                    web.DocumentText = string.Format(DocumentText, "https://" + vsrc + "&autoplay=1");
+                    web.DocumentText = string.Format(DocumentText, "https://" + vsrc + (vsrc.Contains("?") ? "&autoplay=1" : "?autoplay=1"));
                 }
 
                 setupGUIWhenCompleted();
@@ -464,27 +464,27 @@ namespace NASA_APOD
             statusBar.Text = "Getting NASA picture of the day... " + e.ProgressPercentage + "%";
 
             //Draw progress circle over tray icon, only if minimized
-            if (e.ProgressPercentage < 100 && e.ProgressPercentage > 0 && formHidden)
-                using (Bitmap bmp = new Bitmap(32, 32))
-                using (Graphics gfx = Graphics.FromImage(bmp))
-                using (Pen p = new Pen(new LinearGradientBrush(gfx.VisibleClipBounds,
-                    Color.FromArgb(0, 57, 146), Color.FromArgb(255, 57, 21), 90),
-                    gfx.VisibleClipBounds.Width / 4))
-                {
-                    gfx.Clear(Color.Transparent);
-                    gfx.SmoothingMode = SmoothingMode.AntiAlias;
-                    gfx.DrawArc(p,
-                        p.Width / 2, p.Width / 2,
-                        gfx.VisibleClipBounds.Width - p.Width, gfx.VisibleClipBounds.Height - p.Width,
-                        -90, 360 * e.ProgressPercentage / 100);
-                    try
-                    { trayIcon.Icon = Icon.FromHandle(bmp.GetHicon()); }
-                    catch (Exception){ Log("tray icon from handle error"); }
-                }
-            else
-                try
-                { trayIcon.Icon = Properties.Resources.NASA; }
-                catch (Exception){ Log("tray icon from resource error"); }
+            //if (e.ProgressPercentage < 100 && e.ProgressPercentage > 0 && formHidden)
+            //    using (Bitmap bmp = new Bitmap(32, 32))
+            //    using (Graphics gfx = Graphics.FromImage(bmp))
+            //    using (Pen p = new Pen(new LinearGradientBrush(gfx.VisibleClipBounds,
+            //        Color.FromArgb(0, 57, 146), Color.FromArgb(255, 57, 21), 90),
+            //        gfx.VisibleClipBounds.Width / 4))
+            //    {
+            //        gfx.Clear(Color.Transparent);
+            //        gfx.SmoothingMode = SmoothingMode.AntiAlias;
+            //        gfx.DrawArc(p,
+            //            p.Width / 2, p.Width / 2,
+            //            gfx.VisibleClipBounds.Width - p.Width, gfx.VisibleClipBounds.Height - p.Width,
+            //            -90, 360 * e.ProgressPercentage / 100);
+            //        try
+            //        { trayIcon.Icon = Icon.FromHandle(bmp.GetHicon()); }
+            //        catch (Exception ex){ Log("tray icon from handle error"); Log(ex.Message); }
+            //    }
+            //else
+            //    try
+            //    { trayIcon.Icon = Properties.Resources.NASA; }
+            //    catch (Exception ex){ Log("tray icon from resource error"); Log(ex.Message); }
         }
 
         //Download completed event - do rest of the logic - actual wallpapering and saving to disk

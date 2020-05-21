@@ -121,6 +121,7 @@ namespace NASA_APOD
                 else
                 {
                     isImage = false;
+                    videoType = VideoType.NONE;
                     if (url.Contains(VID_TYPE_YT) || hdurl.Contains(VID_TYPE_YT)) videoType = VideoType.YOUTUBE;
                     if (url.Contains(VID_TYPE_VM) || hdurl.Contains(VID_TYPE_VM)) videoType = VideoType.VIMEO;
                 }
