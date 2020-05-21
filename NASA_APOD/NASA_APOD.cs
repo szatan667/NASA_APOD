@@ -408,12 +408,19 @@ namespace NASA_APOD
                 Log("async download started");
             }
             //...otherwise try to play video link
-            else if (apod.hdurl != null || apod.url != null)
+            else
             {
-                //Try to play youtube or vimeo
-                if (apod.url.Contains("youtube") || apod.url.Contains("vimeo") ||
-                    apod.hdurl.Contains("youtube") || apod.hdurl.Contains("vimeo"))
+                //Not a picture today, clear the image box with nasa icon
+                Log("not a picture section - either a video link or null");
+                pictureBox.SizeMode = PictureBoxSizeMode.CenterImage;
+                pictureBox.Image = Properties.Resources.NASA.ToBitmap();
+
+                //Now try to pick up video link
+                //Video link usually appears in 'url', but it's worth checking 'hdurl' as well
+                //So far only youtube and vimeo links were spotted, so let's tray that
+                if (apod.videoType != APOD.VideoType.NONE)
                 {
+                    //Switch to web player box, hide picture
                     web.Visible = true;
                     pictureBox.Visible = false;
 
@@ -425,31 +432,26 @@ namespace NASA_APOD
                         "src=\"" + "{0}" + "\" " +
                         "frameborder=\"0\" allow=\"autoplay; encrypted-media\" allowfullscreen></iframe>";
 
-                    //Youtube or vimeo? Below code is for simple idiot-proofing of uncomplete urls seen in api
+                    //Try to inject video link into web document
                     string vsrc = string.Empty;
 
-                    if (apod.url.Contains("youtube") && apod.url != null)
-                        vsrc = apod.url.Substring(apod.url.IndexOf("youtube"));
-                    else if (apod.url.Contains("vimeo") && apod.url != null)
-                        vsrc = apod.url.Substring(apod.url.IndexOf("player.vimeo"));
-                    else if (apod.hdurl.Contains("youtube") && apod.hdurl != null)
-                        vsrc = apod.hdurl.Substring(apod.hdurl.IndexOf("youtube"));
-                    else if (apod.hdurl.Contains("vimeo") && apod.hdurl != null)
-                        vsrc = apod.hdurl.Substring(apod.hdurl.IndexOf("player.vimeo"));
+                    switch (apod.videoType)
+                    {
+                        case APOD.VideoType.YOUTUBE:
+                            vsrc = (apod.url != string.Empty) ? apod.url.Substring(apod.url.IndexOf(APOD.VID_LINK_YT)) : apod.hdurl.Substring(apod.hdurl.IndexOf(APOD.VID_LINK_YT));
+                            break;
+                        case APOD.VideoType.VIMEO:
+                            vsrc = (apod.url != string.Empty) ? apod.url.Substring(apod.url.IndexOf(APOD.VID_LINK_VM)) : apod.hdurl.Substring(apod.hdurl.IndexOf(APOD.VID_LINK_VM));
+                            break;
+                        default:
+                            break;
+                    }
 
                     web.DocumentText = string.Format(DocumentText, "https://" + vsrc + "&autoplay=1");
                 }
 
-                Log("not a picture section - either a video link or null");
-                //Not a picture today, clear the image and show some text
-                pictureBox.SizeMode = PictureBoxSizeMode.CenterImage;
-                pictureBox.Image = Properties.Resources.NASA.ToBitmap();
-                Log("\"no image\" gui setup done");
-                //Enable/disable 'previous' and 'next' buttons, depending on the API date
                 setupGUIWhenCompleted();
             }
-            else
-                setupGUIWhenCompleted();
         }
 
         //Download progress bar - event handler
@@ -472,7 +474,14 @@ namespace NASA_APOD
                         p.Width / 2, p.Width / 2,
                         gfx.VisibleClipBounds.Width - p.Width, gfx.VisibleClipBounds.Height - p.Width,
                         -90, 360 * e.ProgressPercentage / 100);
-                    trayIcon.Icon = Icon.FromHandle(bmp.GetHicon());
+                    try
+                    {
+                        trayIcon.Icon = Icon.FromHandle(bmp.GetHicon());
+                    }
+                    catch (Exception)
+                    {
+                        //throw;
+                    }
                 }
             else
                 trayIcon.Icon = Properties.Resources.NASA;
@@ -546,20 +555,20 @@ namespace NASA_APOD
             labelImageDesc.Text = apod.title;
 
             //Copyright is not always there
-            if (apod.copyright != null && apod.copyright != string.Empty)
+            if (apod.copyright != string.Empty)
                 labelImageDesc.Text += Environment.NewLine + "© " + apod.copyright.Replace("\n", " ");
 
             //Tray ballon
             trayIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
-            trayIcon.BalloonTipText = apod.title + ((apod.isImage) ? "" : " (video)");
-            if (trayIcon.BalloonTipText != string.Empty && trayIcon.BalloonTipText != null)
+            trayIcon.BalloonTipText = apod.title + ((apod.isImage) ? "" : " (non-image)");
+            if (trayIcon.BalloonTipText != string.Empty)
                 trayIcon.ShowBalloonTip(1);
 
             //Image description and URL
             textBoxImgDesc.Text = apod.explanation;
-            if (apod.hdurl != null && apod.hdurl != string.Empty)
+            if (apod.hdurl != string.Empty)
                 textURL.Text = apod.hdurl;
-            else if (apod.url != null && apod.url != string.Empty)
+            else if (apod.url != string.Empty)
                 textURL.Text = apod.url;
             buttonCopyLink.Enabled = true;
             if (!apod.isImage)
@@ -572,7 +581,7 @@ namespace NASA_APOD
                 buttonCopyImage.Enabled = true;
             this.Text = "NASA Astronomy Picture of the Day - " +
                 apod.apiDate.ToShortDateString() +
-                ((apod.title != string.Empty && apod.title != null) ? " - " + apod.title : string.Empty);
+                ((apod.title != string.Empty) ? " - " + apod.title : string.Empty);
             textDate.ForeColor = SystemColors.ControlText;
             textDate.Text = apod.apiDate.ToShortDateString();
 
@@ -671,8 +680,7 @@ namespace NASA_APOD
             Log(MethodBase.GetCurrentMethod().Name);
 
             //First build custom path if desired
-            if ((pathToSave != null && pathToSave != string.Empty) &&
-                (apod.hdurl != null && apod.hdurl != string.Empty)) //custom path found, concatenate path with image filename
+            if (pathToSave != string.Empty && apod.hdurl != string.Empty) //custom path found, concatenate path with image filename
             {
                 int begin = apod.hdurl.LastIndexOf('/') + 1;
                 int len = apod.hdurl.Length - begin;
@@ -756,7 +764,7 @@ namespace NASA_APOD
             {
                 buttonPath.Enabled = false;
                 textPath.Enabled = false;
-                pathToSave = null;
+                pathToSave = string.Empty;
                 imagePath = "temp.jpg";
             }
 
@@ -1061,14 +1069,14 @@ namespace NASA_APOD
                         int len = a.hdurl.Length - begin;
 
                         //Double check image URL, if HD not available try regular
-                        if (a.hdurl != null && a.hdurl != string.Empty)
+                        if (a.hdurl != string.Empty)
                         {
                             Log("Trying hd url " + a.hdurl);
                             tasks.Add(downloadAsync(a.hdurl,
                                 _dir + '\\' + a.apiDate.ToShortDateString().Replace(' ', '_') + '_' +
                                 a.hdurl.Substring(begin, len)));
                         }
-                        else if (a.url != null && a.url != string.Empty)
+                        else if (a.url != string.Empty)
                         {
                             Log("Trying regular url " + a.url);
                             tasks.Add(downloadAsync(a.url,

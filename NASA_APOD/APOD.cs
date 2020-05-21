@@ -27,7 +27,14 @@ namespace NASA_APOD
     {
         //--- Public fields ---------------------------------------------------------
         public DateTime apiDate;
-        public bool isImage = false;
+        public bool isImage;
+        public VideoType videoType;
+        public enum VideoType
+        {
+            NONE,
+            YOUTUBE,
+            VIMEO
+        }
 
         //--- Private fields --------------------------------------------------------
         private const string _baseURL = "https://api.nasa.gov/planetary/apod";
@@ -35,8 +42,12 @@ namespace NASA_APOD
         private const string _apiKeyDefault = "DFihYXvddhhd1KnnPtw3BgSxAXlx9yHz1CSTwbN8";
         private string _apiKey;
         private static readonly WebClient _wc = new WebClient();
-
         private static readonly DateTime _DATE_MIN = DateTime.Parse("1995-06-16");
+
+        private const string VID_TYPE_YT = "youtube";
+        private const string VID_TYPE_VM = "vimeo";
+        public const string VID_LINK_YT = "youtube";
+        public const string VID_LINK_VM = "player.vimeo";
 
         //--- Default constructor ---------------------------------------------------
         /// <summary>
@@ -45,6 +56,7 @@ namespace NASA_APOD
         public APOD()
         {
             //nothing special...
+            videoType = VideoType.NONE;
         }
 
         //--- Date-based constructor ---------------------------------------------------
@@ -107,7 +119,11 @@ namespace NASA_APOD
                 if (media_type == "image") //set media type tag
                     isImage = true;
                 else
+                {
                     isImage = false;
+                    if (url.Contains(VID_TYPE_YT) || hdurl.Contains(VID_TYPE_YT)) videoType = VideoType.YOUTUBE;
+                    if (url.Contains(VID_TYPE_VM) || hdurl.Contains(VID_TYPE_VM)) videoType = VideoType.VIMEO;
+                }
             }
             catch (Exception e)
             {
@@ -168,7 +184,7 @@ namespace NASA_APOD
 
                 return json.Substring(valueStartPos, valueLength - valueStartPos);
             }
-            else return null;
+            else return string.Empty;
         }
     }
     
