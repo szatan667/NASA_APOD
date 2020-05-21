@@ -152,7 +152,7 @@ namespace NASA_APOD
         /// <param name="json">Json string in APOD API format</param>
         private void jsonDeserialize(string json)
         {
-            json = Regex.Unescape(json); //get rid of escape slashes that API returns
+            json = Regex.Unescape(json).Replace("�", string.Empty); //get rid of escape slashes and dummy chars that API sometimes returns
 
             copyright       = jsonGetSingle(json, "copyright");
             date            = jsonGetSingle(json, "date");
