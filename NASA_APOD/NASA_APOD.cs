@@ -197,15 +197,14 @@ namespace NASA_APOD
         /// <summary>
         /// Log string value to "apod.log" file
         /// </summary>
-        /// <param name="msg">String value to be saved in log file</param>
-        private void Log(string msg)
+        /// <param name="logMessage">String value to be saved in log file</param>
+        private void Log(string logMessage)
         {
             if (logging)
                 try
                 {
-                    string fn = "apod.log";
-                    using (TextWriter tw = new StreamWriter(fn, true))
-                        tw.WriteLine(DateTime.Now.ToString() + " - " + msg);
+                    using (TextWriter tw = new StreamWriter("apod.log", true))
+                        tw.WriteLine(DateTime.Now.ToString() + " - " + logMessage);
                 }
                 catch (Exception ex)
                 {
@@ -216,7 +215,7 @@ namespace NASA_APOD
         /// <summary>
         /// Logging to tab - fill debug tab with raw API output json keys
         /// </summary>
-        /// <param name="apod"></param>
+        /// <param name="apod">APOD object</param>
         private void DebugTab(APOD apod)
         {
             if (logging)
@@ -408,14 +407,20 @@ namespace NASA_APOD
                 pictureBox.SizeMode = PictureBoxSizeMode.CenterImage;
                 pictureBox.Image = Properties.Resources.NASA.ToBitmap();
 
-                if (pathToSave != string.Empty && apod.hdurl != string.Empty) //custom path found, concatenate path with image filename
+                //Create full local path and try to load image from disk
+                if (pathToSave != string.Empty && apod.hdurl != string.Empty)
                     imagePath = createFullPath(pathToSave, apod);
 
                 if (File.Exists(imagePath))
+                {
                     pictureBox.LoadAsync(imagePath);
+                    Log("async download started - from cache");
+                }
                 else
+                {
                     pictureBox.LoadAsync(apod.hdurl);
-                Log("async download started");
+                    Log("async download started");
+                }
             }
             //...otherwise try to play video link
             else
