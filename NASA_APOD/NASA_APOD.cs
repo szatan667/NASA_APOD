@@ -407,14 +407,21 @@ namespace NASA_APOD
                 pictureBox.SizeMode = PictureBoxSizeMode.CenterImage;
                 pictureBox.Image = Properties.Resources.NASA.ToBitmap();
 
-                //Create full local path and try to load image from disk
-                if (pathToSave != string.Empty && apod.hdurl != string.Empty)
-                    imagePath = createFullPath(pathToSave, apod);
-
-                if (File.Exists(imagePath))
+                //THere's a chance that if 'save to disk' is enabled, the image was downloaded before
+                //Iin that case create full local path and try to load image from disk
+                if (checkSaveToDisk.Enabled)
                 {
-                    pictureBox.LoadAsync(imagePath);
-                    Log("async download started - from cache");
+                    imagePath = createFullPath(pathToSave, apod);
+                    if (File.Exists(imagePath))
+                    {
+                        pictureBox.LoadAsync(imagePath);
+                        Log("async download started - from cache");
+                    }
+                    else
+                    {
+                        pictureBox.LoadAsync(apod.hdurl);
+                        Log("async download started");
+                    }
                 }
                 else
                 {
