@@ -1236,15 +1236,13 @@ namespace NASA_APOD
                 }
 
                 //Distinguish between enabled and disabled items
-                Brush b;
-                if ((ClickedItem as MenuItem).Enabled)
-                    b = SystemBrushes.ControlText;
-                else
-                    b = SystemBrushes.ControlDark;
-                
-                e.Graphics.DrawString((ClickedItem as MenuItem).Text, f, b,
-                e.Bounds.X + e.Graphics.MeasureString("-", f).Width,
-                e.Bounds.Y + (e.Bounds.Height - e.Graphics.MeasureString((ClickedItem as MenuItem).Text, f).Height) / 2);
+                using (Brush b = ((ClickedItem as MenuItem).Enabled) ? new SolidBrush(SystemColors.ControlText) : new SolidBrush(SystemColors.GrayText))
+                {
+                    //Finally, draw menu item text
+                    e.Graphics.DrawString((ClickedItem as MenuItem).Text, f, b,
+                    e.Bounds.X + e.Graphics.MeasureString("-", f).Width,
+                    e.Bounds.Y + (e.Bounds.Height - e.Graphics.MeasureString((ClickedItem as MenuItem).Text, f).Height) / 2);
+                }
             }
         }
         
