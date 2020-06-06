@@ -1267,5 +1267,21 @@ namespace NASA_APOD
             }
             return base.ProcessCmdKey(ref msg, keyData);
         }
+
+        //Simple window snapping
+        protected override void OnResizeEnd(EventArgs e)
+        {
+            base.OnResizeEnd(e);
+            Screen s = Screen.FromPoint(Location);
+            if (Snap(Left, s.WorkingArea.Left)) Left = s.WorkingArea.Left;
+            if (Snap(Top, s.WorkingArea.Top)) Top = s.WorkingArea.Top;
+            if (Snap(s.WorkingArea.Right, Right)) Left = s.WorkingArea.Right - Width;
+            if (Snap(s.WorkingArea.Bottom, Bottom)) Top = s.WorkingArea.Bottom - Height;
+
+            bool Snap(int pos, int edge)
+            {
+                return pos - edge > 0 && pos - edge <= 25;
+            }
+        }
     }
 }
