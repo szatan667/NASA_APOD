@@ -407,8 +407,9 @@ namespace NASA_APOD
                 pictureBox.SizeMode = PictureBoxSizeMode.CenterImage;
                 pictureBox.Image = Properties.Resources.NASA.ToBitmap();
 
-                //THere's a chance that if 'save to disk' is enabled, the image was downloaded before
+                //There's a chance that if 'save to disk' is enabled, the image was downloaded before
                 //Iin that case create full local path and try to load image from disk
+                apod.isDownloading = true;
                 if (checkSaveToDisk.Enabled)
                 {
                     imagePath = createFullPath(pathToSave, apod);
@@ -571,6 +572,7 @@ namespace NASA_APOD
 
             //Invalidate picture box to force redrawing, just in case
             pictureBox.Invalidate();
+            apod.isDownloading = false;
         }
 
         /// <summary>
@@ -1251,6 +1253,7 @@ namespace NASA_APOD
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
+            while (!apod.isDownloading)
             switch (keyData)
             {
                 case Keys.F5: //refresh

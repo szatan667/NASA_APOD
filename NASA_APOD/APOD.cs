@@ -27,6 +27,7 @@ namespace NASA_APOD
     {
         //--- Public fields ---------------------------------------------------------
         public DateTime apiDate;
+        public bool isDownloading;
         public bool isImage;
         public VideoType videoType;
         public enum VideoType
@@ -57,6 +58,7 @@ namespace NASA_APOD
         {
             //nothing special...
             videoType = VideoType.NONE;
+            isDownloading = false;
         }
 
         //--- Date-based constructor ---------------------------------------------------
@@ -67,6 +69,7 @@ namespace NASA_APOD
         public APOD(DateTime apiDate)
         {
             setAPIDate(apiDate);
+            isDownloading = false;
         }
 
         //--- Public methods --------------------------------------------------------
