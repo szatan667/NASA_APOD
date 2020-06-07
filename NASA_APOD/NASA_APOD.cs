@@ -24,7 +24,8 @@ namespace NASA_APOD
         public string imagePath = "temp.jpg"; //default file to save
 
         //GUI items
-        bool formHidden = false;
+        private bool formHidden = false;
+        private Color avgColor = SystemColors.ActiveCaption;
 
         //setup ini file to store usage statistics
         readonly IniFile iniFile = new IniFile();
@@ -571,6 +572,30 @@ namespace NASA_APOD
                 statusBar.Text = "Downloaded but not set :(";
             else
                 statusBar.Text = "Done!";
+
+            //Get average color from picture - to use it later in custom menu draw routine
+            avgColor = SystemColors.ActiveCaption; //use system color by default and then calc image average if possible
+            if (pictureBox.Image != null)
+            {
+                int r = 0;
+                int g = 0;
+                int b = 0;
+                int cnt = 0;
+
+                using (Bitmap bmp = new Bitmap(pictureBox.Image))
+                    //Crop the image by 1/8 in both directions (there's usually dark frame or background there)
+                    for (int x = bmp.Width / 8; x < bmp.Width * 7 / 8; x += bmp.Width / 16)
+                        for (int y = bmp.Height / 8; y < bmp.Height * 7 / 8; y += bmp.Height / 16)
+                            if (bmp.GetPixel(x,y).GetBrightness() > 0.25)
+                            {
+                                r += bmp.GetPixel(x, y).R;
+                                g += bmp.GetPixel(x, y).G;
+                                b += bmp.GetPixel(x, y).B;
+                                cnt++;
+                            }
+            
+                if (cnt > 0) avgColor = Color.FromArgb(r / cnt, g / cnt, b / cnt); //in case nothing went above brightness threshold
+            }
 
             //Invalidate picture box to force redrawing, just in case
             pictureBox.Invalidate();
@@ -1227,7 +1252,7 @@ namespace NASA_APOD
                     if ((ClickedItem as MenuItem).Enabled)
                     {
                         //Horizontal gradient and outside box
-                        e.Graphics.FillRectangle(new LinearGradientBrush(e.Bounds, SystemColors.ActiveCaption, SystemColors.Control, 0.0), e.Bounds);
+                        e.Graphics.FillRectangle(new LinearGradientBrush(e.Bounds, avgColor, SystemColors.Control, 0.0), e.Bounds);
                         e.Graphics.DrawRectangle(SystemPens.ControlDark, e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1);
                     }
                     else { }
