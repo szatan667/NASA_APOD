@@ -586,15 +586,20 @@ namespace NASA_APOD
                     //Crop the image by 1/8 in both directions (there's usually dark frame or background there)
                     for (int x = bmp.Width / 8; x < bmp.Width * 7 / 8; x += bmp.Width / 16)
                         for (int y = bmp.Height / 8; y < bmp.Height * 7 / 8; y += bmp.Height / 16)
-                            if (bmp.GetPixel(x,y).GetBrightness() > 0.25)
+                        {
+                            avgColor = bmp.GetPixel(x, y); //use avg as temporary storage
+
+                            if (avgColor.GetBrightness() > 0.25) //brightness treshold
                             {
-                                r += bmp.GetPixel(x, y).R;
-                                g += bmp.GetPixel(x, y).G;
-                                b += bmp.GetPixel(x, y).B;
+                                r += avgColor.R;
+                                g += avgColor.G;
+                                b += avgColor.B;
                                 cnt++;
                             }
-            
+                        }
+
                 if (cnt > 0) avgColor = Color.FromArgb(r / cnt, g / cnt, b / cnt); //in case nothing went above brightness threshold
+                else avgColor = SystemColors.ActiveCaption;
             }
 
             //Invalidate picture box to force redrawing, just in case
