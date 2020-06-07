@@ -34,7 +34,7 @@ namespace NASA_APOD
         static extern uint GetLastError();
         [DllImport("user32.dll")]
         static extern int SystemParametersInfo(int Action, int nParam, string sParam, int WinIni);
-        const int SPI_SETDESKWALLPAPER = 20;
+        const int SPI_SETDESKWALLPAPER = 0x14;
         const int SPIF_UPDATEINIFILE = 0x01;
         const int SPIF_SENDWININICHANGE = 0x02;
 
@@ -547,6 +547,8 @@ namespace NASA_APOD
             key.SetValue(@"Wallpaper", imagePath);
             key.SetValue(@"WallpaperStyle", 6.ToString()); //always fit image to screen (zoom mode)
             key.SetValue(@"TileWallpaper", 0.ToString()); //do not tile
+            key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Colors", true);
+            key.SetValue(@"Background", "0 0 0"); //black desktop around the wallpaper
             Log("registry set...");
 
             //Save wallpaper proc output
@@ -1253,7 +1255,7 @@ namespace NASA_APOD
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
-            while (!apod.isDownloading)
+            if (!apod.isDownloading)
             switch (keyData)
             {
                 case Keys.F5: //refresh
