@@ -1282,8 +1282,12 @@ namespace NASA_APOD
         //Simple window snapping
         protected override void OnResizeEnd(EventArgs e)
         {
+            Log(MethodBase.GetCurrentMethod().Name);
+
             base.OnResizeEnd(e);
+
             Screen s = Screen.FromPoint(Location);
+
             if (Snap(Left, s.WorkingArea.Left)) Left = s.WorkingArea.Left;
             if (Snap(Top, s.WorkingArea.Top)) Top = s.WorkingArea.Top;
             if (Snap(s.WorkingArea.Right, Right)) Left = s.WorkingArea.Right - Width;
