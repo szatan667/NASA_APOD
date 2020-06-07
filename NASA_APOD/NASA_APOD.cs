@@ -1256,20 +1256,26 @@ namespace NASA_APOD
             Log(MethodBase.GetCurrentMethod().Name);
 
             if (!apod.isDownloading)
-            switch (keyData)
-            {
-                case Keys.F5: //refresh
-                    buttonRefresh_Click(this, null);
-                    return true;
-                case Keys.Left: //minus one day
-                    buttonPrev_Click(this, null);
-                    return true;
-                case Keys.Right: //plus one day
-                    buttonNext_Click(this, null);
-                    return true;
-                default:
-                    break;
-            }
+                switch (keyData)
+                {
+                    case Keys.F5: //refresh
+                        buttonRefresh_Click(this, null);
+                        return true;
+                    case Keys.Left: //minus one day
+                        buttonPrev_Click(this, null);
+                        return true;
+                    case Keys.Right: //plus one day
+                        buttonNext_Click(this, null);
+                        return true;
+                    case Keys.Control | Keys.Tab:
+                        tabControl.SelectedIndex = (tabControl.SelectedIndex == tabControl.TabCount - 1) ? 0 : tabControl.SelectedIndex + 1;
+                        return true;
+                    case Keys.Control | Keys.Shift | Keys.Tab:
+                        tabControl.SelectedIndex = (tabControl.SelectedIndex == 0) ? tabControl.TabCount - 1 : tabControl.SelectedIndex - 1;
+                        return true;
+                    default:
+                        break;
+                }
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
