@@ -120,7 +120,10 @@ namespace NASA_APOD
                 this.apiDate = apiDate; //set the date for APOD object
 
                 if (media_type == "image") //set media type tag
+                {
                     isImage = true;
+                    videoType = VideoType.NONE;
+                }
                 else
                 {
                     isImage = false;

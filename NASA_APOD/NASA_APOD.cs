@@ -307,9 +307,6 @@ namespace NASA_APOD
             {
                 Log("calling apod.setAPIDate()...");
                 apod.setAPIDate(apodDate);
-                //Setup prev/next buttons with previous and next dates ←→►◄
-                buttonPrev.Text = "<< " + apod.apiDate.AddDays(-1).ToShortDateString();
-                buttonNext.Text = apod.apiDate.AddDays(1).ToShortDateString() + " >>";
 
                 //Save last image date to INI file
                 iniFile.Write("lastDate", apod.apiDate.ToString());
@@ -331,6 +328,12 @@ namespace NASA_APOD
                 statusBar.Text = e.Message;
                 textDate.ForeColor = SystemColors.ControlText;
                 textDate.Text = "(none)";
+            }
+            finally
+            {
+                //Always try to setup prev/next buttons with previous and next dates ←→►◄
+                buttonPrev.Text = "<< " + apod.apiDate.AddDays(-1).ToShortDateString();
+                buttonNext.Text = apod.apiDate.AddDays(1).ToShortDateString() + " >>";
             }
         }
 
@@ -589,7 +592,7 @@ namespace NASA_APOD
                         {
                             avgColor = bmp.GetPixel(x, y); //use avg as temporary storage
 
-                            if (avgColor.GetBrightness() > 0.25) //brightness treshold
+                            if (avgColor.GetBrightness() > 0.35 && avgColor.GetSaturation() > 0.35) //brightness treshold
                             {
                                 r += avgColor.R;
                                 g += avgColor.G;
@@ -636,6 +639,8 @@ namespace NASA_APOD
                 textURL.Text = apod.hdurl;
             else if (apod.url != string.Empty)
                 textURL.Text = apod.url;
+            else
+                textURL.Text = string.Empty;
             buttonCopyLink.Enabled = (textURL.Text != string.Empty) ? true : false;
             if (!apod.isImage)
             {
