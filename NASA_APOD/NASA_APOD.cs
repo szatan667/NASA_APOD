@@ -437,10 +437,13 @@ namespace NASA_APOD
             //...otherwise try to play video link
             else
             {
-                //Not a picture today, clear the image box with nasa icon
+                //Not a picture today, clear the image box with nasa icon and try to play video link
                 Log("not a picture section - either a video link or null");
                 pictureBox.SizeMode = PictureBoxSizeMode.CenterImage;
                 pictureBox.Image = Properties.Resources.NASA.ToBitmap();
+                pictureBox.Visible = true;
+                web.Visible = false;
+                //web.DocumentText = string.Empty;
 
                 //Now try to pick up video link
                 //Video link usually appears in 'url', but it's worth checking 'hdurl' as well
@@ -720,7 +723,7 @@ namespace NASA_APOD
                             string.Join(" - ", menuItem.Substring(4), a.date, a.title + ((a.isImage) ? "" : " (video)"));
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
                     trayIcon.ContextMenu.MenuItems[menuItem].Enabled = false;
                     trayIcon.ContextMenu.MenuItems[menuItem].Text = menuItem.Substring(4) + " - not available";
@@ -735,7 +738,7 @@ namespace NASA_APOD
                         default:
                             break;
                     }
-                    statusBar.Text = e.Message;
+                    //statusBar.Text = e.Message; //not really necessary to display this
                 }
             }
         }

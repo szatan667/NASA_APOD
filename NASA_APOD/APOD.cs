@@ -42,7 +42,6 @@ namespace NASA_APOD
         //private const string _baseURL = "https://bing.biturl.top/";
         private const string _apiKeyDefault = "DFihYXvddhhd1KnnPtw3BgSxAXlx9yHz1CSTwbN8";
         private string _apiKey;
-        private static readonly WebClient _wc = new WebClient();
         private static readonly DateTime _DATE_MIN = DateTime.Parse("1995-06-16");
 
         private const string VID_TYPE_YT = "youtube";
@@ -69,6 +68,7 @@ namespace NASA_APOD
         public APOD(DateTime apiDate)
         {
             setAPIDate(apiDate);
+            videoType = VideoType.NONE;
             isDownloading = false;
         }
 
@@ -115,26 +115,29 @@ namespace NASA_APOD
             //Call websvc and strip json to local vars
             try
             {
-                string json = _wc.DownloadString(_apiURL);
-                jsonDeserialize(json);
-                this.apiDate = apiDate; //set the date for APOD object
+                using (WebClient wc = new WebClient())
+                {
+                    string json = wc.DownloadString(_apiURL);
+                    jsonDeserialize(json);
+                    this.apiDate = apiDate; //set the date for APOD object
 
-                if (media_type == "image") //set media type tag
-                {
-                    isImage = true;
-                    videoType = VideoType.NONE;
-                }
-                else
-                {
-                    isImage = false;
-                    videoType = VideoType.NONE;
-                    if (url.Contains(VID_TYPE_YT) || hdurl.Contains(VID_TYPE_YT)) videoType = VideoType.YOUTUBE;
-                    if (url.Contains(VID_TYPE_VM) || hdurl.Contains(VID_TYPE_VM)) videoType = VideoType.VIMEO;
+                    //Set media type flags
+                    if (media_type == "image")
+                    {
+                        isImage = true;
+                        videoType = VideoType.NONE;
+                    }
+                    else
+                    {
+                        isImage = false;
+                        videoType = VideoType.NONE;
+                        if (url.Contains(VID_TYPE_YT) || hdurl.Contains(VID_TYPE_YT)) videoType = VideoType.YOUTUBE;
+                        if (url.Contains(VID_TYPE_VM) || hdurl.Contains(VID_TYPE_VM)) videoType = VideoType.VIMEO;
+                    }
                 }
             }
             catch (Exception e)
             {
-                _wc.Dispose();
                 copyright       = string.Empty;
                 date            = string.Empty;
                 explanation     = string.Empty;
@@ -145,6 +148,7 @@ namespace NASA_APOD
                 url             = string.Empty;
                 this.apiDate    = apiDate;// DateTime.MinValue;
                 isImage         = false;
+                videoType       = VideoType.NONE;
                 throw e;
             }
         }
@@ -202,9 +206,6 @@ namespace NASA_APOD
         protected virtual void Dispose(bool disposing)
         {
             if (!isDisposed)
-                if (disposing)
-                    if (_wc != null)
-                        _wc.Dispose();
             isDisposed = true;
         }
         public void Dispose()
