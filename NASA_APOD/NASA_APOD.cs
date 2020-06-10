@@ -335,7 +335,7 @@ namespace NASA_APOD
         }
 
         //Tray icon menu "today" event handler
-        private void OnMenuToday(object sender, EventArgs e)
+        private void OnMenuToday(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -345,7 +345,7 @@ namespace NASA_APOD
         }
 
         //Tray icon menu "exit" event handler
-        private void OnMenuExit(object sender, EventArgs e)
+        private void OnMenuExit(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -353,7 +353,7 @@ namespace NASA_APOD
         }
 
         //App exit event, just for logging
-        private void OnAppExit(object sender, EventArgs e)
+        private void OnAppExit(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
             Log("--- THE END! ------------------------------------------------");
@@ -522,7 +522,7 @@ namespace NASA_APOD
         }
 
         //Download completed event - do rest of the logic - actual wallpapering and saving to disk
-        private void PictureBox_LoadCompleted(object sender, AsyncCompletedEventArgs e)
+        private void PictureBox_LoadCompleted(object s, AsyncCompletedEventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -759,7 +759,7 @@ namespace NASA_APOD
         }
 
         //Timer event handler - reload image with today date
-        private void timerRefresh_Tick(object sender, EventArgs e)
+        private void timerRefresh_Tick(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
             Log("--- TIMER TICK! ---");
@@ -778,7 +778,7 @@ namespace NASA_APOD
         }
 
         //Auto refresh checkbox - enable or disable automatic refresh
-        private void checkAutoRefresh_CheckedChanged(object sender, EventArgs e)
+        private void checkAutoRefresh_CheckedChanged(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -791,7 +791,7 @@ namespace NASA_APOD
         }
 
         //Save to custom path checkbox
-        private void checkSaveToDisk_CheckedChanged(object sender, EventArgs e)
+        private void checkSaveToDisk_CheckedChanged(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -830,7 +830,7 @@ namespace NASA_APOD
         }
 
         //Custom path selection button
-        private void buttonPath_Click(object sender, EventArgs e)
+        private void buttonPath_Click(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -846,7 +846,7 @@ namespace NASA_APOD
         }
 
         //Copy link to clipboard
-        private void buttonCopyLink_Click(object sender, EventArgs e)
+        private void buttonCopyLink_Click(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -855,7 +855,7 @@ namespace NASA_APOD
         }
 
         //Copy image to clipboard
-        private void buttonCopyImage_Click(object sender, EventArgs e)
+        private void buttonCopyImage_Click(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -864,7 +864,7 @@ namespace NASA_APOD
         }
 
         //Tray icon click - hide/show window
-        private void myIcon_MouseClick(object sender, MouseEventArgs e)
+        private void myIcon_MouseClick(object s, MouseEventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -873,34 +873,34 @@ namespace NASA_APOD
                 //Toggle window state
                 if (formHidden)
                 {
-                    this.Show();
-                    this.WindowState = FormWindowState.Normal;
+                    Show();
+                    WindowState = FormWindowState.Normal;
                     formHidden = false;
                 }
                 else
                 {
-                    this.Hide();
+                    Hide();
                     formHidden = true;
                 }
         }
 
         //Minimize to system tray
-        private void windowResize(object sender, EventArgs e)
+        private void windowResize(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
-            if (this.WindowState == FormWindowState.Minimized)
+            if (WindowState == FormWindowState.Minimized)
             {
-                this.Hide();
+                Hide();
                 formHidden = true;
                 trayIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
-                trayIcon.BalloonTipText = trayIcon.Text;
+                trayIcon.BalloonTipText = (trayIcon.Text == string.Empty) ? "No image today :(" : trayIcon.Text;
                 trayIcon.ShowBalloonTip(1);
             }
         }
 
         //Previous button click
-        private void buttonPrev_Click(object sender, EventArgs e)
+        private void buttonPrev_Click(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -909,7 +909,7 @@ namespace NASA_APOD
         }
 
         //Next button click
-        private void buttonNext_Click(object sender, EventArgs e)
+        private void buttonNext_Click(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -921,7 +921,7 @@ namespace NASA_APOD
         }
 
         //Today button click
-        private void buttonToday_Click(object sender, EventArgs e)
+        private void buttonToday_Click(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -930,7 +930,7 @@ namespace NASA_APOD
         }
 
         //Refresh button - simply reload current image
-        private void buttonRefresh_Click(object sender, EventArgs e)
+        private void buttonRefresh_Click(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -939,7 +939,7 @@ namespace NASA_APOD
         }
 
         //EXPERIMANTAL - draw the title over the picture
-        private void pictureBox_Paint(object sender, PaintEventArgs e)
+        private void pictureBox_Paint(object s, PaintEventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -980,7 +980,7 @@ namespace NASA_APOD
         }
 
         //Pick a date - show calendar
-        private void buttonPickDate_Click(object sender, EventArgs e)
+        private void buttonPickDate_Click(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -996,7 +996,7 @@ namespace NASA_APOD
         }
 
         //Calendar click - set the date and get the image at once
-        private void Calendar_DateSelected(object sender, DateRangeEventArgs e)
+        private void Calendar_DateSelected(object s, DateRangeEventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -1008,7 +1008,7 @@ namespace NASA_APOD
         }
 
         //Just move your mouse over the description to be able to scroll it
-        private void TextBoxImgDesc_MouseHover(object sender, EventArgs e)
+        private void TextBoxImgDesc_MouseHover(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -1017,7 +1017,7 @@ namespace NASA_APOD
         }
 
         //Go to 'how to' link
-        private void linkHowToKey_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
+        private void linkHowToKey_LinkClicked(object s, LinkLabelLinkClickedEventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -1025,7 +1025,7 @@ namespace NASA_APOD
         }
 
         //Use custom key checkbox
-        private void checkCustomKey_CheckedChanged(object sender, EventArgs e)
+        private void checkCustomKey_CheckedChanged(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -1038,7 +1038,7 @@ namespace NASA_APOD
         }
 
         //Custom key value - save in INI file
-        private void textCustomKey_TextChanged(object sender, EventArgs e)
+        private void textCustomKey_TextChanged(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -1046,7 +1046,7 @@ namespace NASA_APOD
         }
 
         //Go to history item
-        private void listHistory_DoubleClick(object sender, EventArgs e)
+        private void listHistory_DoubleClick(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -1061,7 +1061,7 @@ namespace NASA_APOD
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void buttonGrabAll_Click(object sender, EventArgs e)
+        private void buttonGrabAll_Click(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -1213,7 +1213,7 @@ namespace NASA_APOD
         }
 
         //Enable or disable history function
-        private void checkEnableHistory_CheckedChanged(object sender, EventArgs e)
+        private void checkEnableHistory_CheckedChanged(object s, EventArgs e)
         {
             if (checkEnableHistory.Checked)
             {
