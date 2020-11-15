@@ -623,7 +623,7 @@ namespace NASA_APOD
             tabImage.Focus();
 
             //Set image title
-            trayIcon.Text = apod.title;
+            trayIcon.Text = apod.title.Substring(0, 63); //tray icon won't take more that 63 chars
             labelImageDesc.Text = apod.title;
 
             //Copyright is not always there
