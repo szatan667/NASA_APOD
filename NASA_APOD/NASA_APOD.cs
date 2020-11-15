@@ -48,9 +48,7 @@ namespace NASA_APOD
         int daysProg = 0; //download progress
         int daysErrors = 0; //number of errors or non-images
 
-        //--- Main class methods -----------------------------------------------------------------
-
-        //Default constructor - will create program window and set everything up
+        //---- Default constructor - create program window and set everything up ----
         public NASA_APOD()
         {
             //Enable logging if required - just pass anything as pgm parameter
@@ -485,7 +483,7 @@ namespace NASA_APOD
         }
 
         /// <summary>
-        /// Create full path to local file. Put path picked fro GUI together with picture filename and current date
+        /// Create full path to local file. Put path picked from GUI together with picture filename and current date
         /// </summary>
         /// <param name="path">Local disk path</param>
         /// <param name="apod">APOD type object</param>
@@ -948,9 +946,9 @@ namespace NASA_APOD
         }
 
         //EXPERIMANTAL - draw the title over the picture
-        private void pictureBox_Paint(object s, PaintEventArgs e)
-        {
-            Log(MethodBase.GetCurrentMethod().Name);
+        //private void pictureBox_Paint(object s, PaintEventArgs e)
+        //{
+        //    Log(MethodBase.GetCurrentMethod().Name);
 
             /*
             //get picture box size
@@ -986,7 +984,7 @@ namespace NASA_APOD
                 TextRenderer.MeasureText(myIcon.Text, myFont).Height / 2);
             myFont.Dispose();   //release font, don't need it anymore
         */
-        }
+        //}
 
         //Pick a date - show calendar
         private void buttonPickDate_Click(object s, EventArgs e)
