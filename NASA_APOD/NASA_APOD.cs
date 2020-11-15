@@ -58,7 +58,7 @@ namespace NASA_APOD
             logging = true;
 
             //Disable certificate checking - dirty and temporary
-            ServicePointManager.ServerCertificateValidationCallback += (a, b, c, d) => true;
+            //ServicePointManager.ServerCertificateValidationCallback += (a, b, c, d) => true;
 
             Log("\n--- PROGRAM START -----------------------------------------------");
             Log(MethodBase.GetCurrentMethod().Name);
@@ -623,7 +623,8 @@ namespace NASA_APOD
             tabImage.Focus();
 
             //Set image title
-            trayIcon.Text = apod.title.Substring(0, 63); //tray icon won't take more that 63 chars
+            //tray icon won't take more that 63 chars
+            trayIcon.Text = (apod.title.Length > 63) ? apod.title.Substring(0, 63) : apod.title;
             labelImageDesc.Text = apod.title;
 
             //Copyright is not always there
@@ -644,7 +645,7 @@ namespace NASA_APOD
                 textURL.Text = apod.url;
             else
                 textURL.Text = string.Empty;
-            buttonCopyLink.Enabled = (textURL.Text != string.Empty) ? true : false;
+            buttonCopyLink.Enabled = (textURL.Text != string.Empty);
             if (!apod.isImage)
             {
                 buttonCopyImage.Enabled = false;
