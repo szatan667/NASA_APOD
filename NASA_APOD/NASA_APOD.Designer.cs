@@ -54,6 +54,9 @@
             System.Windows.Forms.ListViewItem listViewItem8 = new System.Windows.Forms.ListViewItem(new string[] {
             "url",
             ""}, -1);
+            System.Windows.Forms.ListViewItem listViewItem9 = new System.Windows.Forms.ListViewItem(new string[] {
+            "size",
+            ""}, -1);
             this.textURL = new System.Windows.Forms.TextBox();
             this.pictureBox = new System.Windows.Forms.PictureBox();
             this.buttonRefresh = new System.Windows.Forms.Button();
@@ -529,7 +532,8 @@
             listViewItem5,
             listViewItem6,
             listViewItem7,
-            listViewItem8});
+            listViewItem8,
+            listViewItem9});
             this.listDebug.Location = new System.Drawing.Point(3, 3);
             this.listDebug.Name = "listDebug";
             this.listDebug.Size = new System.Drawing.Size(362, 259);

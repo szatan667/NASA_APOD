@@ -228,6 +228,7 @@ namespace NASA_APOD
                 listDebug.Items[5].SubItems[1].Text = apod.service_version;
                 listDebug.Items[6].SubItems[1].Text = apod.title;
                 listDebug.Items[7].SubItems[1].Text = apod.url;
+                listDebug.Items[8].SubItems[1].Text = string.Empty;
                 listDebug.Columns[0].Width = 75;
                 listDebug.Columns[1].Width = 1350;
             }
@@ -575,7 +576,11 @@ namespace NASA_APOD
             if (_out == 0)
                 statusBar.Text = "Downloaded but not set :(";
             else
+            {
                 statusBar.Text = "Done!";
+                listDebug.Items[8].SubItems[1].Text = new FileInfo(imagePath).Length / 1024 + " kB";
+                Log("Wallpapering succesful, downloaded img size = " + listDebug.Items[8].SubItems[1].Text);
+            }
 
             //Get average color from picture - to use it later in custom menu draw routine
             avgColor = SystemColors.ActiveCaption; //use system color by default and then calc image average if possible
