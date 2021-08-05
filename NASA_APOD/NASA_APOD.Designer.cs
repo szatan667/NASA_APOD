@@ -139,7 +139,7 @@
             this.buttonRefresh.TabIndex = 3;
             this.buttonRefresh.Text = "Refresh";
             this.buttonRefresh.UseVisualStyleBackColor = true;
-            this.buttonRefresh.Click += new System.EventHandler(this.buttonRefresh_Click);
+            this.buttonRefresh.Click += new System.EventHandler(this.ButtonRefresh_Click);
             // 
             // statusStrip
             // 
@@ -175,13 +175,13 @@
             this.checkSaveToDisk.TabIndex = 5;
             this.checkSaveToDisk.Text = "Save images to disk";
             this.checkSaveToDisk.UseVisualStyleBackColor = true;
-            this.checkSaveToDisk.CheckedChanged += new System.EventHandler(this.checkSaveToDisk_CheckedChanged);
+            this.checkSaveToDisk.CheckedChanged += new System.EventHandler(this.CheckSaveToDisk_CheckedChanged);
             // 
             // timerRefresh
             // 
             this.timerRefresh.Enabled = true;
             this.timerRefresh.Interval = 3600000;
-            this.timerRefresh.Tick += new System.EventHandler(this.timerRefresh_Tick);
+            this.timerRefresh.Tick += new System.EventHandler(this.TimerRefresh_Tick);
             // 
             // checkAutoRefresh
             // 
@@ -194,7 +194,7 @@
             this.checkAutoRefresh.TabIndex = 6;
             this.checkAutoRefresh.Text = "Auto refresh every hour";
             this.checkAutoRefresh.UseVisualStyleBackColor = true;
-            this.checkAutoRefresh.CheckedChanged += new System.EventHandler(this.checkAutoRefresh_CheckedChanged);
+            this.checkAutoRefresh.CheckedChanged += new System.EventHandler(this.CheckAutoRefresh_CheckedChanged);
             // 
             // buttonPath
             // 
@@ -207,7 +207,7 @@
             this.buttonPath.TabIndex = 7;
             this.buttonPath.Text = "...";
             this.buttonPath.UseVisualStyleBackColor = true;
-            this.buttonPath.Click += new System.EventHandler(this.buttonPath_Click);
+            this.buttonPath.Click += new System.EventHandler(this.ButtonPath_Click);
             // 
             // textPath
             // 
@@ -229,7 +229,7 @@
             this.buttonPrev.TabIndex = 11;
             this.buttonPrev.Text = "<< PREVIOUS";
             this.buttonPrev.UseVisualStyleBackColor = true;
-            this.buttonPrev.Click += new System.EventHandler(this.buttonPrev_Click);
+            this.buttonPrev.Click += new System.EventHandler(this.ButtonPrev_Click);
             // 
             // buttonNext
             // 
@@ -241,7 +241,7 @@
             this.buttonNext.TabIndex = 12;
             this.buttonNext.Text = "NEXT >>";
             this.buttonNext.UseVisualStyleBackColor = true;
-            this.buttonNext.Click += new System.EventHandler(this.buttonNext_Click);
+            this.buttonNext.Click += new System.EventHandler(this.ButtonNext_Click);
             // 
             // buttonCopyLink
             // 
@@ -252,7 +252,7 @@
             this.buttonCopyLink.TabIndex = 13;
             this.buttonCopyLink.Text = "Copy link";
             this.buttonCopyLink.UseVisualStyleBackColor = true;
-            this.buttonCopyLink.Click += new System.EventHandler(this.buttonCopyLink_Click);
+            this.buttonCopyLink.Click += new System.EventHandler(this.ButtonCopyLink_Click);
             // 
             // buttonCopyImage
             // 
@@ -263,13 +263,13 @@
             this.buttonCopyImage.TabIndex = 14;
             this.buttonCopyImage.Text = "Copy image";
             this.buttonCopyImage.UseVisualStyleBackColor = true;
-            this.buttonCopyImage.Click += new System.EventHandler(this.buttonCopyImage_Click);
+            this.buttonCopyImage.Click += new System.EventHandler(this.ButtonCopyImage_Click);
             // 
             // trayIcon
             // 
             this.trayIcon.Text = "NASA picture of the day";
             this.trayIcon.Visible = true;
-            this.trayIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(this.myIcon_MouseClick);
+            this.trayIcon.MouseClick += new System.Windows.Forms.MouseEventHandler(this.MyIcon_MouseClick);
             // 
             // buttonToday
             // 
@@ -281,7 +281,7 @@
             this.buttonToday.TabIndex = 15;
             this.buttonToday.Text = "TODAY";
             this.buttonToday.UseVisualStyleBackColor = true;
-            this.buttonToday.Click += new System.EventHandler(this.buttonToday_Click);
+            this.buttonToday.Click += new System.EventHandler(this.ButtonToday_Click);
             // 
             // groupBoxSettings
             // 
@@ -312,7 +312,7 @@
             this.checkEnableHistory.TabIndex = 14;
             this.checkEnableHistory.Text = "Enable history";
             this.checkEnableHistory.UseVisualStyleBackColor = true;
-            this.checkEnableHistory.CheckedChanged += new System.EventHandler(this.checkEnableHistory_CheckedChanged);
+            this.checkEnableHistory.CheckedChanged += new System.EventHandler(this.CheckEnableHistory_CheckedChanged);
             // 
             // textGrabAll
             // 
@@ -333,7 +333,7 @@
             this.buttonGrabAll.TabIndex = 12;
             this.buttonGrabAll.Text = "EXPERIMENTAL - grab whole archive";
             this.buttonGrabAll.UseVisualStyleBackColor = false;
-            this.buttonGrabAll.Click += new System.EventHandler(this.buttonGrabAll_Click);
+            this.buttonGrabAll.Click += new System.EventHandler(this.ButtonGrabAll_Click);
             // 
             // checkCustomKey
             // 
@@ -344,7 +344,7 @@
             this.checkCustomKey.TabIndex = 9;
             this.checkCustomKey.Text = "Use custom API key";
             this.checkCustomKey.UseVisualStyleBackColor = true;
-            this.checkCustomKey.CheckedChanged += new System.EventHandler(this.checkCustomKey_CheckedChanged);
+            this.checkCustomKey.CheckedChanged += new System.EventHandler(this.CheckCustomKey_CheckedChanged);
             // 
             // textCustomKey
             // 
@@ -354,7 +354,7 @@
             this.textCustomKey.Name = "textCustomKey";
             this.textCustomKey.Size = new System.Drawing.Size(344, 23);
             this.textCustomKey.TabIndex = 10;
-            this.textCustomKey.TextChanged += new System.EventHandler(this.textCustomKey_TextChanged);
+            this.textCustomKey.TextChanged += new System.EventHandler(this.TextCustomKey_TextChanged);
             // 
             // linkHowToKey
             // 
@@ -365,7 +365,7 @@
             this.linkHowToKey.TabIndex = 11;
             this.linkHowToKey.TabStop = true;
             this.linkHowToKey.Text = "How do I get my own key?";
-            this.linkHowToKey.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.linkHowToKey_LinkClicked);
+            this.linkHowToKey.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.LinkHowToKey_LinkClicked);
             // 
             // labelImageDesc
             // 
@@ -410,7 +410,7 @@
             this.buttonPickDate.TabIndex = 23;
             this.buttonPickDate.Text = "Date...";
             this.buttonPickDate.UseVisualStyleBackColor = true;
-            this.buttonPickDate.Click += new System.EventHandler(this.buttonPickDate_Click);
+            this.buttonPickDate.Click += new System.EventHandler(this.ButtonPickDate_Click);
             // 
             // textDate
             // 
@@ -485,7 +485,7 @@
             this.listHistory.TabIndex = 0;
             this.listHistory.UseCompatibleStateImageBehavior = false;
             this.listHistory.View = System.Windows.Forms.View.Details;
-            this.listHistory.DoubleClick += new System.EventHandler(this.listHistory_DoubleClick);
+            this.listHistory.DoubleClick += new System.EventHandler(this.ListHistory_DoubleClick);
             // 
             // colDate
             // 
@@ -586,7 +586,7 @@
             this.Name = "NASA_APOD";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
             this.Text = "NASA Astronomy Picture of the Day";
-            this.Resize += new System.EventHandler(this.windowResize);
+            this.Resize += new System.EventHandler(this.WindowResize);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox)).EndInit();
             this.statusStrip.ResumeLayout(false);
             this.statusStrip.PerformLayout();

@@ -101,8 +101,8 @@ namespace NASA_APOD
             //Add menu to tray icon
             trayIcon.ContextMenu = new ContextMenu(new MenuItem[]
             {
-                new MenuItem("Previous", buttonPrev_Click) { Name = "menuPrev", OwnerDraw = true },
-                new MenuItem("Next", buttonNext_Click)     { Name = "menuNext", OwnerDraw = true },
+                new MenuItem("Previous", ButtonPrev_Click) { Name = "menuPrev", OwnerDraw = true },
+                new MenuItem("Next", ButtonNext_Click)     { Name = "menuNext", OwnerDraw = true },
                 new MenuItem("Today", OnMenuToday)         { Name = "menuToday", OwnerDraw = true },
                 new MenuItem("-")                          { OwnerDraw = false },
                 new MenuItem("Exit", OnMenuExit)           { Name = "menuExit", DefaultItem = true, OwnerDraw = true }
@@ -168,20 +168,20 @@ namespace NASA_APOD
             //At this point we should have custom key read from settingss. If not, default one will be used
             Log("Create main apod object");
             apod = new APOD();
-            apod.setAPIKey(textCustomKey.Text);
+            apod.SetApiKey(textCustomKey.Text);
 
             Log("setting date - STARTUP...");
             //If auto-refresh option is set, always use today's date
             if (checkAutoRefresh.Checked)
-                setApodDate(apod, DateTime.Today);
+                SetApodDate(apod, DateTime.Today);
             else
-                setApodDate(apod, DateTime.Parse(iniFile.Read("lastDate")));
+                SetApodDate(apod, DateTime.Parse(iniFile.Read("lastDate")));
 
             Log("STARTUP DATE = " + apod.apiDate);
 
             //Get the image on startup
             Log("Getting the image on startup...");
-            getNASAApod();
+            GetNasaApod();
         }
 
         /// <summary>
@@ -228,13 +228,13 @@ namespace NASA_APOD
         /// <summary>
         /// Fill history tab list with dates and headers
         /// </summary>
-        private void fillHistory()
+        private void FillHistory()
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
             //Local APOD to get img title list
             using APOD a = new();
-            a.setAPIKey(textCustomKey.Text);
+            a.SetApiKey(textCustomKey.Text);
 
             //Clear history list
             listHistory.Items.Clear();
@@ -249,7 +249,7 @@ namespace NASA_APOD
             //Now go back in time and fetch history items
             try
             {
-                a.setAPIDate(apod.apiDate.AddDays(daysback)); //go back further back in time
+                a.SetApiDate(apod.apiDate.AddDays(daysback)); //go back further back in time
 
                 while (cnt < maxDays && apod.apiDate.AddDays(daysback) >= DateTime.Parse("1995-06-16"))
                 {
@@ -263,7 +263,7 @@ namespace NASA_APOD
 
                     //Time travel
                     daysback--;
-                    a.setAPIDate(apod.apiDate.AddDays(daysback));
+                    a.SetApiDate(apod.apiDate.AddDays(daysback));
                 }
                 listHistory.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
                 progressBar.Value = 100;
@@ -280,7 +280,7 @@ namespace NASA_APOD
         /// </summary>
         /// <param name="apod">APOD object</param>
         /// <param name="apodDate">Desired date</param>
-        private void setApodDate(APOD apod, DateTime apodDate)
+        private void SetApodDate(APOD apod, DateTime apodDate)
         {
             Log(MethodBase.GetCurrentMethod().Name);
             Log("trying this date: " + apodDate);
@@ -294,7 +294,7 @@ namespace NASA_APOD
             try
             {
                 Log("calling apod.setAPIDate()...");
-                apod.setAPIDate(apodDate);
+                apod.SetApiDate(apodDate);
 
                 //Save last image date to INI file
                 iniFile.Write("lastDate", apod.apiDate.ToString());
@@ -304,7 +304,7 @@ namespace NASA_APOD
 
                 //Fill history items
                 if (checkEnableHistory.Checked)
-                    fillHistory();
+                    FillHistory();
                 else
                     listHistory.Items.Clear();
 
@@ -331,8 +331,8 @@ namespace NASA_APOD
             Log(MethodBase.GetCurrentMethod().Name);
 
             //Get today's image
-            apod.setAPIDate(DateTime.Today);
-            getNASAApod();
+            apod.SetApiDate(DateTime.Today);
+            GetNasaApod();
         }
 
         //Tray icon menu "exit" event handler
@@ -353,7 +353,7 @@ namespace NASA_APOD
         /// <summary>
         /// Get the picture and possibly save it to disk (if required in GUI)
         /// </summary>
-        private void getNASAApod()
+        private void GetNasaApod()
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -404,7 +404,7 @@ namespace NASA_APOD
                 apod.isDownloading = true;
                 if (checkSaveToDisk.Checked)
                 {
-                    imagePath = createFullPath(pathToSave, apod);
+                    imagePath = CreateFullPath(pathToSave, apod);
                     if (File.Exists(imagePath))
                     {
                         pictureBox.LoadAsync(imagePath);
@@ -468,7 +468,7 @@ namespace NASA_APOD
                     web.DocumentText = string.Format(DocumentText, "https://" + vsrc + (vsrc.Contains("?") ? "&autoplay=1" : "?autoplay=1"));
                 }
 
-                setupGUIWhenCompleted();
+                SetupGuiWhenCompleted();
             }
         }
 
@@ -478,7 +478,7 @@ namespace NASA_APOD
         /// <param name="path">Local disk path</param>
         /// <param name="apod">APOD type object</param>
         /// <returns></returns>
-        private string createFullPath(string path, APOD apod)
+        private string CreateFullPath(string path, APOD apod)
         {
             string filename = apod.apiDate.ToShortDateString() + '_' + 
                               apod.hdurl.Substring(apod.url.LastIndexOf('/') + 1);
@@ -530,7 +530,7 @@ namespace NASA_APOD
 
             //Save the image to disk - required to set the wallpaper
             //even if "save to disk" is not set in GUI
-            saveToDisk();
+            SaveToDisk();
 
             //Before setting the wallpaper, we have to build full path of TEMP.JPG
             //but only if not saving to custom path, because then it was already built
@@ -563,7 +563,7 @@ namespace NASA_APOD
 
             //Setup UI elements
             //Activate tray menu and then enable/disable 'previous' and 'next' buttons, depending on the API date
-            setupGUIWhenCompleted();
+            SetupGuiWhenCompleted();
 
             //TODO: Sometimes wallpapering does not work - why? This happens in Win7 only
             if (_out == 0)
@@ -612,7 +612,7 @@ namespace NASA_APOD
         /// <summary>
         /// Enable or disable GUI/tray items depending on current API date
         /// </summary>
-        private void setupGUIWhenCompleted()
+        private void SetupGuiWhenCompleted()
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -741,13 +741,13 @@ namespace NASA_APOD
         /// <summary>
         /// Save current image to disk
         /// </summary>
-        private void saveToDisk()
+        private void SaveToDisk()
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
             //First build custom path if desired and possible
             if (pathToSave != string.Empty && apod.hdurl != string.Empty)
-                imagePath = createFullPath(pathToSave, apod);
+                imagePath = CreateFullPath(pathToSave, apod);
 
             //Do actual saving
             try
@@ -762,7 +762,7 @@ namespace NASA_APOD
         }
 
         //Timer event handler - reload image with today date
-        private void timerRefresh_Tick(object s, EventArgs e)
+        private void TimerRefresh_Tick(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
             Log("--- TIMER TICK! ---");
@@ -773,15 +773,15 @@ namespace NASA_APOD
                 Log("AUTO REFRESH - date rolled over");
                 Log("API date   = " + apod.apiDate);
                 Log("TODAY date = " + DateTime.Today);
-                setApodDate(apod, DateTime.Today);
-                getNASAApod();
+                SetApodDate(apod, DateTime.Today);
+                GetNasaApod();
             }
             else
                 Log("Date not changed, nothing to do in auto-refresh end");
         }
 
         //Auto refresh checkbox - enable or disable automatic refresh
-        private void checkAutoRefresh_CheckedChanged(object s, EventArgs e)
+        private void CheckAutoRefresh_CheckedChanged(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -794,7 +794,7 @@ namespace NASA_APOD
         }
 
         //Save to custom path checkbox
-        private void checkSaveToDisk_CheckedChanged(object s, EventArgs e)
+        private void CheckSaveToDisk_CheckedChanged(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -809,7 +809,7 @@ namespace NASA_APOD
                 //Is it first click? Custom path would be null in this case
                 if (textPath.Text == null || textPath.Text == string.Empty)
                 {
-                    buttonPath_Click(this, e); //invoke path selection dialog
+                    ButtonPath_Click(this, e); //invoke path selection dialog
                     if (dialogPath.SelectedPath == string.Empty) //if dialog cancelled, revert UI changes
                     {
                         buttonPath.Enabled = false;
@@ -833,7 +833,7 @@ namespace NASA_APOD
         }
 
         //Custom path selection button
-        private void buttonPath_Click(object s, EventArgs e)
+        private void ButtonPath_Click(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -849,7 +849,7 @@ namespace NASA_APOD
         }
 
         //Copy link to clipboard
-        private void buttonCopyLink_Click(object s, EventArgs e)
+        private void ButtonCopyLink_Click(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -858,7 +858,7 @@ namespace NASA_APOD
         }
 
         //Copy image to clipboard
-        private void buttonCopyImage_Click(object s, EventArgs e)
+        private void ButtonCopyImage_Click(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -867,7 +867,7 @@ namespace NASA_APOD
         }
 
         //Tray icon click - hide/show window
-        private void myIcon_MouseClick(object s, MouseEventArgs e)
+        private void MyIcon_MouseClick(object s, MouseEventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -888,7 +888,7 @@ namespace NASA_APOD
         }
 
         //Minimize to system tray
-        private void windowResize(object s, EventArgs e)
+        private void WindowResize(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -903,42 +903,42 @@ namespace NASA_APOD
         }
 
         //Previous button click
-        private void buttonPrev_Click(object s, EventArgs e)
+        private void ButtonPrev_Click(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
-            setApodDate(apod, apod.apiDate.AddDays(-1));
-            getNASAApod();
+            SetApodDate(apod, apod.apiDate.AddDays(-1));
+            GetNasaApod();
         }
 
         //Next button click
-        private void buttonNext_Click(object s, EventArgs e)
+        private void ButtonNext_Click(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
             if (apod.apiDate < DateTime.Today)
             {
-                setApodDate(apod, apod.apiDate.AddDays(1));
-                getNASAApod();
+                SetApodDate(apod, apod.apiDate.AddDays(1));
+                GetNasaApod();
             }
         }
 
         //Today button click
-        private void buttonToday_Click(object s, EventArgs e)
+        private void ButtonToday_Click(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
-            setApodDate(apod, DateTime.Today);
-            getNASAApod();
+            SetApodDate(apod, DateTime.Today);
+            GetNasaApod();
         }
 
         //Refresh button - simply reload current image
-        private void buttonRefresh_Click(object s, EventArgs e)
+        private void ButtonRefresh_Click(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
-            setApodDate(apod, apod.apiDate);
-            getNASAApod();
+            SetApodDate(apod, apod.apiDate);
+            GetNasaApod();
         }
 
         //EXPERIMANTAL - draw the title over the picture
@@ -983,7 +983,7 @@ namespace NASA_APOD
         //}
 
         //Pick a date - show calendar
-        private void buttonPickDate_Click(object s, EventArgs e)
+        private void ButtonPickDate_Click(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -1006,8 +1006,8 @@ namespace NASA_APOD
             Calendar.Visible = false;
             if (Calendar.SelectionStart > DateTime.Today) //don't allow future date
                 Calendar.SelectionStart = DateTime.Today;
-            setApodDate(apod, Calendar.SelectionStart);
-            getNASAApod();
+            SetApodDate(apod, Calendar.SelectionStart);
+            GetNasaApod();
         }
 
         //Just move your mouse over the description to be able to scroll it
@@ -1020,7 +1020,7 @@ namespace NASA_APOD
         }
 
         //Go to 'how to' link
-        private void linkHowToKey_LinkClicked(object s, LinkLabelLinkClickedEventArgs e)
+        private void LinkHowToKey_LinkClicked(object s, LinkLabelLinkClickedEventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -1028,7 +1028,7 @@ namespace NASA_APOD
         }
 
         //Use custom key checkbox
-        private void checkCustomKey_CheckedChanged(object s, EventArgs e)
+        private void CheckCustomKey_CheckedChanged(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -1041,7 +1041,7 @@ namespace NASA_APOD
         }
 
         //Custom key value - save in INI file
-        private void textCustomKey_TextChanged(object s, EventArgs e)
+        private void TextCustomKey_TextChanged(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -1049,12 +1049,12 @@ namespace NASA_APOD
         }
 
         //Go to history item
-        private void listHistory_DoubleClick(object s, EventArgs e)
+        private void ListHistory_DoubleClick(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
-            setApodDate(apod, DateTime.Parse(listHistory.SelectedItems[0].Text));
-            getNASAApod();
+            SetApodDate(apod, DateTime.Parse(listHistory.SelectedItems[0].Text));
+            GetNasaApod();
         }
 
         /// <summary>
@@ -1064,7 +1064,7 @@ namespace NASA_APOD
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void buttonGrabAll_Click(object s, EventArgs e)
+        private void ButtonGrabAll_Click(object s, EventArgs e)
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
@@ -1079,7 +1079,7 @@ namespace NASA_APOD
                 //List of download tasks
                 List<Task> tasks = new();
 
-                a.setAPIKey(textCustomKey.Text);
+                a.SetApiKey(textCustomKey.Text);
 
                 //Set some GUI items
                 buttonGrabAll.Enabled = false;
@@ -1113,7 +1113,7 @@ namespace NASA_APOD
                     try
                     {
                         Log("Setting api date to " + dateMin.AddDays(_daysProg).ToShortDateString());
-                        a.setAPIDate(dateMin.AddDays(_daysProg));
+                        a.SetApiDate(dateMin.AddDays(_daysProg));
                     }
                     catch (Exception ex)
                     {
@@ -1132,14 +1132,14 @@ namespace NASA_APOD
                         if (a.hdurl != string.Empty)
                         {
                             Log("Trying hd url " + a.hdurl);
-                            tasks.Add(downloadAsync(a.hdurl,
+                            tasks.Add(DownloadAsync(a.hdurl,
                                 _dir + '\\' + a.apiDate.ToShortDateString().Replace(' ', '_') + '_' +
                                 a.hdurl.Substring(begin, len)));
                         }
                         else if (a.url != string.Empty)
                         {
                             Log("Trying regular url " + a.url);
-                            tasks.Add(downloadAsync(a.url,
+                            tasks.Add(DownloadAsync(a.url,
                                 _dir + '\\' + a.apiDate.ToShortDateString().Replace(' ', '_') + '_' +
                                 a.url.Substring(begin, len)));
                         }
@@ -1175,13 +1175,13 @@ namespace NASA_APOD
         /// <param name="url">Image url</param>
         /// <param name="path">Image path</param>
         /// <returns></returns>
-        private async Task downloadAsync(string url, string path)
+        private async Task DownloadAsync(string url, string path)
         {
             using WebClient _wc = new();
             try
             {
                 Log("Trying to download " + url + "...");
-                _wc.DownloadFileCompleted += _wc_DownloadFileCompleted;
+                _wc.DownloadFileCompleted += WcDownloadFileCompleted;
                 await _wc.DownloadFileTaskAsync(url, path);
                 Log("Download succesful " + url + "...");
             }
@@ -1193,7 +1193,7 @@ namespace NASA_APOD
         }
 
         // Update GUI when single donwload thread is completed
-        private void _wc_DownloadFileCompleted(object s, AsyncCompletedEventArgs e)
+        private void WcDownloadFileCompleted(object s, AsyncCompletedEventArgs e)
         {
             daysProg++;
 
@@ -1216,14 +1216,14 @@ namespace NASA_APOD
         }
 
         //Enable or disable history function
-        private void checkEnableHistory_CheckedChanged(object s, EventArgs e)
+        private void CheckEnableHistory_CheckedChanged(object s, EventArgs e)
         {
             if (checkEnableHistory.Checked)
             {
                 iniFile.Write("enableHistory", "True");
                 tabControl.TabPages.Add(tabHistory);
                 if (apod != null) //fill history tab only if apod object has been initialized
-                    fillHistory();
+                    FillHistory();
             }
             else
             {
@@ -1286,13 +1286,13 @@ namespace NASA_APOD
                 switch (keyData)
                 {
                     case Keys.F5: //refresh
-                        buttonRefresh_Click(this, null);
+                        ButtonRefresh_Click(this, null);
                         return true;
                     case Keys.Left: //minus one day
-                        buttonPrev_Click(this, null);
+                        ButtonPrev_Click(this, null);
                         return true;
                     case Keys.Right: //plus one day
-                        buttonNext_Click(this, null);
+                        ButtonNext_Click(this, null);
                         return true;
                     case Keys.Control | Keys.Tab:
                         tabControl.SelectedIndex = (tabControl.SelectedIndex == tabControl.TabCount - 1) ? 0 : tabControl.SelectedIndex + 1;

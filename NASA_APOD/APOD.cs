@@ -66,7 +66,7 @@ namespace NASA_APOD
         /// <param name="apiDate">Date of picture of the day</param>
         public APOD(DateTime apiDate)
         {
-            setAPIDate(apiDate);
+            SetApiDate(apiDate);
             videoType = VideoType.NONE;
             isDownloading = false;
         }
@@ -77,7 +77,7 @@ namespace NASA_APOD
         /// Set key for NASA API. Has to be 40-char custom key or "DEMO_KEY".
         /// </summary>
         /// <param name="apiKey">40-character long key string</param>
-        public void setAPIKey(string apiKey)
+        public void SetApiKey(string apiKey)
         {
             if (apiKey.Length == 40 || apiKey == "DEMO_KEY")
                 _apiKey = apiKey;
@@ -89,7 +89,7 @@ namespace NASA_APOD
         /// Set given date for APOD API
         /// </summary>
         /// <param name="apiDate">API date</param>
-        public void setAPIDate(DateTime apiDate)
+        public void SetApiDate(DateTime apiDate)
         {
             //Don't go below minimum date
             if (apiDate < _DATE_MIN)
@@ -115,7 +115,7 @@ namespace NASA_APOD
             {
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                 using WebClient wc = new();
-                jsonDeserialize(wc.DownloadString(_apiURL));
+                JsonDeserialize(wc.DownloadString(_apiURL));
                 this.apiDate = apiDate; //set the date for APOD object
 
                 //Set media type flags
@@ -155,18 +155,18 @@ namespace NASA_APOD
         /// Deserialize json string returned by APOD API
         /// </summary>
         /// <param name="json">Json string in APOD API format</param>
-        private void jsonDeserialize(string json)
+        private void JsonDeserialize(string json)
         {
             json = Regex.Unescape(json).Replace("�", string.Empty); //get rid of escape slashes and dummy chars that API sometimes returns
 
-            copyright = jsonGetSingle(json, "copyright");
-            date = jsonGetSingle(json, "date");
-            explanation = jsonGetSingle(json, "explanation");
-            hdurl = jsonGetSingle(json, "hdurl");
-            media_type = jsonGetSingle(json, "media_type");
-            service_version = jsonGetSingle(json, "service_version");
-            title = jsonGetSingle(json, "title");
-            url = jsonGetSingle(json, "url");
+            copyright = JsonGetSingle(json, "copyright");
+            date = JsonGetSingle(json, "date");
+            explanation = JsonGetSingle(json, "explanation");
+            hdurl = JsonGetSingle(json, "hdurl");
+            media_type = JsonGetSingle(json, "media_type");
+            service_version = JsonGetSingle(json, "service_version");
+            title = JsonGetSingle(json, "title");
+            url = JsonGetSingle(json, "url");
         }
 
         /// <summary>
@@ -175,7 +175,7 @@ namespace NASA_APOD
         /// <param name="json">Json string in APOD API format</param>
         /// <param name="key">Key name</param>
         /// <returns></returns>
-        private string jsonGetSingle(string json, string key)
+        private string JsonGetSingle(string json, string key)
         {
             string _key = '"' + key + '"'; //build key with quotes
 
