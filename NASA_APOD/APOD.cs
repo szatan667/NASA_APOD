@@ -39,7 +39,6 @@ namespace NASA_APOD
 
         //--- Private fields --------------------------------------------------------
         private const string _baseURL = "https://api.nasa.gov/planetary/apod";
-        //private const string _baseURL = "https://bing.biturl.top/";
         private const string _apiKeyDefault = "DFihYXvddhhd1KnnPtw3BgSxAXlx9yHz1CSTwbN8";
         private string _apiKey;
         private static readonly DateTime _DATE_MIN = DateTime.Parse("1995-06-16");
@@ -51,18 +50,18 @@ namespace NASA_APOD
 
         //--- Default constructor ---------------------------------------------------
         /// <summary>
-        /// Create empty picture of the day object. 
+        /// Create empty picture of the day object
         /// </summary>
         public APOD()
         {
-            //nothing special...
+            //nothing special here...
             videoType = VideoType.NONE;
             isDownloading = false;
         }
 
         //--- Date-based constructor ---------------------------------------------------
         /// <summary>
-        /// Create picture of the date object for given date,
+        /// Create picture of the date object for given date
         /// </summary>
         /// <param name="apiDate">Date of picture of the day</param>
         public APOD(DateTime apiDate)
@@ -74,7 +73,6 @@ namespace NASA_APOD
 
         //--- Public methods --------------------------------------------------------
 
-        //Set API key
         /// <summary>
         /// Set key for NASA API. Has to be 40-char custom key or "DEMO_KEY".
         /// </summary>
@@ -87,15 +85,15 @@ namespace NASA_APOD
                 _apiKey = _apiKeyDefault;
         }
 
-        //Set current date for API - create URL and get json
         /// <summary>
-        /// Set current date for APOD API
+        /// Set given date for APOD API
         /// </summary>
         /// <param name="apiDate">API date</param>
         public void setAPIDate(DateTime apiDate)
         {
             //Don't go below minimum date
-            if (apiDate < _DATE_MIN) apiDate = _DATE_MIN;
+            if (apiDate < _DATE_MIN)
+                apiDate = _DATE_MIN;
 
             //Double check API key and fall back to default if needed
             if (_apiKey == null || _apiKey == string.Empty || _apiKey.Length != 40)
@@ -115,47 +113,43 @@ namespace NASA_APOD
             //Call websvc and strip json to local vars
             try
             {
-                using (WebClient wc = new WebClient())
-                {
-                    string json = wc.DownloadString(_apiURL);
-                    jsonDeserialize(json);
-                    this.apiDate = apiDate; //set the date for APOD object
+                using WebClient wc = new();
+                jsonDeserialize(wc.DownloadString(_apiURL));
+                this.apiDate = apiDate; //set the date for APOD object
 
-                    //Set media type flags
-                    if (media_type == "image")
-                    {
-                        isImage = true;
-                        videoType = VideoType.NONE;
-                    }
-                    else
-                    {
-                        isImage = false;
-                        videoType = VideoType.NONE;
-                        if (url.Contains(VID_TYPE_YT) || hdurl.Contains(VID_TYPE_YT)) videoType = VideoType.YOUTUBE;
-                        if (url.Contains(VID_TYPE_VM) || hdurl.Contains(VID_TYPE_VM)) videoType = VideoType.VIMEO;
-                    }
+                //Set media type flags
+                if (media_type == "image")
+                {
+                    isImage = true;
+                    videoType = VideoType.NONE;
+                }
+                else
+                {
+                    isImage = false;
+                    videoType = VideoType.NONE;
+                    if (url.Contains(VID_TYPE_YT) || hdurl.Contains(VID_TYPE_YT)) videoType = VideoType.YOUTUBE;
+                    if (url.Contains(VID_TYPE_VM) || hdurl.Contains(VID_TYPE_VM)) videoType = VideoType.VIMEO;
                 }
             }
             catch (Exception e)
             {
-                copyright       = string.Empty;
-                date            = string.Empty;
-                explanation     = string.Empty;
-                hdurl           = string.Empty;
-                media_type      = string.Empty;
+                copyright = string.Empty;
+                date = string.Empty;
+                explanation = string.Empty;
+                hdurl = string.Empty;
+                media_type = string.Empty;
                 service_version = string.Empty;
-                title           = string.Empty;
-                url             = string.Empty;
-                this.apiDate    = apiDate;// DateTime.MinValue;
-                isImage         = false;
-                videoType       = VideoType.NONE;
+                title = string.Empty;
+                url = string.Empty;
+                this.apiDate = apiDate;// DateTime.MinValue;
+                isImage = false;
+                videoType = VideoType.NONE;
                 throw e;
             }
         }
 
         //--- Private methods -------------------------------------------------------
 
-        //Parse APOD json
         /// <summary>
         /// Deserialize json string returned by APOD API
         /// </summary>
@@ -164,17 +158,16 @@ namespace NASA_APOD
         {
             json = Regex.Unescape(json).Replace("�", string.Empty); //get rid of escape slashes and dummy chars that API sometimes returns
 
-            copyright       = jsonGetSingle(json, "copyright");
-            date            = jsonGetSingle(json, "date");
-            explanation     = jsonGetSingle(json, "explanation");
-            hdurl           = jsonGetSingle(json, "hdurl");
-            media_type      = jsonGetSingle(json, "media_type");
+            copyright = jsonGetSingle(json, "copyright");
+            date = jsonGetSingle(json, "date");
+            explanation = jsonGetSingle(json, "explanation");
+            hdurl = jsonGetSingle(json, "hdurl");
+            media_type = jsonGetSingle(json, "media_type");
             service_version = jsonGetSingle(json, "service_version");
-            title           = jsonGetSingle(json, "title");
-            url             = jsonGetSingle(json, "url");
+            title = jsonGetSingle(json, "title");
+            url = jsonGetSingle(json, "url");
         }
 
-        //Parse out single field from json string
         /// <summary>
         /// Get single key value from APOD API json string
         /// </summary>
@@ -184,7 +177,8 @@ namespace NASA_APOD
         private string jsonGetSingle(string json, string key)
         {
             string _key = '"' + key + '"'; //build key with quotes
-            if (json.Contains(_key)) //if key found in json, look for it's value
+
+            if (json.Contains(_key))
             {
                 int keyStartPos = json.IndexOf(_key);
                 int valueStartPos = keyStartPos + _key.Length + 2; //2 - quote and comma?
@@ -198,7 +192,7 @@ namespace NASA_APOD
             else return string.Empty;
         }
     }
-    
+
     //Dispose it properly
     public partial class APOD : IDisposable
     {
@@ -206,7 +200,7 @@ namespace NASA_APOD
         protected virtual void Dispose(bool disposing)
         {
             if (!isDisposed)
-            isDisposed = true;
+                isDisposed = true;
         }
         public void Dispose()
         {

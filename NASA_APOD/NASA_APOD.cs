@@ -28,7 +28,7 @@ namespace NASA_APOD
         private Color avgColor = SystemColors.ActiveCaption;
 
         //setup ini file to store usage statistics
-        readonly IniFile iniFile = new IniFile();
+        readonly IniFile iniFile = new();
 
         //Wallpapering
         [DllImport("kernel32.dll")]
@@ -91,7 +91,7 @@ namespace NASA_APOD
                 tabControl.TabPages.Remove(tabDebug);
 
             //Add actual link to link label
-            LinkLabel.Link lnk = new LinkLabel.Link
+            LinkLabel.Link lnk = new()
             {
                 LinkData = "https://api.nasa.gov/#signUp"
             };
@@ -125,17 +125,17 @@ namespace NASA_APOD
             //Now setup settings tab according to values stored in INI file
             pathToSave = iniFile.Read("pathToSave");
             textPath.Text = pathToSave;
-            
+
             if (iniFile.Read("saveToDIsk") == "True")
                 checkSaveToDisk.Checked = true;
             else
                 checkSaveToDisk.Checked = false;
-            
+
             if (iniFile.Read("autoRefresh") == "True")
                 checkAutoRefresh.Checked = true;
             else
                 checkAutoRefresh.Checked = false;
-            
+
             if (iniFile.Read("useCustomKey") == "True")
             {
                 checkCustomKey.Checked = true;
@@ -147,7 +147,7 @@ namespace NASA_APOD
                 textCustomKey.Enabled = false;
             }
             textCustomKey.Text = iniFile.Read("customKey");
-            
+
             //Setup history tab columns
             listHistory.Columns[0].Text = "Date";
             listHistory.Columns[1].Text = "Title";
@@ -202,8 +202,8 @@ namespace NASA_APOD
             if (logging)
                 try
                 {
-                    using (TextWriter tw = new StreamWriter("apod.log", true))
-                        tw.WriteLine(DateTime.Now.ToString() + " - " + logMessage);
+                    using TextWriter tw = new StreamWriter("apod.log", true);
+                    tw.WriteLine(DateTime.Now.ToString() + " - " + logMessage);
                 }
                 catch (Exception ex)
                 {
@@ -242,47 +242,45 @@ namespace NASA_APOD
             Log(MethodBase.GetCurrentMethod().Name);
 
             //Local APOD to get img title list
-            using (APOD a = new APOD())
+            using APOD a = new();
+            a.setAPIKey(textCustomKey.Text);
+
+            //Clear history list
+            listHistory.Items.Clear();
+            statusBar.Text = "Getting history items... (0/0)";
+            Application.DoEvents();
+
+            //Some history setup
+            byte maxDays = 8; //how many history items, hardcoded
+            byte cnt = 0; //items loaded
+            int daysback = 0; //start going back in time today
+
+            //Now go back in time and fetch history items
+            try
             {
-                a.setAPIKey(textCustomKey.Text);
+                a.setAPIDate(apod.apiDate.AddDays(daysback)); //go back further back in time
 
-                //Clear history list
-                listHistory.Items.Clear();
-                statusBar.Text = "Getting history items... (0/0)";
-                Application.DoEvents();
-
-                //Some history setup
-                byte maxDays = 8; //how many history items, hardcoded
-                byte cnt = 0; //items loaded
-                int daysback = 0; //start going back in time today
-
-                //Now go back in time and fetch history items
-                try
+                while (cnt < maxDays && apod.apiDate.AddDays(daysback) >= DateTime.Parse("1995-06-16"))
                 {
-                    a.setAPIDate(apod.apiDate.AddDays(daysback)); //go back further back in time
+                    listHistory.Items.Add(a.apiDate.ToShortDateString()); //history date
+                    listHistory.Items[cnt].SubItems.Add(a.title); //history img name 
+                    cnt++; //item loaded!
+                    progressBar.Value = 100 * cnt / maxDays; //update progress bar and status text
+                    statusBar.Text = "Getting history items... (" + cnt + "/" + maxDays + ")";
+                    Application.DoEvents();
+                    Log("History item added " + a.date);
 
-                    while (cnt < maxDays && apod.apiDate.AddDays(daysback) >= DateTime.Parse("1995-06-16"))
-                    {
-                        listHistory.Items.Add(a.apiDate.ToShortDateString()); //history date
-                        listHistory.Items[cnt].SubItems.Add(a.title); //history img name 
-                        cnt++; //item loaded!
-                        progressBar.Value = 100 * cnt / maxDays; //update progress bar and status text
-                        statusBar.Text = "Getting history items... (" + cnt + "/" + maxDays + ")";
-                        Application.DoEvents();
-                        Log("History item added " + a.date);
-
-                        //Time travel
-                        daysback--;
-                        a.setAPIDate(apod.apiDate.AddDays(daysback));
-                    }
-                    listHistory.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
-                    progressBar.Value = 100;
-                    statusBar.Text = string.Empty;
+                    //Time travel
+                    daysback--;
+                    a.setAPIDate(apod.apiDate.AddDays(daysback));
                 }
-                catch (Exception e)
-                {
-                    statusBar.Text = e.Message;
-                }
+                listHistory.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+                progressBar.Value = 100;
+                statusBar.Text = string.Empty;
+            }
+            catch (Exception e)
+            {
+                statusBar.Text = e.Message;
             }
         }
 
@@ -591,7 +589,7 @@ namespace NASA_APOD
                 int b = 0;
                 int cnt = 0;
 
-                using (Bitmap bmp = new Bitmap(pictureBox.Image))
+                using (Bitmap bmp = new(pictureBox.Image))
                     //Crop the image by 1/8 in both directions (there's usually dark frame or background there)
                     for (int x = bmp.Width / 8; x < bmp.Width * 7 / 8; x += bmp.Width / 16)
                         for (int y = bmp.Height / 8; y < bmp.Height * 7 / 8; y += bmp.Height / 16)
@@ -720,12 +718,10 @@ namespace NASA_APOD
             {
                 try
                 {
-                    using (APOD a = new APOD(date))
-                    {
-                        trayIcon.ContextMenu.MenuItems[menuItem].Enabled = true;
-                        trayIcon.ContextMenu.MenuItems[menuItem].Text =
-                            string.Join(" - ", menuItem.Substring(4), a.date, a.title + ((a.isImage) ? "" : " (video)"));
-                    }
+                    using APOD a = new(date);
+                    trayIcon.ContextMenu.MenuItems[menuItem].Enabled = true;
+                    trayIcon.ContextMenu.MenuItems[menuItem].Text =
+                        string.Join(" - ", menuItem.Substring(4), a.date, a.title + ((a.isImage) ? "" : " (video)"));
                 }
                 catch (Exception)
                 {
@@ -955,40 +951,40 @@ namespace NASA_APOD
         //{
         //    Log(MethodBase.GetCurrentMethod().Name);
 
-            /*
-            //get picture box size
-            Size picSize = pictureBox.Size;
+        /*
+        //get picture box size
+        Size picSize = pictureBox.Size;
 
-            //find maximum font size for current picture box size
-            //(it will be ususally pic box width that determines max size)
+        //find maximum font size for current picture box size
+        //(it will be ususally pic box width that determines max size)
 
-            //initial font - consolas bold, 1pt
-            int fs = 12;
-            Font myFont = new Font("Consolas", fs, FontStyle.Bold);
-            Size textSize;
+        //initial font - consolas bold, 1pt
+        int fs = 12;
+        Font myFont = new Font("Consolas", fs, FontStyle.Bold);
+        Size textSize;
 
-            //now loop over font sizes
-            do
-            {
-                myFont = new Font("Consolas", ++fs, FontStyle.Bold);
-                textSize = TextRenderer.MeasureText(myIcon.Text, myFont);
-            }
-            //stop when text size is bigger than picture box size
-            while (textSize.Width < picSize.Width * 0.75 &&
-                textSize.Height < picSize.Height * 0.35);
-            myFont = new Font("Consolas", --fs, FontStyle.Bold);
+        //now loop over font sizes
+        do
+        {
+            myFont = new Font("Consolas", ++fs, FontStyle.Bold);
+            textSize = TextRenderer.MeasureText(myIcon.Text, myFont);
+        }
+        //stop when text size is bigger than picture box size
+        while (textSize.Width < picSize.Width * 0.75 &&
+            textSize.Height < picSize.Height * 0.35);
+        myFont = new Font("Consolas", --fs, FontStyle.Bold);
 
-            //draw text, center it using it's own size
-            //(half image widht and height, then subtract half of text's widht and height)
-            e.Graphics.DrawString(myIcon.Text,  //text to show 
-                myFont,                         //font to use
-                Brushes.Yellow,                 //text color (brush)
-                pictureBox.Width/2 -            //text X position
-                TextRenderer.MeasureText(myIcon.Text, myFont).Width / 2, 
-                pictureBox.Height * (float)(0.90) -           //text Y position
-                TextRenderer.MeasureText(myIcon.Text, myFont).Height / 2);
-            myFont.Dispose();   //release font, don't need it anymore
-        */
+        //draw text, center it using it's own size
+        //(half image widht and height, then subtract half of text's widht and height)
+        e.Graphics.DrawString(myIcon.Text,  //text to show 
+            myFont,                         //font to use
+            Brushes.Yellow,                 //text color (brush)
+            pictureBox.Width/2 -            //text X position
+            TextRenderer.MeasureText(myIcon.Text, myFont).Width / 2, 
+            pictureBox.Height * (float)(0.90) -           //text Y position
+            TextRenderer.MeasureText(myIcon.Text, myFont).Height / 2);
+        myFont.Dispose();   //release font, don't need it anymore
+    */
         //}
 
         //Pick a date - show calendar
@@ -1043,7 +1039,7 @@ namespace NASA_APOD
 
             if (checkCustomKey.Checked)
                 textCustomKey.Enabled = true;
-            else 
+            else
                 textCustomKey.Enabled = false;
 
             iniFile.Write("useCustomKey", checkCustomKey.Checked.ToString());
@@ -1083,10 +1079,10 @@ namespace NASA_APOD
             int _daysProg; //queueing progress (different that actual download progress!)
 
             //Create local apod object
-            using (APOD a = new APOD())
+            using (APOD a = new())
             {
                 //List of download tasks
-                List<Task> tasks = new List<Task>();
+                List<Task> tasks = new();
 
                 a.setAPIKey(textCustomKey.Text);
 
@@ -1159,9 +1155,9 @@ namespace NASA_APOD
                             ", no image found");// + a.media_type + ")") ;
                         daysErrors++;
                     }
-                    
+
                     textGrabAll.Text = "Queueing " + a.apiDate.ToShortDateString() + " (" +
-                        _daysProg * 100 / daysSpan + "%, " + 
+                        _daysProg * 100 / daysSpan + "%, " +
                         (daysSpan - _daysProg) + " left)";
                     textDate.Text = a.apiDate.ToShortDateString();
                     textGrabAll.Invalidate();
@@ -1186,19 +1182,19 @@ namespace NASA_APOD
         /// <returns></returns>
         private async Task downloadAsync(string url, string path)
         {
-            using (WebClient _wc = new WebClient())
-                try
-                {
-                    Log("Trying to download " + url + "...");
-                    _wc.DownloadFileCompleted += _wc_DownloadFileCompleted;
-                    await _wc.DownloadFileTaskAsync(url, path);
-                    Log("Download succesful " + url + "...");
-                }
-                catch (Exception e)
-                {
-                    Log("Error downloading " + url);
-                    Log("msg = " + e.Message);
-                }
+            using WebClient _wc = new();
+            try
+            {
+                Log("Trying to download " + url + "...");
+                _wc.DownloadFileCompleted += _wc_DownloadFileCompleted;
+                await _wc.DownloadFileTaskAsync(url, path);
+                Log("Download succesful " + url + "...");
+            }
+            catch (Exception e)
+            {
+                Log("Error downloading " + url);
+                Log("msg = " + e.Message);
+            }
         }
 
         // Update GUI when single donwload thread is completed
@@ -1246,52 +1242,46 @@ namespace NASA_APOD
         {
             //Use bold font for default menu item and regular one for other items
             //(works as long as system default menu font is not bold ;))
-            using (Font f = (ClickedItem as MenuItem).DefaultItem ?   //is it default
+            using Font f = (ClickedItem as MenuItem).DefaultItem ?   //is it default
                 new Font(SystemFonts.MenuFont, FontStyle.Bold) : //yes it is, use bold font
-                SystemFonts.MenuFont)                            //no, use default font
-            {
-                SizeF sz = e.Graphics.MeasureString((ClickedItem as MenuItem).Text, f);
+                SystemFonts.MenuFont;                            //no, use default font
+            SizeF sz = e.Graphics.MeasureString((ClickedItem as MenuItem).Text, f);
 
-                e.ItemWidth = (int)(1.1 * sz.Width);
-                e.ItemHeight = (int)(1.30 * sz.Height);
-            }
+            e.ItemWidth = (int)(1.1 * sz.Width);
+            e.ItemHeight = (int)(1.30 * sz.Height);
         }
 
         //Custom menu item drawing - draw item
         private void MenuItemDraw(object ClickedItem, DrawItemEventArgs e)
         {
             //Bold font for default menu item, regular font for other items
-            using (Font f = (ClickedItem as MenuItem).DefaultItem ? new Font(SystemFonts.MenuFont, FontStyle.Bold) : SystemFonts.MenuFont)
-            {
-                //Draw backgrounds - mouse over...
-                if ((e.State & DrawItemState.Selected) != DrawItemState.None)
-                    //Distinguish between enabled and disabled items
-                    if ((ClickedItem as MenuItem).Enabled)
-                    {
-                        //Horizontal gradient and outside box
-                        e.Graphics.FillRectangle(new LinearGradientBrush(e.Bounds, avgColor, SystemColors.Control, 0.0), e.Bounds);
-                        e.Graphics.DrawRectangle(SystemPens.ControlDark, e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1);
-                    }
-                    else { }
-                //...and mouse out
-                else
-                {
-                    //Clear gradient and box with "control" color so they disappear
-                    e.Graphics.FillRectangle(SystemBrushes.Control, e.Bounds);
-                    e.Graphics.DrawRectangle(SystemPens.Control, e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1);
-                }
-
+            using Font f = (ClickedItem as MenuItem).DefaultItem ? new Font(SystemFonts.MenuFont, FontStyle.Bold) : SystemFonts.MenuFont;
+            //Draw backgrounds - mouse over...
+            if ((e.State & DrawItemState.Selected) != DrawItemState.None)
                 //Distinguish between enabled and disabled items
-                using (Brush b = ((ClickedItem as MenuItem).Enabled) ? new SolidBrush(SystemColors.ControlText) : new SolidBrush(SystemColors.GrayText))
+                if ((ClickedItem as MenuItem).Enabled)
                 {
-                    //Finally, draw menu item text
-                    e.Graphics.DrawString((ClickedItem as MenuItem).Text, f, b,
-                    e.Bounds.X + e.Graphics.MeasureString("-", f).Width,
-                    e.Bounds.Y + (e.Bounds.Height - e.Graphics.MeasureString((ClickedItem as MenuItem).Text, f).Height) / 2);
+                    //Horizontal gradient and outside box
+                    e.Graphics.FillRectangle(new LinearGradientBrush(e.Bounds, avgColor, SystemColors.Control, 0.0), e.Bounds);
+                    e.Graphics.DrawRectangle(SystemPens.ControlDark, e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1);
                 }
+                else { }
+            //...and mouse out
+            else
+            {
+                //Clear gradient and box with "control" color so they disappear
+                e.Graphics.FillRectangle(SystemBrushes.Control, e.Bounds);
+                e.Graphics.DrawRectangle(SystemPens.Control, e.Bounds.X, e.Bounds.Y, e.Bounds.Width - 1, e.Bounds.Height - 1);
             }
+
+            //Distinguish between enabled and disabled items
+            using Brush b = ((ClickedItem as MenuItem).Enabled) ? new SolidBrush(SystemColors.ControlText) : new SolidBrush(SystemColors.GrayText);
+            //Finally, draw menu item text
+            e.Graphics.DrawString((ClickedItem as MenuItem).Text, f, b,
+            e.Bounds.X + e.Graphics.MeasureString("-", f).Width,
+            e.Bounds.Y + (e.Bounds.Height - e.Graphics.MeasureString((ClickedItem as MenuItem).Text, f).Height) / 2);
         }
-        
+
         //Define keyboard shortcuts here
         protected override bool ProcessCmdKey(ref Message msg, Keys keyData)
         {
@@ -1335,10 +1325,8 @@ namespace NASA_APOD
             if (Snap(s.WorkingArea.Right, Right)) Left = s.WorkingArea.Right - Width;
             if (Snap(s.WorkingArea.Bottom, Bottom)) Top = s.WorkingArea.Bottom - Height;
 
-            bool Snap(int pos, int edge)
-            {
-                return pos - edge > 0 && pos - edge <= 25;
-            }
+            static bool Snap(int pos, int edge) =>
+                pos - edge > 0 && pos - edge <= 25;
         }
     }
 }
