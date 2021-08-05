@@ -21,7 +21,7 @@ namespace NASA_APOD
 
         //Paths
         public string pathToSave; //will hold path from folder dialog
-        public string imagePath = "temp.jpg"; //default file to save
+        public string imagePath = @".\temp.jpg"; //default file to save
 
         //GUI items
         private bool formHidden = false;
@@ -91,10 +91,7 @@ namespace NASA_APOD
                 tabControl.TabPages.Remove(tabDebug);
 
             //Add actual link to link label
-            LinkLabel.Link lnk = new()
-            {
-                LinkData = "https://api.nasa.gov/#signUp"
-            };
+            LinkLabel.Link lnk = new() { LinkData = "https://api.nasa.gov/#signUp" };
             linkHowToKey.Links.Add(lnk);
 
             //Clear some labels
@@ -155,13 +152,10 @@ namespace NASA_APOD
             //Remove history tab by default, then add if desired
             tabControl.TabPages.Remove(tabHistory);
             if (iniFile.Read("enableHistory") == "True")
-            {
                 checkEnableHistory.Checked = true;
-            }
             else
-            {
                 checkEnableHistory.Checked = false;
-            }
+           
             Log("DONE!");
             //GUI items - END -------------------------------------------------------
 
@@ -179,13 +173,10 @@ namespace NASA_APOD
             Log("setting date - STARTUP...");
             //If auto-refresh option is set, always use today's date
             if (checkAutoRefresh.Checked)
-            {
                 setApodDate(apod, DateTime.Today);
-            }
             else
-            {
                 setApodDate(apod, DateTime.Parse(iniFile.Read("lastDate")));
-            }
+
             Log("STARTUP DATE = " + apod.apiDate);
 
             //Get the image on startup
@@ -409,9 +400,9 @@ namespace NASA_APOD
                 pictureBox.Image = Properties.Resources.NASA.ToBitmap();
 
                 //There's a chance that if 'save to disk' is enabled, the image was downloaded before
-                //Iin that case create full local path and try to load image from disk
+                //In that case create full local path and try to load image from disk
                 apod.isDownloading = true;
-                if (checkSaveToDisk.Enabled)
+                if (checkSaveToDisk.Checked)
                 {
                     imagePath = createFullPath(pathToSave, apod);
                     if (File.Exists(imagePath))
@@ -489,9 +480,13 @@ namespace NASA_APOD
         /// <returns></returns>
         private string createFullPath(string path, APOD apod)
         {
-            return path + "\\" + //folder path
-                apod.apiDate.ToShortDateString().Replace(' ', '_') + '_' + //inject date string at the begining of filename
-                apod.hdurl.Substring(apod.url.LastIndexOf('/') + 1); //filename from URL
+            string filename = apod.apiDate.ToShortDateString() + '_' + 
+                              apod.hdurl.Substring(apod.url.LastIndexOf('/') + 1);
+
+            foreach (char c in Path.GetInvalidFileNameChars())
+                filename = filename.Replace(c, '_');
+
+            return path + "\\" + filename;
         }
 
         //Download progress bar - event handler
@@ -539,10 +534,10 @@ namespace NASA_APOD
 
             //Before setting the wallpaper, we have to build full path of TEMP.JPG
             //but only if not saving to custom path, because then it was already built
-            if (!checkSaveToDisk.Checked)
-                imagePath = Assembly.GetEntryAssembly().Location.Substring(0,
-                           Assembly.GetEntryAssembly().Location.LastIndexOf("\\") + 1)
-                         + "temp.jpg";
+            //if (!checkSaveToDisk.Checked)
+            //    imagePath = Assembly.GetEntryAssembly().Location.Substring(0,
+            //               Assembly.GetEntryAssembly().Location.LastIndexOf("\\") + 1)
+            //             + "temp.jpg";
 
             //Do actual wallpapering
             Log("Wallpapering...");
@@ -830,7 +825,7 @@ namespace NASA_APOD
                 buttonPath.Enabled = false;
                 textPath.Enabled = false;
                 pathToSave = string.Empty;
-                imagePath = "temp.jpg";
+                imagePath = @".\temp.jpg";
             }
 
             iniFile.Write("saveToDisk", checkSaveToDisk.Checked.ToString());
@@ -1018,7 +1013,7 @@ namespace NASA_APOD
         //Just move your mouse over the description to be able to scroll it
         private void TextBoxImgDesc_MouseHover(object s, EventArgs e)
         {
-            Log(MethodBase.GetCurrentMethod().Name);
+            //Log(MethodBase.GetCurrentMethod().Name);
 
             textBoxImgDesc.Focus();
             textBoxImgDesc.Select(0, 0);

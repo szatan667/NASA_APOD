@@ -113,6 +113,7 @@ namespace NASA_APOD
             //Call websvc and strip json to local vars
             try
             {
+                ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                 using WebClient wc = new();
                 jsonDeserialize(wc.DownloadString(_apiURL));
                 this.apiDate = apiDate; //set the date for APOD object
