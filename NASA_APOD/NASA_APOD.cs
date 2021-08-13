@@ -8,9 +8,11 @@ using System.IO;
 using System.Net;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Threading.Tasks;
+using System.Security.Principal;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using Microsoft.Win32;
+using Microsoft.Win32.TaskScheduler;
 
 namespace NASA_APOD
 {
@@ -117,7 +119,7 @@ namespace NASA_APOD
 
             //Setup icons for window and tray icon
             trayIcon.Icon = Properties.Resources.NASA;
-            this.Icon = Properties.Resources.NASA;
+            Icon = Properties.Resources.NASA;
 
             //Now setup settings tab according to values stored in INI file
             pathToSave = iniFile.Read("pathToSave");
@@ -155,6 +157,10 @@ namespace NASA_APOD
                 checkEnableHistory.Checked = true;
             else
                 checkEnableHistory.Checked = false;
+
+            //Now for run at startup birdie
+            checkRunAtStartup.Checked = new TaskService().RootFolder.GetTasks(new Regex("NASA_APOD")).Count != 0 &&
+                                        new TaskService().RootFolder.GetTasks(new Regex("NASA_APOD"))[new Regex("NASA_APOD").ToString()].Enabled;
            
             Log("DONE!");
             //GUI items - END -------------------------------------------------------
@@ -1077,7 +1083,7 @@ namespace NASA_APOD
             using (APOD a = new())
             {
                 //List of download tasks
-                List<Task> tasks = new();
+                List<System.Threading.Tasks.Task> tasks = new();
 
                 a.SetApiKey(textCustomKey.Text);
 
@@ -1101,7 +1107,7 @@ namespace NASA_APOD
                     //Some tasks may have completed already, remove them from task list
                     Log("Number of download tasks = " + tasks.Count);
                     while (tasks.Count > 20)
-                        foreach (Task t in tasks)
+                        foreach (System.Threading.Tasks.Task t in tasks)
                             if (t.IsCompleted)
                             {
                                 Log("Removing completed task: " + t.ToString());
@@ -1175,7 +1181,7 @@ namespace NASA_APOD
         /// <param name="url">Image url</param>
         /// <param name="path">Image path</param>
         /// <returns></returns>
-        private async Task DownloadAsync(string url, string path)
+        private async System.Threading.Tasks.Task DownloadAsync(string url, string path)
         {
             using WebClient _wc = new();
             try
@@ -1322,6 +1328,55 @@ namespace NASA_APOD
 
             static bool Snap(int pos, int edge) =>
                 pos - edge > 0 && pos - edge <= 25;
+        }
+
+        //Toggle startup run
+        private void CheckRunAtStartup_CheckedChanged(object s, EventArgs e)
+        {
+            Log(MethodBase.GetCurrentMethod().Name);
+
+            using TaskCollection t = new TaskService().RootFolder.GetTasks(new Regex("NASA_APOD"));
+            if (!(s as CheckBox).Checked)
+                t["NASA_APOD"].Enabled = false;
+            else
+                if (t.Count > 0)
+                t["NASA_APOD"].Enabled = true;
+            else
+                CreateStartupTask();
+        }
+
+        //Create startup scheduled task
+        private void CreateStartupTask()
+        {
+            Log(MethodBase.GetCurrentMethod().Name);
+
+            using TaskDefinition definition = new TaskService().NewTask();
+
+            definition.RegistrationInfo.Description = "NASA APOD STARTUP TASK";
+            definition.RegistrationInfo.Author = WindowsIdentity.GetCurrent().Name;
+
+            definition.Triggers.Add<Trigger>(new LogonTrigger
+            {
+                Enabled = true,
+                UserId = WindowsIdentity.GetCurrent().Name
+            });
+
+            definition.Actions.Add(new ExecAction
+            {
+                Path = Assembly.GetEntryAssembly().Location,
+                WorkingDirectory = Assembly.GetEntryAssembly().Location.Substring(0, Assembly.GetEntryAssembly().Location.LastIndexOf("\\"))
+            });
+
+            definition.Settings.DisallowStartIfOnBatteries = false;
+            definition.Settings.StopIfGoingOnBatteries = false;
+            definition.Settings.ExecutionTimeLimit = TimeSpan.Zero;
+
+            _ = new TaskService().RootFolder.RegisterTaskDefinition("NASA_APOD", definition);
+        }
+
+        private void checkStartMinimized_CheckedChanged(object s, EventArgs e)
+        {
+            Log(MethodBase.GetCurrentMethod().Name);
         }
     }
 }

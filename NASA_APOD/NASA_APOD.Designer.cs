@@ -76,6 +76,8 @@
             this.trayIcon = new System.Windows.Forms.NotifyIcon(this.components);
             this.buttonToday = new System.Windows.Forms.Button();
             this.groupBoxSettings = new System.Windows.Forms.GroupBox();
+            this.checkStartMinimized = new System.Windows.Forms.CheckBox();
+            this.checkRunAtStartup = new System.Windows.Forms.CheckBox();
             this.checkEnableHistory = new System.Windows.Forms.CheckBox();
             this.textGrabAll = new System.Windows.Forms.TextBox();
             this.buttonGrabAll = new System.Windows.Forms.Button();
@@ -285,6 +287,8 @@
             // 
             // groupBoxSettings
             // 
+            this.groupBoxSettings.Controls.Add(this.checkStartMinimized);
+            this.groupBoxSettings.Controls.Add(this.checkRunAtStartup);
             this.groupBoxSettings.Controls.Add(this.checkEnableHistory);
             this.groupBoxSettings.Controls.Add(this.textGrabAll);
             this.groupBoxSettings.Controls.Add(this.buttonGrabAll);
@@ -302,6 +306,28 @@
             this.groupBoxSettings.TabIndex = 16;
             this.groupBoxSettings.TabStop = false;
             this.groupBoxSettings.Text = "Settings";
+            // 
+            // checkStartMinimized
+            // 
+            this.checkStartMinimized.AutoSize = true;
+            this.checkStartMinimized.Location = new System.Drawing.Point(206, 101);
+            this.checkStartMinimized.Name = "checkStartMinimized";
+            this.checkStartMinimized.Size = new System.Drawing.Size(86, 19);
+            this.checkStartMinimized.TabIndex = 16;
+            this.checkStartMinimized.Text = "Start in tray";
+            this.checkStartMinimized.UseVisualStyleBackColor = true;
+            this.checkStartMinimized.CheckedChanged += new System.EventHandler(this.checkStartMinimized_CheckedChanged);
+            // 
+            // checkRunAtStartup
+            // 
+            this.checkRunAtStartup.AutoSize = true;
+            this.checkRunAtStartup.Location = new System.Drawing.Point(206, 77);
+            this.checkRunAtStartup.Name = "checkRunAtStartup";
+            this.checkRunAtStartup.Size = new System.Drawing.Size(100, 19);
+            this.checkRunAtStartup.TabIndex = 15;
+            this.checkRunAtStartup.Text = "Run at startup";
+            this.checkRunAtStartup.UseVisualStyleBackColor = true;
+            this.checkRunAtStartup.CheckedChanged += new System.EventHandler(this.CheckRunAtStartup_CheckedChanged);
             // 
             // checkEnableHistory
             // 
@@ -349,7 +375,7 @@
             // textCustomKey
             // 
             this.textCustomKey.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.textCustomKey.Location = new System.Drawing.Point(6, 151);
+            this.textCustomKey.Location = new System.Drawing.Point(6, 166);
             this.textCustomKey.MaxLength = 40;
             this.textCustomKey.Name = "textCustomKey";
             this.textCustomKey.Size = new System.Drawing.Size(344, 23);
@@ -359,7 +385,7 @@
             // linkHowToKey
             // 
             this.linkHowToKey.AutoSize = true;
-            this.linkHowToKey.Location = new System.Drawing.Point(203, 127);
+            this.linkHowToKey.Location = new System.Drawing.Point(6, 148);
             this.linkHowToKey.Name = "linkHowToKey";
             this.linkHowToKey.Size = new System.Drawing.Size(147, 15);
             this.linkHowToKey.TabIndex = 11;
@@ -646,5 +672,7 @@
         private System.Windows.Forms.ColumnHeader debugValue;
         private System.Windows.Forms.CheckBox checkEnableHistory;
         private System.Windows.Forms.WebBrowser web;
+        private System.Windows.Forms.CheckBox checkStartMinimized;
+        private System.Windows.Forms.CheckBox checkRunAtStartup;
     }
 }
