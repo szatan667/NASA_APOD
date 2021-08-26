@@ -10,14 +10,14 @@ namespace NASA_APOD
     public class APOD_API
     {
         //Json fields for NASA API
-        public string copyright;
-        public string date;
-        public string explanation;
-        public string hdurl;
-        public string media_type;
-        public string service_version;
-        public string title;
-        public string url;
+        public string copyright { get; set; }
+        public string date { get; set; }
+        public string explanation { get; set; }
+        public string hdurl { get; set; }
+        public string media_type { get; set; }
+        public string service_version { get; set; }
+        public string title { get; set; }
+        public string url { get; set; }
     }
 
     /// <summary>
@@ -26,10 +26,10 @@ namespace NASA_APOD
     public partial class APOD : APOD_API
     {
         //--- Public fields ---------------------------------------------------------
-        public DateTime apiDate;
-        public bool isDownloading;
-        public bool isImage;
-        public VideoType videoType;
+        public DateTime apiDate { get; set; }
+        public bool isDownloading { get; set; }
+        public bool isImage { get; set; }
+        public VideoType videoType { get; set; }
         public enum VideoType
         {
             NONE,

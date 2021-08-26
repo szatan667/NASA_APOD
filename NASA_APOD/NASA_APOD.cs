@@ -101,13 +101,13 @@ namespace NASA_APOD
             textDate.Text = string.Empty;
 
             //Add menu to tray icon
-            trayIcon.ContextMenu = new ContextMenu(new MenuItem[]
+            trayIcon.ContextMenu = new(new MenuItem[]
             {
-                new MenuItem("Previous", ButtonPrev_Click) { Name = "menuPrev", OwnerDraw = true },
-                new MenuItem("Next", ButtonNext_Click)     { Name = "menuNext", OwnerDraw = true },
-                new MenuItem("Today", OnMenuToday)         { Name = "menuToday", OwnerDraw = true },
-                new MenuItem("-")                          { OwnerDraw = false },
-                new MenuItem("Exit", OnMenuExit)           { Name = "menuExit", DefaultItem = true, OwnerDraw = true }
+                new("Previous", ButtonPrev_Click) { Name = "menuPrev", OwnerDraw = true },
+                new("Next", ButtonNext_Click)     { Name = "menuNext", OwnerDraw = true },
+                new("Today", OnMenuToday)         { Name = "menuToday", OwnerDraw = true },
+                new("-")                          { OwnerDraw = false },
+                new("Exit", OnMenuExit)           { Name = "menuExit", DefaultItem = true, OwnerDraw = true }
             });
 
             //Register custom menu measure&draw routines
@@ -159,9 +159,9 @@ namespace NASA_APOD
                 checkEnableHistory.Checked = false;
 
             //Now for run at startup birdie
-            checkRunAtStartup.Checked = new TaskService().RootFolder.GetTasks(new Regex("NASA_APOD")).Count != 0 &&
-                                        new TaskService().RootFolder.GetTasks(new Regex("NASA_APOD"))[new Regex("NASA_APOD").ToString()].Enabled;
-           
+            checkRunAtStartup.Checked = new TaskService().RootFolder.GetTasks(new("NASA_APOD")).Count != 0 &&
+                                        new TaskService().RootFolder.GetTasks(new("NASA_APOD"))[new Regex("NASA_APOD").ToString()].Enabled;
+
             Log("DONE!");
             //GUI items - END -------------------------------------------------------
 
@@ -173,7 +173,7 @@ namespace NASA_APOD
             //Create 'photo of the day' object and set API date to today for starters
             //At this point we should have custom key read from settingss. If not, default one will be used
             Log("Create main apod object");
-            apod = new APOD();
+            apod = new();
             apod.SetApiKey(textCustomKey.Text);
 
             Log("setting date - STARTUP...");
@@ -486,7 +486,7 @@ namespace NASA_APOD
         /// <returns></returns>
         private string CreateFullPath(string path, APOD apod)
         {
-            string filename = apod.apiDate.ToShortDateString() + '_' + 
+            string filename = apod.apiDate.ToShortDateString() + '_' +
                               apod.hdurl.Substring(apod.url.LastIndexOf('/') + 1);
 
             foreach (char c in Path.GetInvalidFileNameChars())
@@ -1080,98 +1080,98 @@ namespace NASA_APOD
             int _daysProg; //queueing progress (different that actual download progress!)
 
             //Create local apod object
-            using (APOD a = new())
+            using APOD a = new();
+
+            //List of download tasks
+            List<System.Threading.Tasks.Task> tasks = new();
+
+            a.SetApiKey(textCustomKey.Text);
+
+            //Set some GUI items
+            buttonGrabAll.Enabled = false;
+            timerRefresh.Enabled = false;
+            progressBar.Value = 0;
+            statusBar.Text = "Grabbing the archive...";
+            textGrabAll.Text = "Creating download queue...";
+            textGrabAll.Invalidate();
+            progressBar.Invalidate();
+            Application.DoEvents();
+
+            //Save files in subdir of current folder
+            string _dir = Directory.CreateDirectory("APOD_ARCHIVE").Name;
+
+            //Go from today (progress = 0) to minimum date (progress = span)
+            Log("GRAB WHOLE ARCHIVE - main loop start ----------------------------");
+            for (_daysProg = 0; _daysProg < daysSpan; _daysProg++)
             {
-                //List of download tasks
-                List<System.Threading.Tasks.Task> tasks = new();
+                //Some tasks may have completed already, remove them from task list
+                Log("Number of download tasks = " + tasks.Count);
+                while (tasks.Count > 20)
+                    foreach (System.Threading.Tasks.Task t in tasks)
+                        if (t.IsCompleted)
+                        {
+                            Log("Removing completed task: " + t.ToString());
+                            tasks.Remove(t);
+                            break;
+                        }
 
-                a.SetApiKey(textCustomKey.Text);
-
-                //Set some GUI items
-                buttonGrabAll.Enabled = false;
-                timerRefresh.Enabled = false;
-                progressBar.Value = 0;
-                statusBar.Text = "Grabbing the archive...";
-                textGrabAll.Text = "Creating download queue...";
-                textGrabAll.Invalidate();
-                progressBar.Invalidate();
-                Application.DoEvents();
-
-                //Save files in subdir of current folder
-                string _dir = Directory.CreateDirectory("APOD_ARCHIVE").Name;
-
-                //Go from today (progress = 0) to minimum date (progress = span)
-                Log("GRAB WHOLE ARCHIVE - main loop start ----------------------------");
-                for (_daysProg = 0; _daysProg < daysSpan; _daysProg++)
+                //Set API date according to progress (starting with zero increase)
+                try
                 {
-                    //Some tasks may have completed already, remove them from task list
-                    Log("Number of download tasks = " + tasks.Count);
-                    while (tasks.Count > 20)
-                        foreach (System.Threading.Tasks.Task t in tasks)
-                            if (t.IsCompleted)
-                            {
-                                Log("Removing completed task: " + t.ToString());
-                                tasks.Remove(t);
-                                break;
-                            }
-
-                    //Set API date according to progress (starting with zero increase)
-                    try
-                    {
-                        Log("Setting api date to " + dateMin.AddDays(_daysProg).ToShortDateString());
-                        a.SetApiDate(dateMin.AddDays(_daysProg));
-                    }
-                    catch (Exception ex)
-                    {
-                        Log("Error setting date to " + dateMin.AddDays(_daysProg).ToShortDateString());
-                        Log("msg = " + ex.Message);
-                    }
-
-                    //Try to download actual image
-                    if (a.isImage)
-                    {
-                        //Image name begin and length - to create final filename
-                        int begin = a.hdurl.LastIndexOf('/') + 1;
-                        int len = a.hdurl.Length - begin;
-
-                        //Double check image URL, if HD not available try regular
-                        if (a.hdurl != string.Empty)
-                        {
-                            Log("Trying hd url " + a.hdurl);
-                            tasks.Add(DownloadAsync(a.hdurl,
-                                _dir + '\\' + a.apiDate.ToShortDateString().Replace(' ', '_') + '_' +
-                                a.hdurl.Substring(begin, len)));
-                        }
-                        else if (a.url != string.Empty)
-                        {
-                            Log("Trying regular url " + a.url);
-                            tasks.Add(DownloadAsync(a.url,
-                                _dir + '\\' + a.apiDate.ToShortDateString().Replace(' ', '_') + '_' +
-                                a.url.Substring(begin, len)));
-                        }
-                    }
-                    else
-                    {
-                        Log("Date set to " + dateMin.AddDays(_daysProg).ToShortDateString() +
-                            ", no image found");// + a.media_type + ")") ;
-                        daysErrors++;
-                    }
-
-                    textGrabAll.Text = "Queueing " + a.apiDate.ToShortDateString() + " (" +
-                        _daysProg * 100 / daysSpan + "%, " +
-                        (daysSpan - _daysProg) + " left)";
-                    textDate.Text = a.apiDate.ToShortDateString();
-                    textGrabAll.Invalidate();
-                    Application.DoEvents();
+                    Log("Setting api date to " + dateMin.AddDays(_daysProg).ToShortDateString());
+                    a.SetApiDate(dateMin.AddDays(_daysProg));
+                }
+                catch (Exception ex)
+                {
+                    Log("Error setting date to " + dateMin.AddDays(_daysProg).ToShortDateString());
+                    Log("msg = " + ex.Message);
                 }
 
-                //Wait for remaining download tasks to finish
-                Log("GRAB WHOLE ARCHIVE - main loop stop ----------------------------");
-                tasks.Clear();
+                //Try to download actual image
+                if (a.isImage)
+                {
+                    //Image name begin and length - to create final filename
+                    int begin = a.hdurl.LastIndexOf('/') + 1;
+                    int len = a.hdurl.Length - begin;
 
-                buttonGrabAll.Enabled = true;
-                timerRefresh.Enabled = true;
+                    //Double check image URL, if HD not available try regular
+                    if (a.hdurl != string.Empty)
+                    {
+                        Log("Trying hd url " + a.hdurl);
+                        tasks.Add(DownloadAsync(a.hdurl,
+                            _dir + '\\' + a.apiDate.ToShortDateString().Replace(' ', '_') + '_' +
+                            a.hdurl.Substring(begin, len)));
+                    }
+                    else if (a.url != string.Empty)
+                    {
+                        Log("Trying regular url " + a.url);
+                        tasks.Add(DownloadAsync(a.url,
+                            _dir + '\\' + a.apiDate.ToShortDateString().Replace(' ', '_') + '_' +
+                            a.url.Substring(begin, len)));
+                    }
+                }
+                else
+                {
+                    Log("Date set to " + dateMin.AddDays(_daysProg).ToShortDateString() +
+                        ", no image found");// + a.media_type + ")") ;
+                    daysErrors++;
+                }
+
+                textGrabAll.Text = "Queueing " + a.apiDate.ToShortDateString() + " (" +
+                    _daysProg * 100 / daysSpan + "%, " +
+                    (daysSpan - _daysProg) + " left)";
+                textDate.Text = a.apiDate.ToShortDateString();
+                textGrabAll.Invalidate();
+                Application.DoEvents();
             }
+
+            //Wait for remaining download tasks to finish
+            Log("GRAB WHOLE ARCHIVE - main loop stop ----------------------------");
+            tasks.Clear();
+
+            buttonGrabAll.Enabled = true;
+            timerRefresh.Enabled = true;
+
             Application.DoEvents();
         }
 
@@ -1244,8 +1244,8 @@ namespace NASA_APOD
             //Use bold font for default menu item and regular one for other items
             //(works as long as system default menu font is not bold ;))
             using Font f = (ClickedItem as MenuItem).DefaultItem ?   //is it default
-                new Font(SystemFonts.MenuFont, FontStyle.Bold) : //yes it is, use bold font
-                SystemFonts.MenuFont;                            //no, use default font
+                new(SystemFonts.MenuFont, FontStyle.Bold) :         //yes it is, use bold font
+                SystemFonts.MenuFont;                              //no, use default font
             SizeF sz = e.Graphics.MeasureString((ClickedItem as MenuItem).Text, f);
 
             e.ItemWidth = (int)(1.1 * sz.Width);
@@ -1256,7 +1256,9 @@ namespace NASA_APOD
         private void MenuItemDraw(object ClickedItem, DrawItemEventArgs e)
         {
             //Bold font for default menu item, regular font for other items
-            using Font f = (ClickedItem as MenuItem).DefaultItem ? new Font(SystemFonts.MenuFont, FontStyle.Bold) : SystemFonts.MenuFont;
+            using Font f = (ClickedItem as MenuItem).DefaultItem ? 
+                new(SystemFonts.MenuFont, FontStyle.Bold) : 
+                SystemFonts.MenuFont;
             //Draw backgrounds - mouse over...
             if ((e.State & DrawItemState.Selected) != DrawItemState.None)
                 //Distinguish between enabled and disabled items
@@ -1276,7 +1278,9 @@ namespace NASA_APOD
             }
 
             //Distinguish between enabled and disabled items
-            using Brush b = ((ClickedItem as MenuItem).Enabled) ? new SolidBrush(SystemColors.ControlText) : new SolidBrush(SystemColors.GrayText);
+            using Brush b = (ClickedItem as MenuItem).Enabled ? 
+                new SolidBrush(SystemColors.ControlText) : 
+                new SolidBrush(SystemColors.GrayText);
             //Finally, draw menu item text
             e.Graphics.DrawString((ClickedItem as MenuItem).Text, f, b,
             e.Bounds.X + e.Graphics.MeasureString("-", f).Width,
@@ -1335,7 +1339,7 @@ namespace NASA_APOD
         {
             Log(MethodBase.GetCurrentMethod().Name);
 
-            using TaskCollection t = new TaskService().RootFolder.GetTasks(new Regex("NASA_APOD"));
+            using TaskCollection t = new TaskService().RootFolder.GetTasks(new("NASA_APOD"));
             if (!(s as CheckBox).Checked)
                 t["NASA_APOD"].Enabled = false;
             else
