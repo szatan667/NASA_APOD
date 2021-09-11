@@ -1,4 +1,6 @@
-﻿using System;
+﻿using Microsoft.Win32;
+using Microsoft.Win32.TaskScheduler;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -11,8 +13,6 @@ using System.Runtime.InteropServices;
 using System.Security.Principal;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
-using Microsoft.Win32;
-using Microsoft.Win32.TaskScheduler;
 
 namespace NASA_APOD
 {
@@ -1256,8 +1256,8 @@ namespace NASA_APOD
         private void MenuItemDraw(object ClickedItem, DrawItemEventArgs e)
         {
             //Bold font for default menu item, regular font for other items
-            using Font f = (ClickedItem as MenuItem).DefaultItem ? 
-                new(SystemFonts.MenuFont, FontStyle.Bold) : 
+            using Font f = (ClickedItem as MenuItem).DefaultItem ?
+                new(SystemFonts.MenuFont, FontStyle.Bold) :
                 SystemFonts.MenuFont;
             //Draw backgrounds - mouse over...
             if ((e.State & DrawItemState.Selected) != DrawItemState.None)
@@ -1278,8 +1278,8 @@ namespace NASA_APOD
             }
 
             //Distinguish between enabled and disabled items
-            using Brush b = (ClickedItem as MenuItem).Enabled ? 
-                new SolidBrush(SystemColors.ControlText) : 
+            using Brush b = (ClickedItem as MenuItem).Enabled ?
+                new SolidBrush(SystemColors.ControlText) :
                 new SolidBrush(SystemColors.GrayText);
             //Finally, draw menu item text
             e.Graphics.DrawString((ClickedItem as MenuItem).Text, f, b,
