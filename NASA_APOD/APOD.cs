@@ -10,7 +10,7 @@ namespace NASA_APOD
     public class APOD_API
     {
         //Json fields for NASA API
-        public string copyright { get; set; }
+        public string Copyright { get; set; }
         public string Date { get; set; }
         public string Explanation { get; set; }
         public string HdUrl { get; set; }
@@ -116,7 +116,7 @@ namespace NASA_APOD
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                 using WebClient wc = new();
                 JsonDeserialize(wc.DownloadString(_apiURL));
-                this.ApiDate = apiDate; //set the date for APOD object
+                ApiDate = apiDate;
 
                 //Set media type flags
                 if (MediaType == "image")
@@ -134,7 +134,7 @@ namespace NASA_APOD
             }
             catch (Exception e)
             {
-                copyright = string.Empty;
+                Copyright = string.Empty;
                 Date = string.Empty;
                 Explanation = string.Empty;
                 HdUrl = string.Empty;
@@ -142,7 +142,7 @@ namespace NASA_APOD
                 ServiceVersion = string.Empty;
                 Title = string.Empty;
                 Url = string.Empty;
-                this.ApiDate = apiDate;// DateTime.MinValue;
+                ApiDate = apiDate;
                 IsImage = false;
                 VideoType = NasaVideoType.NONE;
                 throw e;
@@ -159,7 +159,7 @@ namespace NASA_APOD
         {
             json = Regex.Unescape(json).Replace("�", string.Empty); //get rid of escape slashes and dummy chars that API sometimes returns
 
-            copyright = JsonGetSingle(json, "copyright");
+            Copyright = JsonGetSingle(json, "copyright");
             Date = JsonGetSingle(json, "date");
             Explanation = JsonGetSingle(json, "explanation");
             HdUrl = JsonGetSingle(json, "hdurl");
@@ -190,7 +190,8 @@ namespace NASA_APOD
 
                 return json.Substring(valueStartPos, valueLength - valueStartPos);
             }
-            else return string.Empty;
+            else
+                return string.Empty;
         }
     }
 

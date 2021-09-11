@@ -217,7 +217,7 @@ namespace NASA_APOD
             if (logging)
             {
                 //nothing fancy, use hard-coded list items to display API call response
-                listDebug.Items[0].SubItems[1].Text = apod.copyright;
+                listDebug.Items[0].SubItems[1].Text = apod.Copyright;
                 listDebug.Items[1].SubItems[1].Text = apod.Date;
                 listDebug.Items[2].SubItems[1].Text = apod.Explanation;
                 listDebug.Items[3].SubItems[1].Text = apod.HdUrl;
@@ -630,8 +630,8 @@ namespace NASA_APOD
             labelImageDesc.Text = apod.Title;
 
             //Copyright is not always there
-            if (apod.copyright != string.Empty)
-                labelImageDesc.Text += Environment.NewLine + "© " + apod.copyright.Replace("\n", " ");
+            if (apod.Copyright != string.Empty)
+                labelImageDesc.Text += Environment.NewLine + "© " + apod.Copyright.Replace("\n", " ");
 
             //Tray ballon
             trayIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
