@@ -11,13 +11,13 @@ namespace NASA_APOD
     {
         //Json fields for NASA API
         public string copyright { get; set; }
-        public string date { get; set; }
-        public string explanation { get; set; }
-        public string hdurl { get; set; }
-        public string media_type { get; set; }
-        public string service_version { get; set; }
-        public string title { get; set; }
-        public string url { get; set; }
+        public string Date { get; set; }
+        public string Explanation { get; set; }
+        public string HdUrl { get; set; }
+        public string MediaType { get; set; }
+        public string ServiceVersion { get; set; }
+        public string Title { get; set; }
+        public string Url { get; set; }
     }
 
     /// <summary>
@@ -26,11 +26,11 @@ namespace NASA_APOD
     public partial class APOD : APOD_API
     {
         //--- Public fields ---------------------------------------------------------
-        public DateTime apiDate { get; set; }
-        public bool isDownloading { get; set; }
-        public bool isImage { get; set; }
-        public VideoType videoType { get; set; }
-        public enum VideoType
+        public DateTime ApiDate { get; set; }
+        public bool IsDownloading { get; set; }
+        public bool IsImage { get; set; }
+        public NasaVideoType VideoType { get; set; }
+        public enum NasaVideoType
         {
             NONE,
             YOUTUBE,
@@ -55,8 +55,8 @@ namespace NASA_APOD
         public APOD()
         {
             //nothing special here...
-            videoType = VideoType.NONE;
-            isDownloading = false;
+            VideoType = NasaVideoType.NONE;
+            IsDownloading = false;
         }
 
         //--- Date-based constructor ---------------------------------------------------
@@ -67,8 +67,8 @@ namespace NASA_APOD
         public APOD(DateTime apiDate)
         {
             SetApiDate(apiDate);
-            videoType = VideoType.NONE;
-            isDownloading = false;
+            VideoType = NasaVideoType.NONE;
+            IsDownloading = false;
         }
 
         //--- Public methods --------------------------------------------------------
@@ -116,35 +116,35 @@ namespace NASA_APOD
                 ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls12;
                 using WebClient wc = new();
                 JsonDeserialize(wc.DownloadString(_apiURL));
-                this.apiDate = apiDate; //set the date for APOD object
+                this.ApiDate = apiDate; //set the date for APOD object
 
                 //Set media type flags
-                if (media_type == "image")
+                if (MediaType == "image")
                 {
-                    isImage = true;
-                    videoType = VideoType.NONE;
+                    IsImage = true;
+                    VideoType = NasaVideoType.NONE;
                 }
                 else
                 {
-                    isImage = false;
-                    videoType = VideoType.NONE;
-                    if (url.Contains(VID_TYPE_YT) || hdurl.Contains(VID_TYPE_YT)) videoType = VideoType.YOUTUBE;
-                    if (url.Contains(VID_TYPE_VM) || hdurl.Contains(VID_TYPE_VM)) videoType = VideoType.VIMEO;
+                    IsImage = false;
+                    VideoType = NasaVideoType.NONE;
+                    if (Url.Contains(VID_TYPE_YT) || HdUrl.Contains(VID_TYPE_YT)) VideoType = NasaVideoType.YOUTUBE;
+                    if (Url.Contains(VID_TYPE_VM) || HdUrl.Contains(VID_TYPE_VM)) VideoType = NasaVideoType.VIMEO;
                 }
             }
             catch (Exception e)
             {
                 copyright = string.Empty;
-                date = string.Empty;
-                explanation = string.Empty;
-                hdurl = string.Empty;
-                media_type = string.Empty;
-                service_version = string.Empty;
-                title = string.Empty;
-                url = string.Empty;
-                this.apiDate = apiDate;// DateTime.MinValue;
-                isImage = false;
-                videoType = VideoType.NONE;
+                Date = string.Empty;
+                Explanation = string.Empty;
+                HdUrl = string.Empty;
+                MediaType = string.Empty;
+                ServiceVersion = string.Empty;
+                Title = string.Empty;
+                Url = string.Empty;
+                this.ApiDate = apiDate;// DateTime.MinValue;
+                IsImage = false;
+                VideoType = NasaVideoType.NONE;
                 throw e;
             }
         }
@@ -160,13 +160,13 @@ namespace NASA_APOD
             json = Regex.Unescape(json).Replace("�", string.Empty); //get rid of escape slashes and dummy chars that API sometimes returns
 
             copyright = JsonGetSingle(json, "copyright");
-            date = JsonGetSingle(json, "date");
-            explanation = JsonGetSingle(json, "explanation");
-            hdurl = JsonGetSingle(json, "hdurl");
-            media_type = JsonGetSingle(json, "media_type");
-            service_version = JsonGetSingle(json, "service_version");
-            title = JsonGetSingle(json, "title");
-            url = JsonGetSingle(json, "url");
+            Date = JsonGetSingle(json, "date");
+            Explanation = JsonGetSingle(json, "explanation");
+            HdUrl = JsonGetSingle(json, "hdurl");
+            MediaType = JsonGetSingle(json, "media_type");
+            ServiceVersion = JsonGetSingle(json, "service_version");
+            Title = JsonGetSingle(json, "title");
+            Url = JsonGetSingle(json, "url");
         }
 
         /// <summary>
