@@ -183,7 +183,7 @@ namespace NASA_APOD
             else
                 SetApodDate(Apod, DateTime.Parse(IniFile.Read("lastDate")));
 
-            Log("STARTUP DATE = " + Apod.ApiDate);
+            Log($"STARTUP DATE = {Apod.ApiDate}");
 
             //Get the image on startup
             Log("Getting the image on startup...");
@@ -200,7 +200,7 @@ namespace NASA_APOD
                 try
                 {
                     using TextWriter tw = new StreamWriter("apod.log", true);
-                    tw.WriteLine(DateTime.Now.ToString() + " - " + logMessage);
+                    tw.WriteLine($"{DateTime.Now} - {logMessage}");
                 }
                 catch (Exception ex)
                 {
@@ -263,9 +263,9 @@ namespace NASA_APOD
                     listHistory.Items[cnt].SubItems.Add(a.Title); //history img name 
                     cnt++; //item loaded!
                     progressBar.Value = 100 * cnt / maxDays; //update progress bar and status text
-                    statusBar.Text = "Getting history items... (" + cnt + "/" + maxDays + ")";
+                    statusBar.Text = $"Getting history items... ({cnt}/{maxDays})";
                     Application.DoEvents();
-                    Log("History item added " + a.Date);
+                    Log($"History item added {a.Date}");
 
                     //Time travel
                     daysback--;
@@ -289,7 +289,7 @@ namespace NASA_APOD
         private void SetApodDate(APOD apod, DateTime apodDate)
         {
             Log(MethodBase.GetCurrentMethod().Name);
-            Log("trying this date: " + apodDate);
+            Log($"trying this date: {apodDate}");
 
             //Clear date related GUI fields
             textDate.ForeColor = SystemColors.GrayText;
@@ -305,7 +305,7 @@ namespace NASA_APOD
                 //Save last image date to INI file
                 IniFile.Write("lastDate", apod.ApiDate.ToString());
 
-                Log("Call succesful! apod.date = " + apod.ApiDate);
+                Log($"Call succesful! apod.date = {apod.ApiDate}");
                 DebugTab(apod);
 
                 //Fill history items
@@ -317,7 +317,7 @@ namespace NASA_APOD
             }
             catch (Exception e)
             {
-                Log("API SET DATE FAILED! requested date = " + apodDate.ToString());
+                Log($"API SET DATE FAILED! requested date = {apodDate}");
                 Log(e.Message);
                 statusBar.Text = e.Message;
                 textDate.ForeColor = SystemColors.ControlText;
@@ -326,8 +326,8 @@ namespace NASA_APOD
             finally
             {
                 //Always try to setup prev/next buttons with previous and next dates ←→►◄
-                buttonPrev.Text = "<< " + apod.ApiDate.AddDays(-1).ToShortDateString();
-                buttonNext.Text = apod.ApiDate.AddDays(1).ToShortDateString() + " >>";
+                buttonPrev.Text = $"<< {apod.ApiDate.AddDays(-1).ToShortDateString()}";
+                buttonNext.Text = $"{apod.ApiDate.AddDays(1).ToShortDateString()} >>";
             }
         }
 
@@ -394,7 +394,7 @@ namespace NASA_APOD
                 //"Image" property will allow to save it later
                 //(try normal-res picture by default)
                 //(hd images are large and use too much memory)
-                Log("API says that image is there: " + Apod.HdUrl);
+                Log($"API says that image is there: {Apod.HdUrl}");
 
                 //Since this is async action, rest of the logic will be called whenever download is completed
                 labelImageDesc.Text = Apod.Title;
@@ -450,11 +450,7 @@ namespace NASA_APOD
 
                     //Create document to be displayed by web browser control
                     string DocumentText =
-                        "<meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\"/>" +
-                        "<iframe width=" + web.Width + " " + "height=" + web.Height + " " +
-                        "style=\"overflow: hidden; overflow - x:hidden; overflow - y:hidden; height: 100 %; width: 100 %; position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px\" " +
-                        "src=\"" + "{0}" + "\" " +
-                        "frameborder=\"0\" allow=\"autoplay; encrypted-media\" allowfullscreen></iframe>";
+                        $"<meta http-equiv=\"X-UA-Compatible\" content=\"IE=Edge\"/><iframe width={web.Width} height={web.Height} style=\"overflow: hidden; overflow - x:hidden; overflow - y:hidden; height: 100 %; width: 100 %; position: absolute; top: 0px; left: 0px; right: 0px; bottom: 0px\" src=\"{{0}}\" frameborder=\"0\" allow=\"autoplay; encrypted-media\" allowfullscreen></iframe>";
 
                     //Try to inject video link into web document
                     string vsrc = string.Empty;
@@ -471,7 +467,7 @@ namespace NASA_APOD
                             break;
                     }
 
-                    web.DocumentText = string.Format(DocumentText, "https://" + vsrc + (vsrc.Contains("?") ? "&autoplay=1" : "?autoplay=1"));
+                    web.DocumentText = string.Format(DocumentText, $"https://{vsrc}{(vsrc.Contains("?") ? "&autoplay=1" : "?autoplay=1")}");
                 }
 
                 SetupGuiWhenCompleted();
@@ -492,14 +488,14 @@ namespace NASA_APOD
             foreach (char c in Path.GetInvalidFileNameChars())
                 filename = filename.Replace(c, '_');
 
-            return path + "\\" + filename;
+            return $"{path}\\{filename}";
         }
 
         //Download progress bar - event handler
         private void PictureBox_LoadProgressChanged(object s, ProgressChangedEventArgs e)
         {
             progressBar.Value = e.ProgressPercentage;
-            statusBar.Text = "Getting NASA picture of the day... " + e.ProgressPercentage + "%";
+            statusBar.Text = $"Getting NASA picture of the day... {e.ProgressPercentage}%";
 
             //Draw progress circle over tray icon, only if minimized
             //if (e.ProgressPercentage < 100 && e.ProgressPercentage > 0 && formHidden)
@@ -541,14 +537,12 @@ namespace NASA_APOD
             //Before setting the wallpaper, we have to build full path of TEMP.JPG
             //but only if not saving to custom path, because then it was already built
             //if (!checkSaveToDisk.Checked)
-            //    imagePath = Assembly.GetEntryAssembly().Location.Substring(0,
-            //               Assembly.GetEntryAssembly().Location.LastIndexOf("\\") + 1)
-            //             + "temp.jpg";
+                //imagePath = $"{Assembly.GetEntryAssembly().Location.Substring(0,Assembly.GetEntryAssembly().Location.LastIndexOf("\\") + 1)}temp.jpg";
 
             //Do actual wallpapering
             Log("Wallpapering...");
             RegistryKey key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true);
-            Log("registry file BEFORE = " + key.GetValue("Wallpaper"));
+            Log($"registry file BEFORE = {key.GetValue("Wallpaper")}");
             key.SetValue(@"Wallpaper", ImagePath);
             key.SetValue(@"WallpaperStyle", 6.ToString()); //always fit image to screen (zoom mode)
             key.SetValue(@"TileWallpaper", 0.ToString()); //do not tile
@@ -562,10 +556,10 @@ namespace NASA_APOD
                 ImagePath, //parm
                 SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE); //winini
 
-            Log("Wallpapering result = " + _out);
-            Log("error msg = " + GetLastError());
+            Log($"Wallpapering result = {_out}");
+            Log($"error msg = {GetLastError()}");
             key = Registry.CurrentUser.OpenSubKey(@"Control Panel\Desktop", true);
-            Log("registry file AFTER = " + key.GetValue("Wallpaper"));
+            Log($"registry file AFTER = {key.GetValue("Wallpaper")}");
 
             //Setup UI elements
             //Activate tray menu and then enable/disable 'previous' and 'next' buttons, depending on the API date
@@ -578,7 +572,7 @@ namespace NASA_APOD
             {
                 statusBar.Text = "Done!";
                 listDebug.Items[8].SubItems[1].Text = new FileInfo(ImagePath).Length / 1024 + " kB";
-                Log("Wallpapering succesful, downloaded img size = " + listDebug.Items[8].SubItems[1].Text);
+                Log($"Wallpapering succesful, downloaded img size = {listDebug.Items[8].SubItems[1].Text}");
             }
 
             //Get average color from picture - to use it later in custom menu draw routine
@@ -631,7 +625,7 @@ namespace NASA_APOD
 
             //Copyright is not always there
             if (Apod.Copyright != string.Empty)
-                labelImageDesc.Text += Environment.NewLine + "© " + Apod.Copyright.Replace("\n", " ");
+                labelImageDesc.Text += $"{Environment.NewLine}© {Apod.Copyright.Replace("\n", " ")}";
 
             //Tray ballon
             trayIcon.BalloonTipTitle = "NASA Astronomy Picture of the Day";
@@ -656,9 +650,7 @@ namespace NASA_APOD
             }
             else
                 buttonCopyImage.Enabled = true;
-            this.Text = "NASA Astronomy Picture of the Day - " +
-                Apod.ApiDate.ToShortDateString() +
-                ((Apod.Title != string.Empty) ? " - " + Apod.Title : string.Empty);
+            Text = $"NASA Astronomy Picture of the Day - {Apod.ApiDate.ToShortDateString()}{((Apod.Title != string.Empty) ? $" - {Apod.Title}" : string.Empty)}";
             textDate.ForeColor = SystemColors.ControlText;
             textDate.Text = Apod.ApiDate.ToShortDateString();
 
@@ -727,7 +719,7 @@ namespace NASA_APOD
                 catch (Exception)
                 {
                     trayIcon.ContextMenu.MenuItems[menuItem].Enabled = false;
-                    trayIcon.ContextMenu.MenuItems[menuItem].Text = menuItem.Substring(4) + " - not available";
+                    trayIcon.ContextMenu.MenuItems[menuItem].Text = $"{menuItem.Substring(4)} - not available";
                     switch (menuItem)
                     {
                         case "menuPrev":
@@ -777,8 +769,8 @@ namespace NASA_APOD
             if (DateTime.Today != Apod.ApiDate)
             {
                 Log("AUTO REFRESH - date rolled over");
-                Log("API date   = " + Apod.ApiDate);
-                Log("TODAY date = " + DateTime.Today);
+                Log($"API date   = {Apod.ApiDate}");
+                Log($"TODAY date = {DateTime.Today}");
                 SetApodDate(Apod, DateTime.Today);
                 GetNasaApod();
             }
@@ -1068,7 +1060,7 @@ namespace NASA_APOD
         ///Try to grab WHOLE apod archive
         ///TODO: create list of URLs first and then download everything in parallel
         /// </summary>
-        /// <param name="sender"></param>
+        /// <param name="s"></param>
         /// <param name="e"></param>
         private void ButtonGrabAll_Click(object s, EventArgs e)
         {
@@ -1105,12 +1097,12 @@ namespace NASA_APOD
             for (_daysProg = 0; _daysProg < DaysSpan; _daysProg++)
             {
                 //Some tasks may have completed already, remove them from task list
-                Log("Number of download tasks = " + tasks.Count);
+                Log($"Number of download tasks = {tasks.Count}");
                 while (tasks.Count > 20)
                     foreach (System.Threading.Tasks.Task t in tasks)
                         if (t.IsCompleted)
                         {
-                            Log("Removing completed task: " + t.ToString());
+                            Log($"Removing completed task: {t}");
                             tasks.Remove(t);
                             break;
                         }
@@ -1118,13 +1110,13 @@ namespace NASA_APOD
                 //Set API date according to progress (starting with zero increase)
                 try
                 {
-                    Log("Setting api date to " + DateMin.AddDays(_daysProg).ToShortDateString());
+                    Log($"Setting api date to {DateMin.AddDays(_daysProg).ToShortDateString()}");
                     a.SetApiDate(DateMin.AddDays(_daysProg));
                 }
                 catch (Exception ex)
                 {
-                    Log("Error setting date to " + DateMin.AddDays(_daysProg).ToShortDateString());
-                    Log("msg = " + ex.Message);
+                    Log($"Error setting date to {DateMin.AddDays(_daysProg).ToShortDateString()}");
+                    Log($"msg = {ex.Message}");
                 }
 
                 //Try to download actual image
@@ -1137,29 +1129,24 @@ namespace NASA_APOD
                     //Double check image URL, if HD not available try regular
                     if (a.HdUrl != string.Empty)
                     {
-                        Log("Trying hd url " + a.HdUrl);
+                        Log($"Trying hd url {a.HdUrl}");
                         tasks.Add(DownloadAsync(a.HdUrl,
-                            _dir + '\\' + a.ApiDate.ToShortDateString().Replace(' ', '_') + '_' +
-                            a.HdUrl.Substring(begin, len)));
+                            $"{_dir}\\{a.ApiDate.ToShortDateString().Replace(' ', '_')}_{a.HdUrl.Substring(begin, len)}"));
                     }
                     else if (a.Url != string.Empty)
                     {
                         Log("Trying regular url " + a.Url);
                         tasks.Add(DownloadAsync(a.Url,
-                            _dir + '\\' + a.ApiDate.ToShortDateString().Replace(' ', '_') + '_' +
-                            a.Url.Substring(begin, len)));
+                            $"{_dir}\\{a.ApiDate.ToShortDateString().Replace(' ', '_')}_{a.Url.Substring(begin, len)}"));
                     }
                 }
                 else
                 {
-                    Log("Date set to " + DateMin.AddDays(_daysProg).ToShortDateString() +
-                        ", no image found");// + a.media_type + ")") ;
+                    Log($"Date set to {DateMin.AddDays(_daysProg).ToShortDateString()}, no image found"); // + a.media_type + ")") ;
                     DaysErrors++;
                 }
 
-                textGrabAll.Text = "Queueing " + a.ApiDate.ToShortDateString() + " (" +
-                    _daysProg * 100 / DaysSpan + "%, " +
-                    (DaysSpan - _daysProg) + " left)";
+                textGrabAll.Text = $"Queueing {a.ApiDate.ToShortDateString()} ({_daysProg * 100 / DaysSpan}%, {DaysSpan - _daysProg} left)";
                 textDate.Text = a.ApiDate.ToShortDateString();
                 textGrabAll.Invalidate();
                 Application.DoEvents();
@@ -1186,15 +1173,15 @@ namespace NASA_APOD
             using WebClient _wc = new();
             try
             {
-                Log("Trying to download " + url + "...");
+                Log($"Trying to download {url}...");
                 _wc.DownloadFileCompleted += WcDownloadFileCompleted;
                 await _wc.DownloadFileTaskAsync(url, path);
-                Log("Download succesful " + url + "...");
+                Log($"Download succesful {url}...");
             }
             catch (Exception e)
             {
-                Log("Error downloading " + url);
-                Log("msg = " + e.Message);
+                Log($"Error downloading {url}");
+                Log($"msg = {e.Message}");
             }
         }
 
@@ -1204,14 +1191,10 @@ namespace NASA_APOD
             DaysProg++;
 
             if (DaysProg < DaysSpan)
-                textGrabAll.Text = "Downloading... " +
-                    DaysProg * 100 / DaysSpan + "%, " +
-                    (DaysSpan - DaysProg) + " left";
+                textGrabAll.Text = $"Downloading... {DaysProg * 100 / DaysSpan}%, {DaysSpan - DaysProg} left";
             else
             {
-                textGrabAll.Text = "Download complete! " +
-                    "(" + DaysProg + " downloaded, " +
-                    DaysErrors + " errors)";
+                textGrabAll.Text = $"Download complete! ({DaysProg} downloaded, {DaysErrors} errors)";
                 statusBar.Text = textGrabAll.Text;
             }
 
