@@ -174,7 +174,7 @@ namespace NASA_APOD
         /// </summary>
         /// <param name="json">Json string in APOD API format</param>
         /// <param name="key">Key name</param>
-        /// <returns></returns>
+        /// <returns>Single key from apod json</returns>
         private string JsonGetSingle(string json, string key)
         {
             string _key = '"' + key + '"'; //build key with quotes
