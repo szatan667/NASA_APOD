@@ -147,6 +147,6 @@
     <Error Condition="!Exists('packages\ILMerge.3.0.40\build\ILMerge.props')" Text="$([System.String]::Format('$(ErrorText)', 'packages\ILMerge.3.0.40\build\ILMerge.props'))" />
   </Target>
   <PropertyGroup>
-    <PostBuildEvent>C:\Users\jakubek\source\repos\szatan667\NASA_APOD\NASA_APOD\packages\ILMerge.3.0.40\tools\net452\ILMerge.exe /out:R:\NASA_APOD.EXE C:\Users\jakubek\source\repos\szatan667\NASA_APOD\NASA_APOD\bin\Release\NASA_APOD.exe C:\Users\jakubek\source\repos\szatan667\NASA_APOD\NASA_APOD\bin\Release\Microsoft.Win32.TaskScheduler.dll</PostBuildEvent>
+    <PostBuildEvent>C:\Users\kuba\source\repos\szatan667\NASA_APOD\packages\ILMerge.3.0.40\tools\net452\ILMerge.exe /out:R:\NASA_APOD.EXE C:\Users\kuba\source\repos\szatan667\NASA_APOD\bin\Release\NASA_APOD.exe C:\Users\kuba\source\repos\szatan667\NASA_APOD\bin\Release\Microsoft.Win32.TaskScheduler.dll</PostBuildEvent>
   </PropertyGroup>
 </Project>
